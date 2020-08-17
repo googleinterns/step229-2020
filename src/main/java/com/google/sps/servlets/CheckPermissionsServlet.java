@@ -33,9 +33,10 @@ public class CheckPermissionsServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     String projectId = request.getParameter("projID");
+    String serviceAccountID = request.getParameter("saID");
     String jsonPath = projectId + "-key.json";
-    String resource = "projects/" + projectId + "/serviceAccounts/106253050877809441203";
-      
+    String resource = "projects/" + projectId + "/serviceAccounts/" + serviceAccountID;
+
   // Lists all service accounts for the current project.
 
     Iam service = null;
