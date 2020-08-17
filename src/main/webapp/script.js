@@ -5,12 +5,18 @@
  * @author tblanshard
  */
 
+let projectID;
 
 function initBody() {
     fetch('/data').then(console.log('Works'));
+    projectID = "bt-dataflow-sql-demo";
     checkPermissions();
 }
 
 function checkPermissions() {
-    fetch('/check-permissions').then(console.log('it works'));
+    fetch('/check-permissions?projID='+projectID, {method:"GET"})
+    .then(response => response.json())
+    .then((accounts) => {
+      console.log(accounts);  
+    });
 }

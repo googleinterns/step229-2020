@@ -50,6 +50,16 @@
       <artifactId>google-api-services-dataflow</artifactId>
       <version>v1b3-rev298-1.18.0-rc</version>
     </dependency>
+    <dependency>
+        <groupId>com.google.apis</groupId>
+        <artifactId>google-api-services-iam</artifactId>
+        <version>v1-rev316-1.25.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.auth</groupId>
+      <artifactId>google-auth-library-oauth2-http</artifactId>
+      <version>0.21.1</version>
+    </dependency>
   </dependencies>
 
   <build>
@@ -62,7 +72,7 @@
         <version>2.2.0</version>
         <configuration>
           <!-- TODO: set project ID. -->
-          <deploy.projectId>ID</deploy.projectId>
+          <deploy.projectId>dataflow-service-analyser</deploy.projectId>
           <deploy.version>1</deploy.version>
         </configuration>
       </plugin>
