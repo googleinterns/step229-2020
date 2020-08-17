@@ -35,12 +35,14 @@ import java.util.Collections;
 
 public final class ProjectCenter {
     private String projectId;
+    private String pathToJsonFile;
     GoogleCredential credential;
 
-    public ProjectCenter(String projectId) throws IOException {
+    public ProjectCenter(String projectId, String pathToJsonFile) throws IOException {
       this.projectId = projectId;
+      this.pathToJsonFile = pathToJsonFile;
         
-      credential = GoogleCredential.fromStream(new FileInputStream("bt-dataflow-sql-demo.json"));
+      credential = GoogleCredential.fromStream(new FileInputStream(pathToJsonFile));
       if (credential.createScopedRequired()) {
         credential = credential.createScoped(Collections.singletonList("https://www.googleapis.com/auth/cloud-platform"));
       }
