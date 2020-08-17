@@ -28,7 +28,7 @@ public final class ProjectCenterTest {
 
     @Before
     public void setUp() throws IOException {
-      projectCenter = new ProjectCenter("bt-dataflow-sql-demo");
+      projectCenter = new ProjectCenter("bt-dataflow-sql-demo", "bt-dataflow-sql-demo.json");
     }
 
     @Test
