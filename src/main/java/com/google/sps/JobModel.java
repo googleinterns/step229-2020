@@ -34,29 +34,37 @@ import java.math.BigDecimal;
 // Class used to represent a Job in memory, extracting just the 
 // information required by the analysis
 public abstract class JobModel {
-    public static final int SSD = 1;
-    public static final int HDD = 2;
+    public static final Integer SSD = 1;
+    public static final Integer HDD = 2;
     String projectId;
     String name;
     String id;
+
+    // Type can have following values:
+    // - JOB_TYPE_STREAMING
+    // - JOB_TYPE_UNKNOWN
+    // - JOB_TYPE_BATCH
     String type;
     String sdk = null;
+    // sdkSupportStatus ca be found at 
+    // https://cloud.google.com/dataflow/docs/reference/rest/v1b3/projects.jobs#sdksupportstatus
     String sdkSupportStatus = null;
     String region;
-    String workerLocation;
     int currentWorkers;
     String startTime;
 
     // Following fields stores the number of seconds
-    Long totalVCPUTime; // divide by 3600
-    Long totalMemoryTime; // divide by (3600 * 1024)
-    Long totalDiskTime;
-    int diskType;
-    Double currentVcpuCount;
-    Long totalStreamingData; //  multiply by 1024
+    Long totalVCPUTime = null; // divide by 3600
+    Long totalMemoryTime = null; // divide by (3600 * 1024)
+    Long totalDiskTime = null;
+    Integer diskType = null;
+    Double currentVcpuCount = null;
+    Long totalStreamingData = null; //  multiply by 1024
     Boolean enableStreamingEngine = false;
-    String metricTime;
+    String metricTime = null;
 
+    // Possible states can be found at 
+    // https://cloud.google.com/dataflow/docs/reference/rest/v1b3/projects.jobs#jobstate
     String state;
     String stateTime;
 
@@ -68,15 +76,14 @@ public abstract class JobModel {
       
       SdkVersion sdkVersion = job.getJobMetadata().getSdkVersion();
       if (sdkVersion != null) {
-          sdk = sdkVersion.getVersionDisplayName();
+          sdk = sdkVersion.getVersion();
           sdkSupportStatus =  sdkVersion.getSdkSupportStatus();
       }
 
       region = job.getLocation();
 
       Environment environment = job.getEnvironment();
-      if (environment != null) {
-          workerLocation = environment.getWorkerRegion();
+      if (environment != null) {;
 
           currentWorkers = 0;
           List<WorkerPool> workerPoolList = environment.getWorkerPools();
@@ -87,7 +94,6 @@ public abstract class JobModel {
           }
       }
 
-      
       startTime = job.getStartTime();
 
       getMetrics(dataflowService);
@@ -102,24 +108,32 @@ public abstract class JobModel {
 
         metricTime = jobMetric.getMetricTime();
 
-        for (MetricUpdate metric : jobMetric.getMetrics()) {
+        if (jobMetric != null) {
+          // The job has failed, so it has no metrics
+          if (jobMetric.getMetrics() == null) {
+              return;
+          } 
+          for (MetricUpdate metric : jobMetric.getMetrics()) {
             String metricName = metric.getName().getName();
             if (metricName.compareTo("TotalVcpuTime") == 0) {
-                totalVCPUTime = ((BigDecimal) metric.getScalar()).longValue();
+              totalVCPUTime = ((BigDecimal) metric.getScalar()).longValue();
             } else if (metricName.compareTo("TotalMemoryUsage") == 0) {
-                totalMemoryTime = ((BigDecimal) metric.getScalar()).longValue();
+              totalMemoryTime = ((BigDecimal) metric.getScalar()).longValue();
             } else if (metricName.compareTo("Service-pd_gb_seconds") == 0) {
-                totalDiskTime = ((BigDecimal) metric.getScalar()).longValue();
-                diskType = HDD;
+              totalDiskTime = ((BigDecimal) metric.getScalar()).longValue();
+              diskType = HDD;
             } else if (metricName.compareTo("Service-pd_ssd_gb_seconds") == 0) {
-                totalDiskTime = ((BigDecimal) metric.getScalar()).longValue();
-                diskType = SSD;
+              totalDiskTime = ((BigDecimal) metric.getScalar()).longValue();
+              diskType = SSD;
             } else if (metricName.compareTo("CurrentVcpuCount") == 0) {
-                currentVcpuCount = ((BigDecimal) metric.getScalar()).doubleValue();
+              currentVcpuCount = ((BigDecimal) metric.getScalar()).doubleValue();
             } else if (metricName.compareTo("TotalStreamingDataProcessed") == 0) {
-                totalStreamingData = ((BigDecimal) metric.getScalar()).longValue();
-                enableStreamingEngine = true;
+              totalStreamingData = ((BigDecimal) metric.getScalar()).longValue();
+              enableStreamingEngine = true;
             }
+          }
         }
+
+        
     }
 }

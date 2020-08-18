@@ -21,9 +21,13 @@ import java.io.IOException;
 import java.lang.IllegalArgumentException;
 
 
-// Class that deals with jobs that are stopped, finalised or
-// that failed and cant't have their status changed in the
-// future
+// Class that deals with jobs that are in terminal state.
+// This class includes jobs that have the following states:
+// - JOB_STATE_DONE
+// - JOB_STATE_FAILED
+// - JOB_STATE_CANCELLED
+// - JOB_STATE_UPDATED
+// - JOB_STATE_DRAINED
 public final class FinalisedJob extends JobModel {
     public FinalisedJob(String projectId, Job job, Dataflow dataflowService) throws IOException, IllegalArgumentException {
         super(projectId, job, dataflowService);

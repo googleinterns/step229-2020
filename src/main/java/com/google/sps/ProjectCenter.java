@@ -99,9 +99,11 @@ public final class ProjectCenter {
         try {
             job = request.execute();
         } catch (GoogleJsonResponseException e) {
+            // If we receive an error Message, we try further other regions
             continue;
         }
 
+        // If the request was successdful
         if (request.getLastStatusCode() >= 200 && request.getLastStatusCode() <  300) {
           if (job != null) {
             return new RunningJob(projectId, job, dataflowService);
@@ -129,7 +131,7 @@ public final class ProjectCenter {
       if (job != null) {
         return new RunningJob(projectId, job, dataflowService);
       }
-      
+
       return null;
     }
 }

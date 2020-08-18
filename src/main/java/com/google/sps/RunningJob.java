@@ -22,8 +22,15 @@ import java.lang.IllegalArgumentException;
 
 
 
-// Class that deals with jobs that are currently running
-// or are already started and can have their status modified
+// Class that deals with jobs that can have their status modified
+// This includes jobs with the following states:
+// - JOB_STATE_UNKNOWN
+// - JOB_STATE_STOPPED
+// - JOB_STATE_RUNNING
+// - JOB_STATE_DRAINING
+// - JOB_STATE_PENDING
+// - JOB_STATE_CANCELLING
+// - JOB_STATE_QUEUED
 public final class RunningJob extends JobModel {
     public RunningJob(String projectId, Job job, Dataflow dataflowService) throws IOException, IllegalArgumentException {
         super(projectId, job, dataflowService);
