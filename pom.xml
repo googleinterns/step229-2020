@@ -65,6 +65,11 @@
       <artifactId>google-cloud-storage</artifactId>
       <version>1.111.2</version>
     </dependency>
+    <dependency>
+      <groupId>com.google.cloud</groupId>
+      <artifactId>google-cloud-resourcemanager</artifactId>
+      <version>0.117.2-alpha</version>
+    </dependency>
   </dependencies>
 
   <build>
