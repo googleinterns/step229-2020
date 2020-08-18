@@ -49,9 +49,10 @@ public class CheckPermissionsServlet extends HttpServlet {
 
     try {
       Iam.Projects.ServiceAccounts.GetIamPolicy policyRequest = 
-          service.projects().serviceAccounts().getIamPolicy(resource);
+          service.projects().serviceAccounts().getIamPolicy(resource).setAlt("json");
           
       Policy policyResponse = policyRequest.execute();
+      System.out.println(policyResponse);
 
       response.setContentType("application/json;");
       Gson gson = new Gson();
