@@ -31,14 +31,28 @@ import com.google.api.services.dataflow.model.ListJobsResponse;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
-
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 
 public final class ProjectCenter {
+    private static List<String> regions = Arrays.asList("us-west1",
+                                                         "us-central1",
+                                                         "us-east1",
+                                                         "us-east4",
+                                                         "northamerica-northeast1",
+                                                         "europe-west2",
+                                                         "europe-west1",
+                                                         "europe-west4",
+                                                         "europe-west3",
+                                                         "asia-southeast1",
+                                                         "asia-east1",
+                                                         "asia-northeast1",
+                                                         "australia-southeast1");
     private String projectId;
     private String pathToJsonFile;
-    GoogleCredential credential;
+    private GoogleCredential credential;
+    private Dataflow dataflowService;
 
-    public ProjectCenter(String projectId, String pathToJsonFile) throws IOException {
+    public ProjectCenter(String projectId, String pathToJsonFile) throws IOException,  GeneralSecurityException {
       this.projectId = projectId;
       this.pathToJsonFile = pathToJsonFile;
         
@@ -46,16 +60,17 @@ public final class ProjectCenter {
       if (credential.createScopedRequired()) {
         credential = credential.createScoped(Collections.singletonList("https://www.googleapis.com/auth/cloud-platform"));
       }
+
+      HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+      JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+      dataflowService = new Dataflow.Builder(httpTransport, jsonFactory, credential)
+      .setApplicationName("Google Cloud Platform Sample")
+      .build();
     }
 
     // Fetches all jobs in a project and returns a list with all of them
-    public List<Job> fetchJobs() throws IOException, GeneralSecurityException {
-      HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
-      JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-      Dataflow dataflowService = new Dataflow.Builder(httpTransport, jsonFactory, credential)
-      .setApplicationName("Google Cloud Platform Sample")
-      .build();
-      
+    public List<Job> fetchJobs() throws IOException {
+
       Dataflow.Projects.Jobs.Aggregated request = dataflowService.projects().jobs().aggregated(projectId);
       ListJobsResponse response;
       ArrayList<Job> jobs = new ArrayList<>();
@@ -70,5 +85,51 @@ public final class ProjectCenter {
       } while (response.getNextPageToken() != null);
 
       return jobs;
+    }
+
+    public JobModel fetch(String jobId) throws IOException {
+      for (String region : regions) {      
+        Dataflow.Projects.Locations.Jobs.Get request = dataflowService.projects()
+        .locations()
+        .jobs()
+        .get(projectId, region, jobId);
+
+        Job job;
+
+        try {
+            job = request.execute();
+        } catch (GoogleJsonResponseException e) {
+            continue;
+        }
+
+        if (request.getLastStatusCode() >= 200 && request.getLastStatusCode() <  300) {
+          if (job != null) {
+            return new RunningJob(projectId, job, dataflowService);
+          }
+        }  
+      }
+
+      return null;
+    }
+
+    public JobModel fetch(String jobId, String location) throws IOException {     
+      Dataflow.Projects.Locations.Jobs.Get request = dataflowService.projects()
+      .locations()
+      .jobs()
+      .get(projectId, location, jobId);
+
+      Job job;
+
+      try {
+        job = request.execute();
+      } catch (GoogleJsonResponseException e) {
+        return null;
+      }
+
+      if (job != null) {
+        return new RunningJob(projectId, job, dataflowService);
+      }
+      
+      return null;
     }
 }
