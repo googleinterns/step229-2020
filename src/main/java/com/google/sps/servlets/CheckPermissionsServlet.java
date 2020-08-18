@@ -45,7 +45,6 @@ public class CheckPermissionsServlet extends HttpServlet {
     String projectId = request.getParameter("projID");
     String serviceAccountID = request.getParameter("saID");
     String jsonPath = projectId + "-key.json";
-//  String resource = "projects/" + projectId + "/serviceAccounts/" + serviceAccountID;
 
   //Tests the required permissions for the service account.
 
@@ -53,7 +52,6 @@ public class CheckPermissionsServlet extends HttpServlet {
 
     CloudResourceManager cloudResourceManagerService = null;
 
-//    Iam service = null;
     try {
       cloudResourceManagerService = createCloudResourceManagerService(jsonPath);
     } catch (IOException | GeneralSecurityException e) {

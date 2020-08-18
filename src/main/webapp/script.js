@@ -11,7 +11,7 @@ function initBody() {
 }
 
 function checkPermissions() {
-    fetch('/check-permissions?projID='+config.projectID+'&saID='+config.serviceAccount, {method:"GET"})
+    fetch('/check-permissions?projID='+config.projectID+'&saID='+config.serviceAccount)
     .then(response => response.json())
     .then((accounts) => {
       console.log(accounts);  
