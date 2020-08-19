@@ -6,7 +6,19 @@
 
 package com.google.sps.servlets;
 
+//import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.services.cloudresourcemanager.CloudResourceManager;
+import com.google.api.services.cloudresourcemanager.model.Project;
+import com.google.api.services.cloudresourcemanager.model.TestIamPermissionsRequest;
+import com.google.api.services.cloudresourcemanager.model.TestIamPermissionsResponse;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.Arrays;
 import java.net.MalformedURLException;
 import java.net.URL;
 import com.google.gson.Gson;
@@ -17,15 +29,13 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.gson.Gson;
 import com.google.common.collect.Lists;
 import java.io.FileInputStream;
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.services.iam.v1.Iam;
-import com.google.api.services.iam.v1.model.Policy;
+import com.google.api.services.iam.v1.IamScopes;
+//import com.google.api.services.iam.v1.Iam;
+//import com.google.api.services.iam.v1.model.Policy;
 import com.google.auth.http.HttpCredentialsAdapter;
-import com.google.auth.oauth2.GoogleCredentials;
-import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.List;
+import java.util.*;
 
 @WebServlet("/check-permissions")
 public class CheckPermissionsServlet extends HttpServlet {
@@ -35,35 +45,50 @@ public class CheckPermissionsServlet extends HttpServlet {
     String projectId = request.getParameter("projID");
     String serviceAccountID = request.getParameter("saID");
     String jsonPath = projectId + "-key.json";
-    String resource = "projects/" + projectId + "/serviceAccounts/" + serviceAccountID;
 
-  // Lists all service accounts for the current project.
+  //Tests the required permissions for the service account.
 
-    Iam service = null;
+    TestIamPermissionsRequest requestBody = new TestIamPermissionsRequest();
+
+    CloudResourceManager cloudResourceManagerService = null;
+
     try {
-      service = createIAMService(jsonPath);
+      cloudResourceManagerService = createCloudResourceManagerService(jsonPath);
     } catch (IOException | GeneralSecurityException e) {
       System.out.println("Unable to initialize service: \n" + e.toString());
       return;
     }
 
+    List<String> requiredPermissions =
+      Arrays.asList("compute.instanceGroupManagers.update",
+        "compute.instances.delete",
+        "compute.instances.setDiskAutoDelete",
+        "dataflow.jobs.get",
+        "logging.logEntries.create",
+        "storage.objects.create",
+        "storage.objects.get");
+
     try {
-      Iam.Projects.ServiceAccounts.GetIamPolicy policyRequest = 
-          service.projects().serviceAccounts().getIamPolicy(resource).setAlt("json");
-          
-      Policy policyResponse = policyRequest.execute();
-      System.out.println(policyResponse);
+      TestIamPermissionsRequest permissionsRequestBody = 
+        new TestIamPermissionsRequest().setPermissions(requiredPermissions);
+
+      CloudResourceManager.Projects.TestIamPermissions testingPermissionsResponse = 
+        cloudResourceManagerService.projects().testIamPermissions(projectId, permissionsRequestBody);
+
+      TestIamPermissionsResponse permissionsResponse = testingPermissionsResponse.execute();
+
+      System.out.println(permissionsResponse);
 
       response.setContentType("application/json;");
       Gson gson = new Gson();
-      response.getWriter().println(gson.toJson(policyResponse));
+      response.getWriter().println(gson.toJson(permissionsResponse));
 
     } catch (IOException e) {
-      System.out.println("Unable to return policy \n" + e.toString());
+      System.out.println("Unable to return permissions \n" + e.toString());
     }
   }
 
-  private static Iam createIAMService(String jsonPath) throws GeneralSecurityException, IOException {
+  private static CloudResourceManager createCloudResourceManagerService(String jsonPath) throws GeneralSecurityException, IOException {
     // uses the API key as a json file.
     GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(jsonPath));
     if (credentials.createScopedRequired()) {
@@ -71,8 +96,8 @@ public class CheckPermissionsServlet extends HttpServlet {
     }
 
     // Initialize the IAM service, which can be used to send requests to the IAM API.
-    Iam service =
-        new Iam.Builder(
+    CloudResourceManager service =
+        new CloudResourceManager.Builder(
                 GoogleNetHttpTransport.newTrustedTransport(),
                 JacksonFactory.getDefaultInstance(),
                 new HttpCredentialsAdapter(credentials))
