@@ -45,7 +45,6 @@ public class CheckPermissionsServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     String projectId = request.getParameter("projID");
-    String serviceAccountID = request.getParameter("saID");
     File file = new File(projectId+"-key.json");
     String jsonPath = file.getAbsolutePath();
 
@@ -55,11 +54,14 @@ public class CheckPermissionsServlet extends HttpServlet {
 
     CloudResourceManager cloudResourceManagerService = null;
 
-//    Iam service = null;
+    response.setContentType("application/json");
+    Gson gson = new Gson();
+
     try {
       cloudResourceManagerService = createCloudResourceManagerService(jsonPath);
     } catch (IOException | GeneralSecurityException e) {
       System.out.println("Unable to initialize service: \n" + e.toString());
+      response.getWriter().println(gson.toJson("Please check the project ID."));
       return;
     }
 
@@ -80,18 +82,26 @@ public class CheckPermissionsServlet extends HttpServlet {
         cloudResourceManagerService.projects().testIamPermissions(projectId, permissionsRequestBody);
 
       TestIamPermissionsResponse permissionsResponse = testingPermissionsResponse.execute();
+
+      //check if any permissions have been returned
+      if (permissionsResponse.getPermissions() == null){
+        response.getWriter().println(gson.toJson("No permissions have been assigned to the service account."));
+        return;
+      }
+
       Boolean arePermissionsCorrect = false;
 
-      if (permissionsResponse.getPermissions().size() == requiredPermissions.size()) {
+      int missing = requiredPermissions.size() - permissionsResponse.getPermissions().size();
+
+      if (missing == 0) {
         arePermissionsCorrect = true;
       }
 
-      response.setContentType("application/json");
-      Gson gson = new Gson();
-      response.getWriter().println(gson.toJson(arePermissionsCorrect));
+      response.getWriter().println(gson.toJson(Arrays.asList(permissionsResponse, missing)));
 
     } catch (IOException e) {
       System.out.println("Unable to return permissions \n" + e.toString());
+      response.getWriter().println(gson.toJson("Unable to test permissions."));
     }
   }
 

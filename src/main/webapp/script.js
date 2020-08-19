@@ -5,22 +5,27 @@
  * @author tblanshard
  */
 
-let arePermissionsCorrect;
-
 function initBody() {
     checkPermissions();
 }
 
 function checkPermissions() {
-    fetch('/check-permissions?projID='+config.projectID+'&saID='+config.serviceAccount)
+    fetch('/check-permissions?projID='+config.projectID)
     .then(response => response.json())
     .then((permission) => {
-      arePermissionsCorrect = permission;
       var message = document.getElementById("message-container");
-      if (arePermissionsCorrect) {
-        message.innerText = "The permissions are all correctly setup. Nothing more needs doing.";
+      if (Number.isInteger(permission[1])) {
+        var missingPermissions = permission[0];
+        var missing = permission[1];
+        if (missing == 0) {
+          message.innerText = "The permissions are all correctly setup. Nothing more needs doing.";
+        } else if (missing == 1) {
+          message.innerText = "There is "+missing+" permission missing. It is:";
+        } else {
+          message.innerText = "There are "+missing+" permissions missing. These are:";
+        }
       } else {
-        message.innerText = "There are some permissions missing.";
-      }      
+        message.innerText = permission;
+      }
     });
 }
