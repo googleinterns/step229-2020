@@ -55,7 +55,6 @@ public class CheckPermissionsServlet extends HttpServlet {
 
     CloudResourceManager cloudResourceManagerService = null;
 
-//    Iam service = null;
     try {
       cloudResourceManagerService = createCloudResourceManagerService(jsonPath);
     } catch (IOException | GeneralSecurityException e) {
