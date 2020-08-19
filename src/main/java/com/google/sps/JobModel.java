@@ -132,7 +132,7 @@ public abstract class JobModel {
 
     public static JobModel createJob(String projectId, Job job, Dataflow dataflowService)
         throws IOException, IllegalArgumentException {
-            String state = state = job.getCurrentState();
+            String state = job.getCurrentState();
             if (state.compareTo("JOB_STATE_UNKNOWN") == 0 
                    || state.compareTo("JOB_STATE_STOPPED") == 0
                    || state.compareTo("JOB_STATE_RUNNING") == 0
