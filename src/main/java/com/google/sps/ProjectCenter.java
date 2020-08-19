@@ -1,16 +1,8 @@
 // Copyright 2020 Google LLC
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     https://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+
+/**
+ * @author andreeanica
+ */
 
 package com.google.sps;
 
@@ -31,6 +23,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
+import com.google.sps.data.JobModel;
 
 public final class ProjectCenter {
     private static List<String> regions = Arrays.asList("us-west1",
@@ -68,16 +61,16 @@ public final class ProjectCenter {
     }
 
     // Fetches all jobs in a project and returns a list with all of them
-    public List<Job> fetchJobs() throws IOException {
+    public List<JobModel> fetchJobs() throws IOException {
 
       Dataflow.Projects.Jobs.Aggregated request = dataflowService.projects().jobs().aggregated(projectId);
       ListJobsResponse response;
-      ArrayList<Job> jobs = new ArrayList<>();
+      ArrayList<JobModel> jobs = new ArrayList<>();
       do {
         response = request.execute();
         
         for (Job job : response.getJobs()) {
-          jobs.add(job);
+          jobs.add(JobModel.createJob(projectId, job, dataflowService));
         }
         
         request.setPageToken(response.getNextPageToken());
@@ -128,7 +121,7 @@ public final class ProjectCenter {
       }
 
       if (job != null) {
-        return new RunningJob(projectId, job, dataflowService);
+        return JobModel.createJob(projectId, job, dataflowService);
       }
 
       return null;

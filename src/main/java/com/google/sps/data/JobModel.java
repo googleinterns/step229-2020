@@ -1,18 +1,10 @@
 // Copyright 2020 Google LLC
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     https://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
 
-package com.google.sps;
+/**
+ * @author andreeanica
+ */
+
+package com.google.sps.data;
 
 import java.util.Date;
 import java.sql.Timestamp;
@@ -34,37 +26,37 @@ import java.math.BigDecimal;
 // Class used to represent a Job in memory, extracting just the 
 // information required by the analysis
 public abstract class JobModel {
-    String projectId;
-    String name;
-    String id;
+    public String projectId;
+    public String name;
+    public String id;
 
     // Type can have following values:
     // - JOB_TYPE_STREAMING
     // - JOB_TYPE_UNKNOWN
     // - JOB_TYPE_BATCH
-    String type;
-    String sdk = null;
+    public String type;
+    public String sdk = null;
     // sdkSupportStatus can be found at 
     // https://cloud.google.com/dataflow/docs/reference/rest/v1b3/projects.jobs#sdksupportstatus
-    String sdkSupportStatus = null;
-    String region;
-    int currentWorkers;
-    String startTime;
+    public String sdkSupportStatus = null;
+    public String region;
+    public int currentWorkers;
+    public String startTime;
 
     // Following fields stores the number of seconds
-    Double totalVCPUTime = null; // s - divide by 3600 for hr
-    Double totalMemoryTime = null; //MB s -  divide by (3600 * 1024) for GB hr
-    Double totalDiskTimeHDD = null; //GB s - divide by 3600 for GB hr
-    Double totalDiskTimeSSD = null; //GB s - divide by 3600 for GB hr
-    Integer currentVcpuCount = null;
-    Double totalStreamingData = null; //GB - multiply by 1024 for MB
-    Boolean enableStreamingEngine = false;
-    String metricTime = null;
+    public Double totalVCPUTime = null; // s - divide by 3600 for hr
+    public Double totalMemoryTime = null; //MB s -  divide by (3600 * 1024) for GB hr
+    public Double totalDiskTimeHDD = null; //GB s - divide by 3600 for GB hr
+    public Double totalDiskTimeSSD = null; //GB s - divide by 3600 for GB hr
+    public Integer currentVcpuCount = null;
+    public Double totalStreamingData = null; //GB - multiply by 1024 for MB
+    public Boolean enableStreamingEngine = false;
+    public String metricTime = null;
 
     // Possible states can be found at 
     // https://cloud.google.com/dataflow/docs/reference/rest/v1b3/projects.jobs#jobstate
-    String state;
-    String stateTime;
+    public String state;
+    public String stateTime;
 
     public JobModel(String projectId, Job job, Dataflow dataflowService) throws IOException, IllegalArgumentException {
       this.projectId = projectId;
