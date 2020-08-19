@@ -80,12 +80,15 @@ public class CheckPermissionsServlet extends HttpServlet {
         cloudResourceManagerService.projects().testIamPermissions(projectId, permissionsRequestBody);
 
       TestIamPermissionsResponse permissionsResponse = testingPermissionsResponse.execute();
+      Boolean arePermissionsCorrect = false;
 
-      System.out.println(permissionsResponse);
+      if (permissionsResponse.getPermissions().size() == requiredPermissions.size()) {
+        arePermissionsCorrect = true;
+      }
 
-      response.setContentType("application/json;");
+      response.setContentType("application/json");
       Gson gson = new Gson();
-      response.getWriter().println(gson.toJson(permissionsResponse));
+      response.getWriter().println(gson.toJson(arePermissionsCorrect));
 
     } catch (IOException e) {
       System.out.println("Unable to return permissions \n" + e.toString());

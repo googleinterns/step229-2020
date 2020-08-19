@@ -5,15 +5,22 @@
  * @author tblanshard
  */
 
+let arePermissionsCorrect;
+
 function initBody() {
-    fetch('/data').then(console.log('Works'));
     checkPermissions();
 }
 
 function checkPermissions() {
     fetch('/check-permissions?projID='+config.projectID+'&saID='+config.serviceAccount)
     .then(response => response.json())
-    .then((accounts) => {
-      console.log(accounts);  
+    .then((permission) => {
+      arePermissionsCorrect = permission;
+      var message = document.getElementById("message-container");
+      if (arePermissionsCorrect) {
+        message.innerText = "The permissions are all correctly setup. Nothing more needs doing.";
+      } else {
+        message.innerText = "There are some permissions missing.";
+      }      
     });
 }
