@@ -34,8 +34,6 @@ import java.math.BigDecimal;
 // Class used to represent a Job in memory, extracting just the 
 // information required by the analysis
 public abstract class JobModel {
-    public static final Integer SSD = 1;
-    public static final Integer HDD = 2;
     String projectId;
     String name;
     String id;
@@ -46,7 +44,7 @@ public abstract class JobModel {
     // - JOB_TYPE_BATCH
     String type;
     String sdk = null;
-    // sdkSupportStatus ca be found at 
+    // sdkSupportStatus can be found at 
     // https://cloud.google.com/dataflow/docs/reference/rest/v1b3/projects.jobs#sdksupportstatus
     String sdkSupportStatus = null;
     String region;
@@ -54,12 +52,12 @@ public abstract class JobModel {
     String startTime;
 
     // Following fields stores the number of seconds
-    Long totalVCPUTime = null; // divide by 3600
-    Long totalMemoryTime = null; // divide by (3600 * 1024)
-    Long totalDiskTime = null;
-    Integer diskType = null;
-    Double currentVcpuCount = null;
-    Long totalStreamingData = null; //  multiply by 1024
+    Double totalVCPUTime = null; // s - divide by 3600 for hr
+    Double totalMemoryTime = null; //MB s -  divide by (3600 * 1024) for GB hr
+    Double totalDiskTimeHDD = null; //GB s - divide by 3600 for GB hr
+    Double totalDiskTimeSSD = null; //GB s - divide by 3600 for GB hr
+    Integer currentVcpuCount = null;
+    Double totalStreamingData = null; //GB - multiply by 1024 for MB
     Boolean enableStreamingEngine = false;
     String metricTime = null;
 
@@ -83,8 +81,7 @@ public abstract class JobModel {
       region = job.getLocation();
 
       Environment environment = job.getEnvironment();
-      if (environment != null) {;
-
+      if (environment != null) {
           currentWorkers = 0;
           List<WorkerPool> workerPoolList = environment.getWorkerPools();
           if (workerPoolList != null) {
@@ -100,40 +97,36 @@ public abstract class JobModel {
     }
 
     private void getMetrics(Dataflow dataflowService) throws IOException, IllegalArgumentException {
-        Dataflow.Projects.Locations.Jobs.GetMetrics request2 = dataflowService.projects()
-        .locations()
-        .jobs()
-        .getMetrics(projectId, region, id);
-        JobMetrics jobMetric = request2.execute();
+      Dataflow.Projects.Locations.Jobs.GetMetrics request2 = dataflowService.projects()
+      .locations()
+      .jobs()
+      .getMetrics(projectId, region, id);
+      JobMetrics jobMetric = request2.execute();
 
-        metricTime = jobMetric.getMetricTime();
+      metricTime = jobMetric.getMetricTime();
 
-        if (jobMetric != null) {
-          // The job has failed, so it has no metrics
-          if (jobMetric.getMetrics() == null) {
-              return;
-          } 
-          for (MetricUpdate metric : jobMetric.getMetrics()) {
-            String metricName = metric.getName().getName();
-            if (metricName.compareTo("TotalVcpuTime") == 0) {
-              totalVCPUTime = ((BigDecimal) metric.getScalar()).longValue();
-            } else if (metricName.compareTo("TotalMemoryUsage") == 0) {
-              totalMemoryTime = ((BigDecimal) metric.getScalar()).longValue();
-            } else if (metricName.compareTo("Service-pd_gb_seconds") == 0) {
-              totalDiskTime = ((BigDecimal) metric.getScalar()).longValue();
-              diskType = HDD;
-            } else if (metricName.compareTo("Service-pd_ssd_gb_seconds") == 0) {
-              totalDiskTime = ((BigDecimal) metric.getScalar()).longValue();
-              diskType = SSD;
-            } else if (metricName.compareTo("CurrentVcpuCount") == 0) {
-              currentVcpuCount = ((BigDecimal) metric.getScalar()).doubleValue();
-            } else if (metricName.compareTo("TotalStreamingDataProcessed") == 0) {
-              totalStreamingData = ((BigDecimal) metric.getScalar()).longValue();
-              enableStreamingEngine = true;
-            }
+      if (jobMetric != null) {
+        // The job has failed, so it has no metrics
+        if (jobMetric.getMetrics() == null) {
+          return;
+        } 
+        for (MetricUpdate metric : jobMetric.getMetrics()) {
+          String metricName = metric.getName().getName();
+          if (metricName.compareTo("TotalVcpuTime") == 0) {
+            totalVCPUTime = ((BigDecimal) metric.getScalar()).doubleValue();
+          } else if (metricName.compareTo("TotalMemoryUsage") == 0) {
+            totalMemoryTime = ((BigDecimal) metric.getScalar()).doubleValue();
+          } else if (metricName.compareTo("TotalPdUsage") == 0 ) {
+            totalDiskTimeHDD = ((BigDecimal) metric.getScalar()).doubleValue();
+          } else if (metricName.compareTo("TotalSsdUsage") == 0 ) {
+            totalDiskTimeSSD = ((BigDecimal) metric.getScalar()).doubleValue();
+          } else if (metricName.compareTo("CurrentVcpuCount") == 0) {
+            currentVcpuCount = ((BigDecimal) metric.getScalar()).intValue();
+          } else if (metricName.compareTo("TotalStreamingDataProcessed") == 0) {
+            totalStreamingData = ((BigDecimal) metric.getScalar()).doubleValue();
+            enableStreamingEngine = true;
           }
         }
-
-        
+      }    
     }
 }

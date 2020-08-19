@@ -71,7 +71,5 @@ public final class ProjectCenterTest {
         JobModel actualJob = projectCenter.fetch("2020-08-06_06_01_04-4314082517434006770", "asia-east1");
         JobModel expectedJob = null;
         Assert.assertEquals(actualJob, expectedJob);
-    }
-
-    
+    }   
 }

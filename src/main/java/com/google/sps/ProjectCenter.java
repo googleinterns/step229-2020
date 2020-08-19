@@ -14,7 +14,6 @@
 
 package com.google.sps;
 
-
 import java.util.*;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
@@ -103,7 +102,7 @@ public final class ProjectCenter {
             continue;
         }
 
-        // If the request was successdful
+        // If the request was successful
         if (request.getLastStatusCode() >= 200 && request.getLastStatusCode() <  300) {
           if (job != null) {
             return new RunningJob(projectId, job, dataflowService);
