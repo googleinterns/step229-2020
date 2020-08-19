@@ -105,7 +105,7 @@ public final class ProjectCenter {
         // If the request was successful
         if (request.getLastStatusCode() >= 200 && request.getLastStatusCode() <  300) {
           if (job != null) {
-            return new RunningJob(projectId, job, dataflowService);
+            return JobModel.createJob(projectId, job, dataflowService);
           }
         }  
       }
