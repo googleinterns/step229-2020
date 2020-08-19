@@ -36,6 +36,8 @@ import com.google.auth.http.HttpCredentialsAdapter;
 import java.util.Collections;
 import java.util.List;
 import java.util.*;
+import java.io.*;
+import java.net.URL;
 
 @WebServlet("/check-permissions")
 public class CheckPermissionsServlet extends HttpServlet {
@@ -44,8 +46,8 @@ public class CheckPermissionsServlet extends HttpServlet {
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     String projectId = request.getParameter("projID");
     String serviceAccountID = request.getParameter("saID");
-    String jsonPath = projectId + "-key.json";
-//  String resource = "projects/" + projectId + "/serviceAccounts/" + serviceAccountID;
+    File file = new File(projectId+"-key.json");
+    String jsonPath = file.getAbsolutePath();
 
   //Tests the required permissions for the service account.
 
