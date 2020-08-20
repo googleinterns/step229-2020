@@ -5,7 +5,7 @@
  * @author tblanshard
  */
 
-let config = {
+let configLogs = {
     projectID: 'bt-dataflow-sql-demo',
     serviceAccount: 'dataflow-service-analyser-sa@bt-dataflow-sql-demo.iam.gserviceaccount.com',
 }

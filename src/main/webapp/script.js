@@ -11,20 +11,25 @@ function initBody() {
 }
 
 function checkPermissions() {
-    fetch('/check-permissions?projID='+config.projectID+'&saID='+config.serviceAccount)
+    fetch('/check-permissions?projID='+configLogs.projectID+'&saID='+configLogs.serviceAccount)
     .then(response => response.json())
     .then((accounts) => {
       console.log(accounts);  
     });
 }
 
-function updateJobDatabase() {
+function updateProjectDatabase() {
   fetch('/jobs', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(accessDataflowAPI),
-  });
-  
+  }); 
+}
+
+function getJobsFromProject(projectID) {
+  fetch('/jobs?projectID=' + projectID)
+  .then(response => response.json())
+  .then(jobs => console.log(jobs))
 }
