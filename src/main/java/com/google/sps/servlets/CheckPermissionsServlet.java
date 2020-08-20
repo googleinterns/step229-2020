@@ -89,13 +89,9 @@ public class CheckPermissionsServlet extends HttpServlet {
         return;
       }
 
-      Boolean arePermissionsCorrect = false;
-
       int missing = requiredPermissions.size() - permissionsResponse.getPermissions().size();
 
-      if (missing == 0) {
-        arePermissionsCorrect = true;
-      }
+      Boolean arePermissionsCorrect = missing == 0;
 
       response.getWriter().println(gson.toJson(Arrays.asList(permissionsResponse, missing)));
 
