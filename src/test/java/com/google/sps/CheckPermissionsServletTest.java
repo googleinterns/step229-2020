@@ -43,6 +43,6 @@ public class CheckPermissionsServletTest {
 
     writer.flush();
 
-    assertTrue(stringWriter.toString().contains("{\"permissions\":[\"compute.instanceGroupManagers.update\",\"compute.instances.delete\",\"compute.instances.setDiskAutoDelete\",\"dataflow.jobs.get\",\"logging.logEntries.create\",\"storage.objects.create\",\"storage.objects.get\"]}"));
+    assertTrue(stringWriter.toString().contains("true"));
   }
 }
