@@ -70,7 +70,7 @@ public final class ProjectCenter {
         response = request.execute();
         
         for (Job job : response.getJobs()) {
-          jobs.add(JobModel.createJob(projectId, job, dataflowService));
+          jobs.add(fetch(job.getId(), job.getLocation()));
         }
         
         request.setPageToken(response.getNextPageToken());

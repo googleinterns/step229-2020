@@ -7,7 +7,7 @@
 
 function initBody() {
     fetch('/data').then(console.log('Works'));
-    checkPermissions();
+    //checkPermissions();
 }
 
 function checkPermissions() {
@@ -16,4 +16,15 @@ function checkPermissions() {
     .then((accounts) => {
       console.log(accounts);  
     });
+}
+
+function updateJobDatabase() {
+  fetch('/jobs', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(accessDataflowAPI),
+  });
+  
 }
