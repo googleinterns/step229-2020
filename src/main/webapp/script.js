@@ -35,3 +35,14 @@ function checkPermissions() {
     }
   });
 }
+
+function updateJobDatabase() {
+  fetch('/jobs', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(accessDataflowAPI),
+  });
+  
+}
