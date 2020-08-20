@@ -45,7 +45,11 @@ public class CheckPermissionsServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     String projectId = request.getParameter("projID");
-    File file = new File(projectId+".json");
+
+    //File pomFile = new File("pom.xml");
+    //String outputPath = pomFile.getAbsoluteFile().getParent()+"/"+projectId+".json";
+
+    File file = new File(projectId + ".json");
     String jsonPath = file.getAbsolutePath();
 
   //Tests the required permissions for the service account.

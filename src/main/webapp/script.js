@@ -6,7 +6,13 @@
  */
 
 function initBody() {
+  setCredentialsServlet();
   checkPermissions();
+}
+
+function setCredentialsServlet() {
+  fetch('/get-credentials?projID='+config.projectID+'&bucket='+config.bucketName+"&object="+config.objectName)
+  .then(response => console.log("works"));
 }
 
 function checkPermissions() {
