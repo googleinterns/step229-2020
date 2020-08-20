@@ -6,26 +6,26 @@
  */
 
 function initBody() {
-    checkPermissions();
+  checkPermissions();
 }
 
 function checkPermissions() {
-    fetch('/check-permissions?projID='+config.projectID)
-    .then(response => response.json())
-    .then((permission) => {
-      var message = document.getElementById("message-container");
-      if (Number.isInteger(permission[1])) {
-        var missingPermissions = permission[0];
-        var missing = permission[1];
-        if (missing == 0) {
-          message.innerText = "The permissions are all correctly setup. Nothing more needs doing.";
-        } else if (missing == 1) {
-          message.innerText = "There is "+missing+" permission missing. It is:";
-        } else {
-          message.innerText = "There are "+missing+" permissions missing. These are:";
-        }
+  fetch('/check-permissions?projID='+config.projectID)
+  .then(response => response.json())
+  .then((permission) => {
+  var message = document.getElementById("message-container");
+    if (Number.isInteger(permission[1])) {
+      var missingPermissions = permission[0];
+      var missing = permission[1];
+      if (missing == 0) {
+        message.innerText = "The permissions are all correctly setup. Nothing more needs doing.";
+      } else if (missing == 1) {
+        message.innerText = "There is "+missing+" permission missing. It is:";
       } else {
-        message.innerText = permission;
+        message.innerText = "There are "+missing+" permissions missing. These are:";
       }
-    });
+    } else {
+      message.innerText = permission;
+    }
+  });
 }
