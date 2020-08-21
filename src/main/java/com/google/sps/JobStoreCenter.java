@@ -123,11 +123,14 @@ public final class JobStoreCenter {
         Double totalStreamingData = (Double) entity.getProperty("totalStreamingData"); 
         Boolean enableStreamingEngine = (Boolean) entity.getProperty("enableStreamingEngine");
         String metricTime = (String) entity.getProperty("metricTime");
+        String state = (String) entity.getProperty("state");
+        String stateTime = (String) entity.getProperty("stateTime");
 
         JobJSON job = new JobJSON(projectId, name, id, type, sdk, sdkSupportStatus, region, 
                                      currentWorkers, startTime, totalVCPUTime, totalMemoryTime,
                                         totalDiskTimeHDD, totalDiskTimeSSD, currentVcpuCount,
-                                            totalStreamingData, enableStreamingEngine, metricTime);
+                                            totalStreamingData, enableStreamingEngine, metricTime,
+                                                state, stateTime);
         
         jobs.add(job);
       }

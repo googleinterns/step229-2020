@@ -43,5 +43,92 @@ function updateProjectDatabase() {
 function getJobsFromProject(projectID) {
   fetch('/jobs?projectID=' + projectID)
   .then(response => response.json())
-  .then(jobs => console.log(jobs))
+  .then(jobs => {
+      console.log(jobs);
+      const table = document.getElementById('jobs');
+      for (let i = 0; i < jobs.length; i++) {
+          addJobToTable(jobs[i], table);
+      }
+      table.hidden = false;
+  });
+}
+
+function addJobToTable(job, table) {
+  const tableRow = document.createElement('tr');
+    
+  const jobName = document.createElement('td');
+  jobName.innerText = job.name;
+  tableRow.appendChild(jobName);
+
+  const jobId = document.createElement('td');
+  jobId.innerText = job.id;
+  tableRow.appendChild(jobId);
+
+  const jobType = document.createElement('td');
+  jobType.innerText = job.type;
+  tableRow.appendChild(jobType);
+
+  const jobState = document.createElement('td');
+  jobState.innerText = job.state;
+  tableRow.appendChild(jobState);
+
+  const jobStateTime = document.createElement('td');
+  jobStateTime.innerText = job.stateTime;
+  tableRow.appendChild(jobStateTime);
+
+  const jobSDK = document.createElement('td');
+  jobSDK.innerText = job.sdk + ' ' + job.sdkSupportStatus;
+  tableRow.appendChild(jobSDK);
+
+  const jobRegion = document.createElement('td');
+  jobRegion.innerText = job.region;
+  tableRow.appendChild(jobRegion);
+
+  const jobWorkers = document.createElement('td');
+  jobWorkers.innerText = job.currentWorkers;
+  tableRow.appendChild(jobWorkers);
+
+  const jobStartTime = document.createElement('td');
+  jobStartTime.innerText = job.startTime;
+  tableRow.appendChild(jobStartTime);
+
+  const jobCPU = document.createElement('td');
+  if (job.totalVCPUTime != undefined) {
+    jobCPU.innerText = job.totalVCPUTime;
+  }
+  tableRow.appendChild(jobCPU);
+
+  const jobMem = document.createElement('td');
+  if (job.totalMemoryTime != undefined) {
+    jobMem.innerText = job.totalMemoryTime;
+  }
+  tableRow.appendChild(jobMem);
+
+  const jobHDD = document.createElement('td');
+  if (job.totalDiskTimeHDD != undefined) {
+    jobHDD.innerText = job.totalDiskTimeHDD;
+  }
+  tableRow.appendChild(jobHDD);
+
+  const jobSSD = document.createElement('td');
+  if (job.totalDiskTimeSSD != undefined)  {
+    jobSSD.innerText = job.totalDiskTimeSSD;
+  }
+  tableRow.appendChild(jobSSD);
+
+  const jobCount = document.createElement('td');
+  if (job.currentVcpuCount != undefined) {
+    jobCount.innerText = job.currentVcpuCount;
+  }
+  tableRow.appendChild(jobCount);
+
+  const jobStream = document.createElement('td');
+  if (job.enableStreamingEngine) {
+    jobStream.innerText = job.totalStreamingData;
+  } else {
+    jobStream.innerText = '';
+  }
+  tableRow.appendChild(jobStream);
+
+  table.appendChild(tableRow);
 }

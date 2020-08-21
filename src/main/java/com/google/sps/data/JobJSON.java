@@ -37,12 +37,17 @@ public final class JobJSON {
   public Boolean enableStreamingEngine = false;
   public String metricTime = null;
 
+  public String state;
+  public String stateTime;
+
   public JobJSON(String projectId, String name, String id, String type, String sdk, String sdkSupportStatus,
                     String region, int currentWorkers, String startTime, Double totalVCPUTime, Double totalMemoryTime,
                         Double totalDiskTimeHDD, Double totalDiskTimeSSD, Integer currentVcpuCount,
-                            Double totalStreamingData, Boolean enableStreamingEngine, String metricTime) {
+                            Double totalStreamingData, Boolean enableStreamingEngine, String metricTime, 
+                                String state, String stateTime) {
     this.projectId = projectId;
     this.name = name;
+    this.id = id;
     this.type = type;
     this.sdk = sdk;
     this.sdkSupportStatus = sdkSupportStatus;
@@ -57,5 +62,7 @@ public final class JobJSON {
     this.totalStreamingData = totalStreamingData;
     this.enableStreamingEngine = enableStreamingEngine;
     this.metricTime = metricTime;
+    this.state = state;
+    this.stateTime = stateTime;
   }
 }
