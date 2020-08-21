@@ -10,7 +10,7 @@ function initBody() {
 }
 
 function checkPermissions() {
-  fetch('/check-permissions?projID='+config.projectID)
+  fetch('/check-permissions?projID='+configLogs.projectID)
   .then(response => response.json())
   .then((permission) => {
   var message = document.getElementById("message-container");
@@ -30,13 +30,18 @@ function checkPermissions() {
   });
 }
 
-function updateJobDatabase() {
+function updateProjectDatabase() {
   fetch('/jobs', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(accessDataflowAPI),
-  });
-  
+  }); 
+}
+
+function getJobsFromProject(projectID) {
+  fetch('/jobs?projectID=' + projectID)
+  .then(response => response.json())
+  .then(jobs => console.log(jobs))
 }

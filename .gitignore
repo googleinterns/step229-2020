@@ -1,2 +1,3 @@
 target/*
 bt-dataflow-sql-demo.json
+src/main/webapp/config.js

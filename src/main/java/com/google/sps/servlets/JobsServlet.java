@@ -19,13 +19,22 @@ import com.google.sps.JobStoreCenter;
 import java.security.GeneralSecurityException;
 import java.io.File;
 import com.google.sps.data.AccessRequest;
+import com.google.sps.data.JobJSON;
 
 @WebServlet("/jobs")
 public class JobsServlet extends HttpServlet {
   
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-      System.out.println("ANa");
+    JobStoreCenter jobCenter = new JobStoreCenter();
+
+    String projectID = request.getParameter("projectID");
+    List<JobJSON> jobs = jobCenter.getJobsFromDatastore(projectID);
+
+    Gson gson = new Gson();
+
+    response.setContentType("application/json;");
+    response.getWriter().println(gson.toJson(jobs));
   }
 
   @Override
@@ -38,7 +47,6 @@ public class JobsServlet extends HttpServlet {
 
       String projectId = accessRequest.projectID;
       String pathToJsonFile = accessRequest.pathToJsonFile;
-      System.out.println(pathToJsonFile);
       
       JobStoreCenter jobCenter = new JobStoreCenter();
 
