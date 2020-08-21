@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.junit.Ignore;
 
+@Ignore
 public class CheckPermissionsServletTest {
 
   private CheckPermissionsServlet checkPermissions;

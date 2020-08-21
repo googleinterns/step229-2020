@@ -52,7 +52,7 @@ public class CheckPermissionsServlet extends HttpServlet {
     File file = new File(projectId + ".json");
     String jsonPath = file.getAbsolutePath();
 
-  //Tests the required permissions for the service account.
+    //Tests the required permissions for the service account.
 
     TestIamPermissionsRequest requestBody = new TestIamPermissionsRequest();
 
@@ -95,7 +95,11 @@ public class CheckPermissionsServlet extends HttpServlet {
 
       int missing = requiredPermissions.size() - permissionsResponse.getPermissions().size();
       Boolean arePermissionsCorrect = missing == 0;
-      response.getWriter().println(gson.toJson(Arrays.asList(permissionsResponse, missing)));
+
+      Set<String> required = new HashSet<>(requiredPermissions);
+      required.removeAll(permissionsResponse.getPermissions());
+
+      response.getWriter().println(gson.toJson(Arrays.asList(required, missing)));
 
     } catch (IOException e) {
       System.out.println("Unable to return permissions \n" + e.toString());
