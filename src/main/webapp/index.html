@@ -13,5 +13,24 @@
         <button class="button" onclick="updateProjectDatabase()">Fetch Info</button>
         <button class="button" onclick="getJobsFromProject(accessDataflowAPI.projectID)">Show info</button>
         <p id="message-container"></p>
+        <table id = "jobs" hidden>
+            <tr> 
+                <th> Name </th>
+                <th> ID </th>
+                <th> Type </th>
+                <th> State </th>
+                <th> State Time </th>
+                <th> SDK </th>
+                <th> Region </th>
+                <th> Current Workers </th>
+                <th> Start Time </th>
+                <th> VCPU Time </th>
+                <th> Memory Time </th>
+                <th> HDD Disk Time </th>
+                <th> SSD Disk Time </th>
+                <th> VCPU Countr </th>
+                <th> Total Streaming Data </th>
+            </tr>
+        </table>
     </body>
 </html>
