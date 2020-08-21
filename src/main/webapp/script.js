@@ -11,12 +11,14 @@ function initBody() {
 }
 
 function setCredentialsServlet() {
-  fetch('/get-credentials?projID='+config.projectID+'&bucket='+config.bucketName+"&object="+config.objectName)
+  var credentialsUrl = formatURLs("get-credentials", {"projID":config.projectID, "bucket":config.bucketName, "object":config.objectName});
+  fetch(credentialsUrl)
   .then(response => console.log("works"));
 }
 
 function checkPermissions() {
-  fetch('/check-permissions?projID='+config.projectID)
+  var permissionsUrl = formatURLs("check-permissions", {"projID":config.projectID});
+  fetch(permissionsUrl)
   .then(response => response.json())
   .then((permission) => {
   var message = document.getElementById("message-container");
@@ -34,4 +36,20 @@ function checkPermissions() {
       message.innerText = permission;
     }
   });
+}
+
+function updateJobDatabase() {
+  fetch('/jobs', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(accessDataflowAPI),
+  });
+  
+}
+
+function formatURLs(url, parameters) {
+  var encodedParameters = new URLSearchParams(parameters);
+  return `/${url}?${encodedParameters.toString()}`;
 }

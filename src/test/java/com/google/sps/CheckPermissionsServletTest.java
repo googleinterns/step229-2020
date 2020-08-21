@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.junit.Ignore;
 
 public class CheckPermissionsServletTest {
 
