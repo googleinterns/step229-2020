@@ -10,8 +10,10 @@
     </head>
     <body onload="initBody();">
         <h2>Hello World!</h2>
-        <button class="button" onclick="updateProjectDatabase()">Fetch Info</button>
-        <button class="button" onclick="getJobsFromProject(accessDataflowAPI.projectID)">Show info</button>
+        <div id="dataButtons">
+          <button class="button" onclick="updateProjectDatabase()">Fetch Info</button>
+          <button class="button" onclick="getJobsFromProject(accessDataflowAPI.projectID)">Show info</button>
+        </div>
         <p id="message-container"></p>
     </body>
 </html>

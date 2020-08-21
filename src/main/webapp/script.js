@@ -6,18 +6,18 @@
  */
 
 function initBody() {
+  document.getElementById('dataButtons').style.display = 'none';
   setCredentialsServlet();
-  checkPermissions();
 }
 
 function setCredentialsServlet() {
-  var credentialsUrl = formatURLs("get-credentials", {"projID":configLogs.projectID, "bucket":configLogs.bucketName, "object":configLogs.objectName});
+  var credentialsUrl = formatURLs("get-credentials", {"projID":config.projectID, "bucket":config.bucketName, "object":config.objectName});
   fetch(credentialsUrl)
-  .then(response => console.log("works"));
+  .then(response => checkPermissions());
 }
 
 function checkPermissions() {
-  var permissionsUrl = formatURLs("check-permissions", {"projID":configLogs.projectID});
+  var permissionsUrl = formatURLs("check-permissions", {"projID":config.projectID});
   fetch(permissionsUrl)
   .then(response => response.json())
   .then((permission) => {
@@ -27,6 +27,7 @@ function checkPermissions() {
       var missing = permission[1];
       if (missing == 0) {
         message.innerText = "The permissions are all correctly setup. Nothing more needs doing.";
+        document.getElementById('dataButtons').style.display = 'block';
       } else if (missing == 1) {
         message.innerText = "There is "+missing+" permission missing. It is:";
       } else {
