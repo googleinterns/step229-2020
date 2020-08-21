@@ -11,13 +11,13 @@ function initBody() {
 }
 
 function setCredentialsServlet() {
-  var credentialsUrl = formatURLs("get-credentials", {"projID":config.projectID, "bucket":config.bucketName, "object":config.objectName});
+  var credentialsUrl = formatURLs("get-credentials", {"projID":configLogs.projectID, "bucket":configLogs.bucketName, "object":configLogs.objectName});
   fetch(credentialsUrl)
   .then(response => console.log("works"));
 }
 
 function checkPermissions() {
-  var permissionsUrl = formatURLs("check-permissions", {"projID":config.projectID});
+  var permissionsUrl = formatURLs("check-permissions", {"projID":configLogs.projectID});
   fetch(permissionsUrl)
   .then(response => response.json())
   .then((permission) => {
@@ -38,15 +38,20 @@ function checkPermissions() {
   });
 }
 
-function updateJobDatabase() {
+function updateProjectDatabase() {
   fetch('/jobs', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(accessDataflowAPI),
-  });
-  
+  }); 
+}
+
+function getJobsFromProject(projectID) {
+  fetch('/jobs?projectID=' + projectID)
+  .then(response => response.json())
+  .then(jobs => console.log(jobs))
 }
 
 function formatURLs(url, parameters) {
