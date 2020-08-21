@@ -130,5 +130,13 @@ function addJobToTable(job, table) {
   }
   tableRow.appendChild(jobStream);
 
+  const jobPrice = document.createElement('td');
+  if (job.price != undefined) {
+    jobPrice.innerText = job.price;
+  }
+  tableRow.appendChild(jobPrice);
+
+
+
   table.appendChild(tableRow);
 }
