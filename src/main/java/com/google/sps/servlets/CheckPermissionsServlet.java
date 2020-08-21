@@ -98,7 +98,6 @@ public class CheckPermissionsServlet extends HttpServlet {
 
       Set<String> required = new HashSet<>(requiredPermissions);
       required.removeAll(permissionsResponse.getPermissions());
-
       response.getWriter().println(gson.toJson(Arrays.asList(required, missing)));
 
     } catch (IOException e) {
