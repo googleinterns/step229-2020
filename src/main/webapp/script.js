@@ -10,7 +10,7 @@ function initBody() {
 }
 
 function checkPermissions() {
-  fetch('/check-permissions?projID='+config.projectID)
+  fetch('/check-permissions?projID='+configLogs.projectID)
   .then(response => response.json())
   .then((permission) => {
   var message = document.getElementById("message-container");
