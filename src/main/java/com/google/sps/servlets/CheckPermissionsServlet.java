@@ -45,10 +45,14 @@ public class CheckPermissionsServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     String projectId = request.getParameter("projID");
-    File file = new File(projectId+"-key.json");
+
+    //File pomFile = new File("pom.xml");
+    //String outputPath = pomFile.getAbsoluteFile().getParent()+"/"+projectId+".json";
+
+    File file = new File(projectId + ".json");
     String jsonPath = file.getAbsolutePath();
 
-  //Tests the required permissions for the service account.
+    //Tests the required permissions for the service account.
 
     TestIamPermissionsRequest requestBody = new TestIamPermissionsRequest();
 
@@ -91,7 +95,10 @@ public class CheckPermissionsServlet extends HttpServlet {
 
       int missing = requiredPermissions.size() - permissionsResponse.getPermissions().size();
       Boolean arePermissionsCorrect = missing == 0;
-      response.getWriter().println(gson.toJson(Arrays.asList(permissionsResponse, missing)));
+
+      Set<String> required = new HashSet<>(requiredPermissions);
+      required.removeAll(permissionsResponse.getPermissions());
+      response.getWriter().println(gson.toJson(Arrays.asList(required, missing)));
 
     } catch (IOException e) {
       System.out.println("Unable to return permissions \n" + e.toString());

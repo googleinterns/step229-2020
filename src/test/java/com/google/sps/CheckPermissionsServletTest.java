@@ -32,7 +32,6 @@ public class CheckPermissionsServletTest {
   public void testCorrectInput() throws Exception {
 
     when(request.getParameter("projID")).thenReturn("bt-dataflow-sql-demo");
-    when(request.getParameter("saID")).thenReturn("dataflow-service-analyser-sa@bt-dataflow-sql-demo.iam.gserviceaccount.com");
 
     StringWriter stringWriter = new StringWriter();
     PrintWriter writer = new PrintWriter(stringWriter);
@@ -43,6 +42,8 @@ public class CheckPermissionsServletTest {
 
     writer.flush();
 
-    assertTrue(stringWriter.toString().contains("true"));
+    assertTrue(stringWriter.toString().contains("[]"));
+      //"[{\"permissions\":[\"compute.instanceGroupManagers.update\",\"compute.instances.delete\",\"compute.instances.setDiskAutoDelete\"," +
+      //  "\"dataflow.jobs.get\",\"logging.logEntries.create\",\"storage.objects.create\",\"storage.objects.get\"]},0]"));
   }
 }
