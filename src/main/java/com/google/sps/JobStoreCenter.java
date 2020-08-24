@@ -77,6 +77,9 @@ public final class JobStoreCenter {
     jobEntity.setProperty("state", job.state);
     jobEntity.setProperty("stateTime", job.stateTime);
 
+    PriceCenter priceCenter = new PriceCenter();
+    jobEntity.setProperty("price", priceCenter.calculatePrice(job));
+
     datastore.put(jobEntity);
   }
 
@@ -125,12 +128,13 @@ public final class JobStoreCenter {
         String metricTime = (String) entity.getProperty("metricTime");
         String state = (String) entity.getProperty("state");
         String stateTime = (String) entity.getProperty("stateTime");
+        Double price = (Double) entity.getProperty("price");
 
         JobJSON job = new JobJSON(projectId, name, id, type, sdk, sdkSupportStatus, region, 
                                      currentWorkers, startTime, totalVCPUTime, totalMemoryTime,
                                         totalDiskTimeHDD, totalDiskTimeSSD, currentVcpuCount,
                                             totalStreamingData, enableStreamingEngine, metricTime,
-                                                state, stateTime);
+                                                state, stateTime, price);
         
         jobs.add(job);
       }
