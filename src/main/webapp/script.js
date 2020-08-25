@@ -5,9 +5,24 @@
  * @author tblanshard
  */
 
+/*
+//Commented as requires discussion with Andreea
+document.getElementById('theform').onsubmit = function() { 
+  var method = document.getElementById('aggregationMethod').value;
+  var aggregationUrl = formatURLs("get-aggregated-data", {"method": method});
+  fetch(aggregationUrl)
+  .then(response => response.json())
+  .then((jobs) => {
+    getTotalCosts(jobs);
+  });
+  return false;
+};*/
+
 function initBody() {
   document.getElementById('dataButtons').style.display = 'none';
   setCredentialsServlet();
+  google.charts.load('current', {'packages':['corechart']});
+  google.charts.setOnLoadCallback(getTotalCosts);
 }
 
 function setCredentialsServlet() {
@@ -149,12 +164,32 @@ function addJobToTable(job, table) {
   }
   tableRow.appendChild(jobPrice);
 
-
-
   table.appendChild(tableRow);
 }
 
 function formatURLs(url, parameters) {
   var encodedParameters = new URLSearchParams(parameters);
   return `/${url}?${encodedParameters.toString()}`;
+}
+
+function getTotalCosts(jobs){
+  //takes each of the jobs and finds the total cost of each aggregated group of jobs
+  var data = [];
+  for (job of jobs) {
+    var jobData = [];
+    jobData.push(job[0]);
+    var totalCost = job[1].reduce(function(a, b) {
+      return a.jobPrice + b.jobPrice;
+    }, 0);
+    jobData.push(totalCost);
+    data.push(jobData);
+  }
+  //test data
+  //var data = google.visualization.arrayToDataTable([["Category", "Data"],["Person 1", 10],["Person 2", 50],["Person 3", 100]]);
+  var chartData = google.visualization.arrayToDataTable(data);
+  var options = {
+    title: "Total Cost of Jobs Per Category"
+  };
+  var chart = new google.visualization.PieChart(document.getElementById('totalCost'));
+  chart.draw(data, options);
 }
