@@ -23,6 +23,7 @@ function initBody() {
   setCredentialsServlet();
   google.charts.load('current', {'packages':['corechart']});
   google.charts.setOnLoadCallback(getTotalCosts);
+  google.charts.setOnLoadCallback(getFailedJobs);
 }
 
 function setCredentialsServlet() {
@@ -172,7 +173,7 @@ function formatURLs(url, parameters) {
   return `/${url}?${encodedParameters.toString()}`;
 }
 
-function getTotalCosts(jobs){
+function getTotalCosts(){
   //takes each of the jobs and finds the total cost of each aggregated group of jobs
   var data = [];
   for (job of jobs) {
@@ -186,10 +187,35 @@ function getTotalCosts(jobs){
   }
   //test data
   //var data = google.visualization.arrayToDataTable([["Category", "Data"],["Person 1", 10],["Person 2", 50],["Person 3", 100]]);
+  drawPieChart(data, "Total Cost of Jobs Per Category", "totalCost-container");
+}
+
+function getFailedJobs(){
+  //takes each of the jobs and finds the total number of failed jobs within each aggregated group of jobs
+  var data = [];
+  for (job of jobs) {
+    var failed = 0;
+    var jobData = [];
+    jobData.push(job[0]);
+    for (var i = 0; i < job[1].length; i++) {
+      //check that it is jobState we need
+      if (job[i].jobState == "Failed") {
+        failed ++;
+      }
+    }
+    jobData.push(failed);
+    data.push(jobData);
+  }
+  //test data
+  //var data = google.visualization.arrayToDataTable([["Category", "Data"],["Person 1", 10],["Person 2", 50],["Person 3", 100]]);
+  drawPieChart(data, "Total Number of Failed Jobs Per Category", "failedJobs-container");
+}
+
+function drawPieChart(data, title, containerName) {
   var chartData = google.visualization.arrayToDataTable(data);
   var options = {
-    title: "Total Cost of Jobs Per Category"
+    title: title
   };
-  var chart = new google.visualization.PieChart(document.getElementById('totalCost'));
-  chart.draw(data, options);
+  var chart = new google.visualization.PieChart(document.getElementById(containerName));
+  chart.draw(chartData, options);
 }
