@@ -1,39 +1,48 @@
 <!DOCTYPE html>
 <html>
-    <head> 
-        <meta charset="UTF-8">
-        <title>Dataflow Data Analyser</title>
-        <script id="configFile" type="text/javascript" src="config.js"></script>
-        <link rel="stylesheet" href="style.css">
-        <script id="configFile" type="text/javascript" src="config.js"></script>
-        <script src="script.js"></script>
-    </head>
-    <body onload="initBody();">
-        <h2>Hello World!</h2>
-        <div id="dataButtons">
-          <button class="button" onclick="updateProjectDatabase()">Fetch Info</button>
-          <button class="button" onclick="getJobsFromProject(accessDataflowAPI.projectID)">Show info</button>
-        </div>
-        <p id="message-container"></p>
-        <table id = "jobs" hidden>
-            <tr> 
-                <th> Name </th>
-                <th> ID </th>
-                <th> Type </th>
-                <th> State </th>
-                <th> State Time </th>
-                <th> SDK </th>
-                <th> Region </th>
-                <th> Current Workers </th>
-                <th> Start Time </th>
-                <th> VCPU Time </th>
-                <th> Memory Time </th>
-                <th> HDD Disk Time </th>
-                <th> SSD Disk Time </th>
-                <th> VCPU Countr </th>
-                <th> Total Streaming Data </th>
-                <th> Price </th>
-            </tr>
-        </table>
-    </body>
+  <head> 
+    <meta charset="UTF-8">
+    <title>Dataflow Data Analyser</title>
+    <script id="configFile" type="text/javascript" src="config.js"></script>
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
+    <script src="script.js"></script>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body onload="initBody();">
+    <h2>Hello World!</h2>
+    <div id="dataButtons">
+      <button class="button" onclick="updateProjectDatabase()">Fetch Info</button>
+      <button class="button" onclick="getJobsFromProject(accessDataflowAPI.projectID)">Show info</button>
+    </div>
+    <form id="commentForm">
+      <label for="aggregationMethod">Choose a variable to aggregate the data by:</label>
+      <select id="aggregationMethod" name="aggregationMethod">
+        <option value="jobName">Job Name</option>
+        <option value="owner">Owner</option>
+      </select>
+      <button id="submitComment" type="input">Submit</button>
+    </form>
+    <div id="totalCost"></div>
+      <p id="message-container"></p>
+      <table id = "jobs" hidden>
+        <tr> 
+          <th> Name </th>
+          <th> ID </th>
+          <th> Type </th>
+          <th> State </th>
+          <th> State Time </th>
+          <th> SDK </th>
+          <th> Region </th>
+          <th> Current Workers </th>
+          <th> Start Time </th>
+          <th> VCPU Time </th>
+          <th> Memory Time </th>
+          <th> HDD Disk Time </th>
+          <th> SSD Disk Time </th>
+          <th> VCPU Countr </th>
+          <th> Total Streaming Data </th>
+          <th> Price </th>
+        </tr>
+      </table>
+  </body>
 </html>
