@@ -25,6 +25,7 @@ function initBody() {
   google.charts.setOnLoadCallback(getTotalCosts);
   google.charts.setOnLoadCallback(getFailedJobs);
   google.charts.setOnLoadCallback(predictCostWeek);
+  google.charts.setOnLoadCallback(getAveragevCPUCount);
 }
 
 function setCredentialsServlet() {
@@ -213,30 +214,23 @@ function getFailedJobs(){
 }
 
 function predictCostWeek() {
-  //find the three-point moving average for 30 days worth of data
+  //find the moving average for 30 days worth of data
   //need to aggregate aggregated data to get groups of jobs run on the same day
-  var data = [];
+  
   for (job of jobs) {
-    var jobData = [];
-    var dayAverages = [];
-    jobData.push(job[0]);
-    for (var i = 1; i < job[1].length - 1; i++) {
-      var movingAverage = [];
-      for (var day = 0; day < 3; day++) {
-        var dailyAverage = job[1][day + i].reduce(function(a, b) {
-          return a.jobPrice + b.jobPrice;
-        }, 0);
-        movingAverage.push(dailyAverage);
-      }
-      var averageCost = movingAverage.reduce(function(a, b) {
-        return a + b;
-      }, 0);
-      averageCost /= 3;
-      dayAverages.push(averageCost);
-    }
-    jobData.push(dayAverages);
-    data.push(jobData);
+    var dailyAverage = job[1].reduce(function(a, b) {
+        return a.jobPrice + b.jobPrice;
+    }, 0);
+    job[1] = dailyAverage / job[1].length;
   }
+  for (var i = 0; i < 3; i++) {
+    var prediction = jobs.slice(i, jobs.length).reduce(function(a, b) {
+      return a + b;
+    }, 0);
+    prediction /= (jobs.length - i);
+    jobs.push(["Future Day "+i, prediction])
+  }
+  data = jobs
 
   /*var data = [
           ['Year', 'Sales', 'Expenses'],
@@ -244,16 +238,35 @@ function predictCostWeek() {
           ['2005',  1170,      460],
           ['2006',  660,       1120],
           ['2007',  1030,      540]
-        ];*/
-
+        ];
+  */
   drawLineGraph(data, "Cost Prediction On Daily Scale", "costPredictionDaily-container");
+}
+
+function getAveragevCPUCount() {
+  //takes each of the jobs and finds the total cost of each aggregated group of jobs
+  var data = [];
+  for (job of jobs) {
+    var jobData = [];
+    jobData.push(job[0]);
+    var vCPUCount = job[1].reduce(function(a, b) {
+      return a.currentVcpuCount + b.currentVcpuCount;
+    }, 0);
+    vCPUCount /= job[1].length;
+    jobData.push(vCPUCount);
+    data.push(jobData);
+  }
+  //test data
+  //var data = [["Category", "Data"],["Person 1", 10],["Person 2", 50],["Person 3", 100]];
+  drawPieChart(data, "Average vCPU Usage", "vCPU-container");
 }
 
 function drawLineGraph(data, title, containerName) {
   var chartData = google.visualization.arrayToDataTable(data);
   var options = {
     title: title,
-    curveType: 'function' 
+    curveType: 'function',
+    trendlines: { 0: {} } 
   }
   var chart = new google.visualization.LineChart(document.getElementById(containerName));
   chart.draw(chartData, options);
