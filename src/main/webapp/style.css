@@ -43,8 +43,8 @@ tr:nth-child(even) {
 
 .gridContainer {
   display: grid;
-  grid-template-columns: repeat(2, 500px);
-  grid-template-rows: auto auto auto auto auto;
+  grid-template-columns: 100%;
+  grid-template-rows: repeat(5, [row] auto);
   align-content: center;
   justify-content: center;
   grid-gap: 1rem;
@@ -53,35 +53,61 @@ tr:nth-child(even) {
 }
 
 .gridElement {
+  display: grid;
+  grid-template-columns: repeat(2, 50%);
+  grid-template-rows: auto;
+  align-content: center;
+  justify-content: center;
+  grid-gap: 1em;
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.cost {
+  grid-column: 1;
+  grid-row: row;
 }
 
 .totalCost {
   grid-column: 1 / 2;
-  grid-row: 1 / 2;
+  grid-row: 1;
+}
+
+.costPrediction {
+  grid-column: 2 / 3;
+  grid-row: 1;
 }
 
 .failedJobs {
+  grid-column: 1;
+  grid-row: row 2;
+}
+
+.failedJobsPieChart {
   grid-column: 1 / 2;
-  grid-row: 2 / 3;
+  grid-row: 1;
 }
 
 .sdkAnalysis {
-  grid-column: 1 / 2;
-  grid-row: 3 / 4;
+  grid-column: 1;
+  grid-row: row 3;
   background-color: papayawhip;
 }
 
 .resourceAnalysis {
-  grid-column: 1 / 2;
-  grid-row: 4 / 5;
+  grid-column: 1;
+  grid-row: row 4;
   background-color: papayawhip;
 }
 
 .locationAnalysis {
-  grid-column: 1 / 2;
-  grid-row: 5 / 6;
+  grid-column: 1;
+  grid-row: row 5;
   background-color: papayawhip;
+}
+
+.graph {
+  display: inline-block;
+  background-color: pink;
 }
 
 #dataButtons {

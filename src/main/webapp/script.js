@@ -24,6 +24,7 @@ function initBody() {
   google.charts.load('current', {'packages':['corechart']});
   google.charts.setOnLoadCallback(getTotalCosts);
   google.charts.setOnLoadCallback(getFailedJobs);
+  google.charts.setOnLoadCallback(predictCostWeek);
 }
 
 function setCredentialsServlet() {
@@ -186,7 +187,7 @@ function getTotalCosts(){
     data.push(jobData);
   }
   //test data
-  //var data = google.visualization.arrayToDataTable([["Category", "Data"],["Person 1", 10],["Person 2", 50],["Person 3", 100]]);
+  //var data = [["Category", "Data"],["Person 1", 10],["Person 2", 50],["Person 3", 100]];
   drawPieChart(data, "Total Cost of Jobs Per Category", "totalCost-container");
 }
 
@@ -207,8 +208,55 @@ function getFailedJobs(){
     data.push(jobData);
   }
   //test data
-  //var data = google.visualization.arrayToDataTable([["Category", "Data"],["Person 1", 10],["Person 2", 50],["Person 3", 100]]);
+  //var data = [["Category", "Data"],["Person 1", 10],["Person 2", 50],["Person 3", 100]];
   drawPieChart(data, "Total Number of Failed Jobs Per Category", "failedJobs-container");
+}
+
+function predictCostWeek() {
+  //find the three-point moving average for 30 days worth of data
+  //need to aggregate aggregated data to get groups of jobs run on the same day
+  var data = [];
+  for (job of jobs) {
+    var jobData = [];
+    var dayAverages = [];
+    jobData.push(job[0]);
+    for (var i = 1; i < job[1].length - 1; i++) {
+      var movingAverage = [];
+      for (var day = 0; day < 3; day++) {
+        var dailyAverage = job[1][day + i].reduce(function(a, b) {
+          return a.jobPrice + b.jobPrice;
+        }, 0);
+        movingAverage.push(dailyAverage);
+      }
+      var averageCost = movingAverage.reduce(function(a, b) {
+        return a + b;
+      }, 0);
+      averageCost /= 3;
+      dayAverages.push(averageCost);
+    }
+    jobData.push(dayAverages);
+    data.push(jobData);
+  }
+
+  /*var data = [
+          ['Year', 'Sales', 'Expenses'],
+          ['2004',  1000,      400],
+          ['2005',  1170,      460],
+          ['2006',  660,       1120],
+          ['2007',  1030,      540]
+        ];*/
+
+  drawLineGraph(data, "Cost Prediction On Daily Scale", "costPredictionDaily-container");
+}
+
+function drawLineGraph(data, title, containerName) {
+  var chartData = google.visualization.arrayToDataTable(data);
+  var options = {
+    title: title,
+    curveType: 'function' 
+  }
+  var chart = new google.visualization.LineChart(document.getElementById(containerName));
+  chart.draw(chartData, options);
 }
 
 function drawPieChart(data, title, containerName) {
