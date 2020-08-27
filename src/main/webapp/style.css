@@ -114,14 +114,19 @@ tr:nth-child(even) {
   background-color: papayawhip;
 }
 
-.vCPUAnalysis {
+.resourceTitle {
   grid-column: 1;
   grid-row: 1;
 }
 
-.resourceTitle {
-  grid-column: 1;
-  grid-row: 1;
+.vCPUAnalysis {
+  grid-column: 1 / 2;
+  grid-row: 2;
+}
+
+.SSDVsHDDTimeAnalysis {
+  grid-column: 2 / 3;
+  grid-row: 2;
 }
 
 .locationAnalysis {

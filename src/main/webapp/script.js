@@ -26,6 +26,7 @@ function initBody() {
   google.charts.setOnLoadCallback(getFailedJobs);
   google.charts.setOnLoadCallback(predictCostWeek);
   google.charts.setOnLoadCallback(getAveragevCPUCount);
+  google.charts.setOnLoadCallback(SSDVsHDDTimeComparison);
 }
 
 function setCredentialsServlet() {
@@ -232,7 +233,7 @@ function predictCostWeek() {
   }
   data = jobs
 
-  /*var data = [
+ /* var data = [
           ['Year', 'Sales', 'Expenses'],
           ['2004',  1000,      400],
           ['2005',  1170,      460],
@@ -261,6 +262,36 @@ function getAveragevCPUCount() {
   drawPieChart(data, "Average vCPU Usage", "vCPU-container");
 }
 
+function SSDVsHDDTimeComparison() {
+  var data = [];
+  for (job of jobs) {
+    var jobData = [];
+    var numberJobs = job[1].length;
+    jobData.push(job[0]);
+    var ssdCount = job[1].reduce(function(a, b) {
+      return a.totalDiskTimeSSD + b.totalDiskTimeSSD;
+    }, 0);
+    var hddCount = job[1].reduce(function(a, b) {
+      return a.totalDiskTimeHDD + b.totalDiskTimeHDD;
+    }, 0);
+    ssdCount /= numberJobs;
+    hddCount /= numberJobs;
+    jobData.push(ssdCount);
+    jobData.push(hddCount);
+    data.push(jobData);
+  }
+  //test data
+  /*var data = [
+        ['Genre', 'Fantasy & Sci Fi', 'Romance', 'Mystery/Crime', 'General',
+         'Western', 'Literature', { role: 'annotation' } ],
+        ['2010', 10, 24, 20, 32, 18, 5, ''],
+        ['2020', 16, 22, 23, 30, 16, 9, ''],
+        ['2030', 28, 19, 29, 30, 12, 13, '']
+      ];
+  */
+  drawColumnChart(data, "Comparison of SSDTime VS HDDTime", "SSDVsHDDTime-container", true);
+}
+
 function drawLineGraph(data, title, containerName) {
   var chartData = google.visualization.arrayToDataTable(data);
   var options = {
@@ -278,5 +309,15 @@ function drawPieChart(data, title, containerName) {
     title: title
   };
   var chart = new google.visualization.PieChart(document.getElementById(containerName));
+  chart.draw(chartData, options);
+}
+
+function drawColumnChart(data, title, containerName, isStacked) {
+  var chartData = google.visualization.arrayToDataTable(data);
+  var options = {
+    title: title,
+    isStacked: isStacked
+  };
+  var chart = new google.visualization.ColumnChart(document.getElementById(containerName));
   chart.draw(chartData, options);
 }
