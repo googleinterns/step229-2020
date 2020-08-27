@@ -97,6 +97,11 @@ tr:nth-child(even) {
   grid-row: 2;
 }
 
+.failedJobsCostPieChart {
+  grid-column: 2 / 3;
+  grid-row: 2;
+}
+
 .sdkAnalysis {
   grid-column: 1;
   grid-row: row 3;

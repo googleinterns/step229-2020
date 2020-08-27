@@ -9,7 +9,7 @@
 //Commented as requires discussion with Andreea
 document.getElementById('theform').onsubmit = function() { 
   var method = document.getElementById('aggregationMethod').value;
-  var aggregationUrl = formatURLs("get-aggregated-data", {"method": method});
+  var aggregationUrl = formatURLs('get-aggregated-data', {'method': method});
   fetch(aggregationUrl)
   .then(response => response.json())
   .then((jobs) => {
@@ -24,37 +24,38 @@ function initBody() {
   google.charts.load('current', {'packages':['corechart']});
   google.charts.setOnLoadCallback(getTotalCosts);
   google.charts.setOnLoadCallback(getFailedJobs);
+  google.charts.setOnLoadCallback(getFailedJobsCost);
   google.charts.setOnLoadCallback(predictCostWeek);
   google.charts.setOnLoadCallback(getAveragevCPUCount);
   google.charts.setOnLoadCallback(SSDVsHDDTimeComparison);
 }
 
 function setCredentialsServlet() {
-  var credentialsUrl = formatURLs("get-credentials", {"projID":config.projectID, "bucket":config.bucketName, "object":config.objectName});
+  var credentialsUrl = formatURLs('get-credentials', {'projID':config.projectID, 'bucket':config.bucketName, 'object':config.objectName});
   fetch(credentialsUrl)
   .then(response => checkPermissions());
 }
 
 function checkPermissions() {
-  var permissionsUrl = formatURLs("check-permissions", {"projID":config.projectID});
+  var permissionsUrl = formatURLs('check-permissions', {'projID':config.projectID});
   fetch(permissionsUrl)
   .then(response => response.json())
   .then((permission) => {
-  var message = document.getElementById("message-container");
+  var message = document.getElementById('message-container');
     if (Number.isInteger(permission[1])) {
       var missingPermissions = permission[0];
-      missingPermissionList = "";
+      missingPermissionList = '';
       for (item of missingPermissions) {
-        missingPermissionList += item+"\n";
+        missingPermissionList += item+'\n';
       }
       var missing = permission[1];
       if (missing == 0) {
-        message.innerText = "The permissions are all correctly setup. Nothing more needs doing.";
+        message.innerText = 'The permissions are all correctly setup. Nothing more needs doing.';
         document.getElementById('dataButtons').style.display = 'block';
       } else if (missing == 1) {
-        message.innerText = "There is "+missing+" permission missing. It is:\n"+missingPermissionList;
+        message.innerText = 'There is '+missing+' permission missing. It is:\n'+missingPermissionList;
       } else {
-        message.innerText = "There are "+missing+" permissions missing. These are:\n"+missingPermissionList;
+        message.innerText = 'There are '+missing+' permissions missing. These are:\n'+missingPermissionList;
       }
     } else {
       message.innerText = permission;
@@ -179,6 +180,7 @@ function formatURLs(url, parameters) {
 function getTotalCosts(){
   //takes each of the jobs and finds the total cost of each aggregated group of jobs
   var data = [];
+  data.push(['Category','Total Cost']);
   for (job of jobs) {
     var jobData = [];
     jobData.push(job[0]);
@@ -189,20 +191,21 @@ function getTotalCosts(){
     data.push(jobData);
   }
   //test data
-  //var data = [["Category", "Data"],["Person 1", 10],["Person 2", 50],["Person 3", 100]];
-  drawPieChart(data, "Total Cost of Jobs Per Category", "totalCost-container");
+  //var data = [['Category', 'Data'],['Person 1', 10],['Person 2', 50],['Person 3', 100]];
+  drawPieChart(data, 'Total Cost of Jobs Per Category', 'totalCost-container');
 }
 
 function getFailedJobs(){
   //takes each of the jobs and finds the total number of failed jobs within each aggregated group of jobs
   var data = [];
+  data.push(['Category','Total Count']);
   for (job of jobs) {
     var failed = 0;
     var jobData = [];
     jobData.push(job[0]);
     for (var i = 0; i < job[1].length; i++) {
       //check that it is jobState we need
-      if (job[i].jobState == "Failed") {
+      if (job[i].jobState == 'Failed') {
         failed ++;
       }
     }
@@ -210,8 +213,30 @@ function getFailedJobs(){
     data.push(jobData);
   }
   //test data
-  //var data = [["Category", "Data"],["Person 1", 10],["Person 2", 50],["Person 3", 100]];
-  drawPieChart(data, "Total Number of Failed Jobs Per Category", "failedJobs-container");
+  //var data = [['Category', 'Data'],['Person 1', 10],['Person 2', 50],['Person 3', 100]];
+  drawPieChart(data, 'Total Number of Failed Jobs Per Category', 'failedJobs-container');
+}
+
+function getFailedJobsCost() {
+  //takes each of the failed jobs within each aggregated group and finds the total cost for each group
+  var data = []
+  data.push(['Category','Total Cost']);
+  for (job of jobs) {
+    var failedCost = 0;
+    var jobData = [];
+    jobData.push(job[0]);
+    for (var i = 0; i < job[1].length; i++) {
+      //check that it is the jobState we need
+      if (job[i].jobState == 'Failed') {
+        failedCost += job[i].jobPrice;
+      }
+    }
+    jobData.push(failedCost);
+    data.push(jobData);
+  }
+  //test data
+  //var data = [['Category', 'Data'],['Person 1', 10],['Person 2', 50],['Person 3', 100]];
+  drawPieChart(data, 'Total Cost of Failed Jobs Per Category', 'failedJobsCost-container');
 }
 
 function predictCostWeek() {
@@ -229,9 +254,10 @@ function predictCostWeek() {
       return a + b;
     }, 0);
     prediction /= (jobs.length - i);
-    jobs.push(["Future Day "+i, prediction])
+    jobs.push(['Future Day '+i, prediction])
   }
-  data = jobs
+  data = jobs;
+  data.unshift(['Category', 'Average Cost']);
 
  /* var data = [
           ['Year', 'Sales', 'Expenses'],
@@ -241,12 +267,13 @@ function predictCostWeek() {
           ['2007',  1030,      540]
         ];
   */
-  drawLineGraph(data, "Cost Prediction On Daily Scale", "costPredictionDaily-container");
+  drawLineGraph(data, 'Cost Prediction On Daily Scale', 'costPredictionDaily-container');
 }
 
 function getAveragevCPUCount() {
   //takes each of the jobs and finds the total cost of each aggregated group of jobs
   var data = [];
+  data.push(['Category', 'Average Count']);
   for (job of jobs) {
     var jobData = [];
     jobData.push(job[0]);
@@ -258,12 +285,13 @@ function getAveragevCPUCount() {
     data.push(jobData);
   }
   //test data
-  //var data = [["Category", "Data"],["Person 1", 10],["Person 2", 50],["Person 3", 100]];
-  drawPieChart(data, "Average vCPU Usage", "vCPU-container");
+  //var data = [['Category', 'Data'],['Person 1', 10],['Person 2', 50],['Person 3', 100]];
+  drawPieChart(data, 'Average vCPU Usage', 'vCPU-container');
 }
 
 function SSDVsHDDTimeComparison() {
   var data = [];
+  data.push(['Category','Average SSD Time', 'Average HDD Time']);
   for (job of jobs) {
     var jobData = [];
     var numberJobs = job[1].length;
@@ -289,7 +317,7 @@ function SSDVsHDDTimeComparison() {
         ['2030', 28, 19, 29, 30, 12, 13, '']
       ];
   */
-  drawColumnChart(data, "Comparison of SSDTime VS HDDTime", "SSDVsHDDTime-container", true);
+  drawColumnChart(data, 'Comparison of SSDTime VS HDDTime', 'SSDVsHDDTime-container', true);
 }
 
 function drawLineGraph(data, title, containerName) {
