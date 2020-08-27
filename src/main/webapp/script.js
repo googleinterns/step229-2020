@@ -25,7 +25,6 @@ function initBody() {
   google.charts.setOnLoadCallback(getTotalCosts);
   google.charts.setOnLoadCallback(getFailedJobs);
   google.charts.setOnLoadCallback(getFailedJobsCost);
-  google.charts.setOnLoadCallback(predictCostWeek);
   google.charts.setOnLoadCallback(getAveragevCPUCount);
   google.charts.setOnLoadCallback(SSDVsHDDTimeComparison);
 }
@@ -258,7 +257,15 @@ function getFailedJobsCost() {
   drawPieChart(data, 'Total Cost of Failed Jobs Per Category', 'failedJobsCost-container');
 }
 
-function predictCostWeek() {
+function dailyViewHandler() {
+  google.setOnLoadCallback(getDailyView);
+}
+
+function weeklyViewHandler() {
+  google.setOnLoadCallback(getWeeklyView);
+}
+
+function getDailyView() {
   //find the moving average for 30 days worth of data
   //need to aggregate aggregated data to get groups of jobs run on the same day
   
@@ -278,15 +285,47 @@ function predictCostWeek() {
   data = jobs;
   data.unshift(['Category', 'Average Cost']);
 
- /* var data = [
+  //test data
+  /*var data = [
           ['Year', 'Sales', 'Expenses'],
           ['2004',  1000,      400],
           ['2005',  1170,      460],
           ['2006',  660,       1120],
           ['2007',  1030,      540]
-        ];
-  */
-  drawLineGraph(data, 'Cost Prediction On Daily Scale', 'costPredictionDaily-container');
+        ];*/
+ 
+  drawLineGraph(data, 'Cost Prediction On Daily Scale', 'costPrediction-container');  
+}
+
+function getWeeklyView() {
+  //find the moving average for 30 days worth of data
+  //need to aggregate aggregated data to get groups of jobs run on the same day
+  
+  for (job of jobs) {
+    var dailyAverage = job[1].reduce(function(a, b) {
+        return a.jobPrice + b.jobPrice;
+    }, 0);
+    job[1] = dailyAverage / job[1].length;
+  }
+  for (var i = 0; i < 1; i++) {
+    var prediction = jobs.slice(i, jobs.length).reduce(function(a, b) {
+      return a + b;
+    }, 0);
+    prediction /= (jobs.length - i);
+    jobs.push(['Future Week '+i, prediction])
+  }
+  data = jobs;
+  data.unshift(['Category', 'Average Cost']);
+
+  /*var data = [
+          ['Year', 'Sales', 'Expenses'],
+          ['2004',  1000,      400],
+          ['2005',  1170,      460],
+          ['2006',  660,       1120],
+          ['2007',  1030,      540]
+        ];*/
+ 
+  drawLineGraph(data, 'Cost Prediction On Weekly Scale', 'costPrediction-container');  
 }
 
 function getAveragevCPUCount() {
@@ -334,8 +373,8 @@ function SSDVsHDDTimeComparison() {
         ['2010', 10, 24, 20, 32, 18, 5, ''],
         ['2020', 16, 22, 23, 30, 16, 9, ''],
         ['2030', 28, 19, 29, 30, 12, 13, '']
-      ];
-  */
+      ];*/
+
   drawColumnChart(data, 'Comparison of SSDTime VS HDDTime', 'SSDVsHDDTime-container', true);
 }
 
@@ -344,7 +383,6 @@ function drawLineGraph(data, title, containerName) {
   var options = {
     title: title,
     curveType: 'function',
-    trendlines: { 0: {} } 
   }
   var chart = new google.visualization.LineChart(document.getElementById(containerName));
   chart.draw(chartData, options);

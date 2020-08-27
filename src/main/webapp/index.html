@@ -29,7 +29,9 @@
       <div class="gridElement cost">
         <h2 class="costTitle">Cost and Cost Estimation</h2>
         <div class="totalCost" id="totalCost-container"></div>
-        <div class="costPrediction" id="costPredictionDaily-container"></div>
+        <button class="button dayOptionButton" id="dailyView" onclick="dailyViewHandler();">Day</button>
+        <button class="button weekOptionButton" id="weeklyView" onclick="weeklyViewHandler();">Month</button>
+        <div class="costPrediction" id="costPrediction-container"></div>
         <div class="averageCost" id="averageCost-container"></div>
       </div>
       <!--Comparison of number of failed jobs within each aggreation etc.-->
