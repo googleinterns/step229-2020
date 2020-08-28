@@ -56,4 +56,37 @@ public final class AggregationCenter {
   public Map<String, List<JobJSON>> aggregateByName(List<JobJSON> jobs) {
       return agreggateByGroupIndex(jobs, 1);
   }
+
+  public Map<String, List<JobJSON>> aggregateByRegion(List<JobJSON> jobs) {
+    Map<String, List<JobJSON>> groupedJobs = new HashMap<>();
+
+    for (JobJSON job : jobs) {
+      if (groupedJobs.containsKey(job.region)) {
+        groupedJobs.get(job.region).add(job);
+      } else {
+        List<JobJSON> list = new ArrayList<JobJSON>();
+        list.add(job);
+        groupedJobs.put(job.region, list);
+      }
+    }
+
+    return groupedJobs;
+  }
+
+  public Map<String, List<JobJSON>> aggregateBySDK(List<JobJSON> jobs) {
+    Map<String, List<JobJSON>> groupedJobs = new HashMap<>();
+
+    for (JobJSON job : jobs) {
+      String key = job.sdk + " " + job.sdkSupportStatus;
+      if (groupedJobs.containsKey(key)) {
+        groupedJobs.get(key).add(job);
+      } else {
+        List<JobJSON> list = new ArrayList<JobJSON>();
+        list.add(job);
+        groupedJobs.put(key, list);
+      }
+    }
+
+    return groupedJobs;
+  }
 }
