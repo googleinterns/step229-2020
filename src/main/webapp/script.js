@@ -110,7 +110,8 @@ function addJobToTable(job, table) {
   tableRow.appendChild(jobStateTime);
 
   const jobSDK = document.createElement('td');
-  jobSDK.innerText = job.sdk + ' ' + job.sdkSupportStatus;
+  jobSDK.innerText = job.sdk + ' ' + job.sdkSupportStatus + ' ' +
+                         job.sdkName;
   tableRow.appendChild(jobSDK);
 
   const jobRegion = document.createElement('td');

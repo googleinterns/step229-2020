@@ -20,6 +20,7 @@ import com.google.api.services.dataflow.model.MetricUpdate;
 import java.io.IOException;
 import java.lang.IllegalArgumentException;
 import java.math.BigDecimal;
+import java.util.Map;
 
 
 
@@ -39,6 +40,7 @@ public abstract class JobModel {
     // sdkSupportStatus can be found at 
     // https://cloud.google.com/dataflow/docs/reference/rest/v1b3/projects.jobs#sdksupportstatus
     public String sdkSupportStatus = null;
+    public String sdkName;
     public String region;
     public int currentWorkers;
     public String startTime;
@@ -81,6 +83,9 @@ public abstract class JobModel {
               currentWorkers += workerPool.getNumWorkers();
             }
           }
+
+          Map<String, Object> userAgent = environment.getUserAgent();
+          sdkName = (String) userAgent.get("name");
       }
 
       startTime = job.getStartTime();

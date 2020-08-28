@@ -23,6 +23,7 @@ public final class JobJSON {
   // sdkSupportStatus can be found at 
   // https://cloud.google.com/dataflow/docs/reference/rest/v1b3/projects.jobs#sdksupportstatus
   public String sdkSupportStatus = null;
+  public String sdkName;
   public String region;
   public int currentWorkers;
   public String startTime;
@@ -46,7 +47,7 @@ public final class JobJSON {
                     String region, int currentWorkers, String startTime, Double totalVCPUTime, Double totalMemoryTime,
                         Double totalDiskTimeHDD, Double totalDiskTimeSSD, Integer currentVcpuCount,
                             Double totalStreamingData, Boolean enableStreamingEngine, String metricTime, 
-                                String state, String stateTime, Double price) {
+                                String state, String stateTime, Double price, String sdkName) {
     this.projectId = projectId;
     this.name = name;
     this.id = id;
@@ -68,5 +69,6 @@ public final class JobJSON {
     this.stateTime = stateTime;
 
     this.price = price;
+    this.sdkName = sdkName;
   }
 }
