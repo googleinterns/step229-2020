@@ -87,11 +87,6 @@
       <version>2.7</version>
     </dependency>
     <dependency>
-      <groupId>com.google.cloud</groupId>
-      <artifactId>google-cloud-storage</artifactId>
-      <version>1.111.2</version>
-    </dependency>
-    <dependency>
         <groupId>com.google.apis</groupId>
         <artifactId>google-api-services-storage</artifactId>
         <version>v1-rev171-1.25.0</version>
