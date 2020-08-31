@@ -28,6 +28,14 @@
         </div>
     </div>
 
+    <div class="moduleSpace"></div>
+
+    <!-- Input for the Project ID-->
+    <form id="projectIDForm">
+      <input type="text" id="projectID" placeholder="Enter Project ID" name="projectID" required>
+      <input type="button" onclick="getJobsFromProject(this.projectID)"> 
+    </form>
+
     <p id="message-container"></p>
     <div id="dataButtons">
       <button class="button" onclick="updateProjectDatabase()">Fetch Info</button>
