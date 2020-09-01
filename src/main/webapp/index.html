@@ -9,8 +9,54 @@
     <link rel="stylesheet" href="style.css">
   </head>
   <body onload="initBody();">
-    <h1>Dataflow Service Analyser</h1>
-    <p id="message-container"></p>
+
+    <!-- TODO add links to different parts of the page -->
+    <!-- Sticky Navigation Bar -->
+    <header id="topNavigator">
+      <a href="">Section1</a>
+      <a href="">Section2</a>
+      <a href="">Section3</a>
+      <a href="">Section4</a>
+    </header>
+    
+    <!--Title -->
+    <div id="moduleTitle">
+        <img src="images/logo.png">
+        <div id="titleText">
+          <h1 class="bigger">Dataflow</h1>
+          <h1> Service Analyser</h1>
+        </div>
+    </div>
+
+    <div class="moduleSpace"></div>
+
+    <!-- Input for the Project ID-->
+    <form id="projectIDForm">
+      <input type="text" id="projectID" placeholder="Enter Project ID" name="projectID" required>
+      <input type="button" onclick="getJobsFromProject(this.projectID)">
+      <!-- Button visible when there are some permissions missing -->
+      <button 
+          class="permissionButton" 
+          id="showMissingPermision" 
+          onmouseover="document.getElementById('permissionDialog').hidden = false;" 
+          onmouseout="document.getElementById('permissionDialog').hidden = true;"
+          hidden>
+      </button>
+      <!-- Button visible when all permission are set up -->
+      <button 
+          class="permissionButton" 
+          id="allPermisionsCorrect" 
+          onmouseover="document.getElementById('permissionDialog').hidden = false;"
+          onmouseout="document.getElementById('permissionDialog').hidden = true;"
+          hidden>
+      </button> 
+    </form>
+
+    <!-- Pops up when the user hoover over a button from the permissionButton class -->
+    <div id="permissionDialog" hidden></div>
+
+    <div class="moduleSpace"></div>
+
     <div id="dataButtons">
       <button class="button" onclick="updateProjectDatabase()">Fetch Info</button>
       <button class="button" onclick="getJobsFromProject(accessDataflowAPI.projectID)">Show info</button>

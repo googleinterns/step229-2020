@@ -15,27 +15,32 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import com.google.gson.Gson;
+import com.google.sps.data.JobJSON;
+import java.util.List;
+import java.util.Map;
+import com.google.sps.AggregationCenter;
 
 @WebServlet("/get-aggregated-data")
 public class AggregatedDataServlet extends HttpServlet {
   
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    String method = getParameter(request, "aggregationMethod", "");
+    /*String method = getParameter(request, "aggregationMethod", "");
     AggregationCenter aggretationService = new AggregationCenter();
     Map<String, List<JobJSON>> aggregatedJobs;
-    if (method == jobName) {
+    if (method.compareTo("jobName") == 0) {
       //needs a list of jobs being passed in
       aggregatedJobs = aggretationService.aggregateByName();
-    } else if (method == owner) {
+    } else if (method.compareTo("owner") == 0) {
       //needs a list of jobs being passed in
       aggregatedJobs = aggretationService.aggregateByUser();
     } else {
-      null;
+      
     }
     response.setContentType("application/json;");
     Gson gson = new Gson();
-    response.getWriter().println(gson.toJson(aggregatedJobs));
+    response.getWriter().println(gson.toJson(aggregatedJobs));*/
   }
 
   private String getParameter(HttpServletRequest request, String name, String defaultValue) {

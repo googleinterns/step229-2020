@@ -40,21 +40,30 @@ function checkPermissions() {
   fetch(permissionsUrl)
   .then(response => response.json())
   .then((permission) => {
-  var message = document.getElementById('message-container');
+  var message = document.getElementById('permissionDialog');
     if (Number.isInteger(permission[1])) {
       var missingPermissions = permission[0];
       missingPermissionList = '';
       for (item of missingPermissions) {
-        missingPermissionList += item+'\n';
+        missingPermissionList += item+', ';
       }
       var missing = permission[1];
       if (missing == 0) {
+        const button = document.getElementById('allPermisionsCorrect');
+        button.hidden = false;
+
         message.innerText = 'The permissions are all correctly setup. Nothing more needs doing.';
         document.getElementById('dataButtons').style.display = 'block';
       } else if (missing == 1) {
-        message.innerText = 'There is '+missing+' permission missing. It is:\n'+missingPermissionList;
+        const button = document.getElementById('showMissingPermision');
+        button.hidden = false;
+
+        message.innerText = 'There is '+missing+' permission missing. It is: '+missingPermissionList;
       } else {
-        message.innerText = 'There are '+missing+' permissions missing. These are:\n'+missingPermissionList;
+        const button = document.getElementById('showMissingPermision');
+        button.hidden = false;
+
+        message.innerText = 'There are '+missing+' permissions missing. These are: '+missingPermissionList;
       }
     } else {
       message.innerText = permission;
@@ -109,7 +118,8 @@ function addJobToTable(job, table) {
   tableRow.appendChild(jobStateTime);
 
   const jobSDK = document.createElement('td');
-  jobSDK.innerText = job.sdk + ' ' + job.sdkSupportStatus;
+  jobSDK.innerText = job.sdk + ' ' + job.sdkSupportStatus + ' ' +
+                         job.sdkName;
   tableRow.appendChild(jobSDK);
 
   const jobRegion = document.createElement('td');
@@ -179,7 +189,7 @@ function formatURLs(url, parameters) {
 function getTotalCosts(){
   //takes each of the jobs and finds the total cost of each aggregated group of jobs
   var data = [];
-  data.push(['Category','Total Cost']);
+  /*data.push(['Category','Total Cost']);
   for (job of jobs) {
     var jobData = [];
     jobData.push(job[0]);
@@ -188,9 +198,9 @@ function getTotalCosts(){
     }, 0);
     jobData.push(totalCost);
     data.push(jobData);
-  }
+  }*/
   //test data
-  //var data = [['Category', 'Data'],['Person 1', 10],['Person 2', 50],['Person 3', 100]];
+   data = [['Category', 'Data'],['Person 1', 10],['Person 2', 50],['Person 3', 100]];
   drawPieChart(data, 'Average Cost of Jobs Per Category', 'averageCost-container');
 }
 
@@ -198,7 +208,7 @@ function getAverageCosts() {
   //takes each of the jobs and finds the total cost of each aggregated group of jobs
   var data = [];
   data.push(['Category','Average Cost']);
-  for (job of jobs) {
+  /*for (job of jobs) {
     var jobData = [];
     jobData.push(job[0]);
     var totalCost = job[1].reduce(function(a, b) {
@@ -207,16 +217,16 @@ function getAverageCosts() {
     totalCost /= job[1].length;
     jobData.push(totalCost);
     data.push(jobData);
-  }
+  }*/
   //test data
-  //var data = [['Category', 'Data'],['Person 1', 10],['Person 2', 50],['Person 3', 100]];
+   data = [['Category', 'Data'],['Person 1', 10],['Person 2', 50],['Person 3', 100]];
   drawPieChart(data, 'Total Cost of Jobs Per Category', 'totalCost-container');  
 }
 
 function getFailedJobs(){
   //takes each of the jobs and finds the total number of failed jobs within each aggregated group of jobs
   var data = [];
-  data.push(['Category','Total Count']);
+  /*(data.push(['Category','Total Count']);
   for (job of jobs) {
     var failed = 0;
     var jobData = [];
@@ -229,16 +239,16 @@ function getFailedJobs(){
     }
     jobData.push(failed);
     data.push(jobData);
-  }
+  }*/
   //test data
-  //var data = [['Category', 'Data'],['Person 1', 10],['Person 2', 50],['Person 3', 100]];
+   data = [['Category', 'Data'],['Person 1', 10],['Person 2', 50],['Person 3', 100]];
   drawPieChart(data, 'Total Number of Failed Jobs Per Category', 'failedJobs-container');
 }
 
 function getFailedJobsCost() {
   //takes each of the failed jobs within each aggregated group and finds the total cost for each group
   var data = []
-  data.push(['Category','Total Cost']);
+  /*data.push(['Category','Total Cost']);
   for (job of jobs) {
     var failedCost = 0;
     var jobData = [];
@@ -251,9 +261,9 @@ function getFailedJobsCost() {
     }
     jobData.push(failedCost);
     data.push(jobData);
-  }
+  }*/
   //test data
-  //var data = [['Category', 'Data'],['Person 1', 10],['Person 2', 50],['Person 3', 100]];
+   data = [['Category', 'Data'],['Person 1', 10],['Person 2', 50],['Person 3', 100]];
   drawPieChart(data, 'Total Cost of Failed Jobs Per Category', 'failedJobsCost-container');
 }
 
@@ -269,7 +279,7 @@ function getDailyView() {
   //find the moving average for 30 days worth of data
   //need to aggregate aggregated data to get groups of jobs run on the same day
   
-  for (job of jobs) {
+  /*for (job of jobs) {
     var dailyAverage = job[1].reduce(function(a, b) {
         return a.jobPrice + b.jobPrice;
     }, 0);
@@ -284,7 +294,6 @@ function getDailyView() {
   }
   data = jobs;
   data.unshift(['Category', 'Average Cost']);
-
   //test data
   /*var data = [
           ['Year', 'Sales', 'Expenses'],
@@ -330,7 +339,7 @@ function getWeeklyView() {
 
 function getAveragevCPUCount() {
   //takes each of the jobs and finds the total cost of each aggregated group of jobs
-  var data = [];
+  /*var data = [];
   data.push(['Category', 'Average Count']);
   for (job of jobs) {
     var jobData = [];
@@ -341,9 +350,9 @@ function getAveragevCPUCount() {
     vCPUCount /= job[1].length;
     jobData.push(vCPUCount);
     data.push(jobData);
-  }
+  }*/
   //test data
-  //var data = [['Category', 'Data'],['Person 1', 10],['Person 2', 50],['Person 3', 100]];
+   data = [['Category', 'Data'],['Person 1', 10],['Person 2', 50],['Person 3', 100]];
   drawPieChart(data, 'Average vCPU Usage', 'vCPU-container');
 }
 
@@ -367,7 +376,7 @@ function SSDVsHDDTimeComparison() {
     data.push(jobData);
   }
   //test data
-  /*var data = [
+   /*data = [
         ['Genre', 'Fantasy & Sci Fi', 'Romance', 'Mystery/Crime', 'General',
          'Western', 'Literature', { role: 'annotation' } ],
         ['2010', 10, 24, 20, 32, 18, 5, ''],

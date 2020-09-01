@@ -56,4 +56,63 @@ public final class AggregationCenter {
   public Map<String, List<JobJSON>> aggregateByName(List<JobJSON> jobs) {
       return agreggateByGroupIndex(jobs, 1);
   }
+
+  private Map<String, List<JobJSON>> aggregateBy(List<JobJSON> jobs, KeyGenerator keyGenerator) {
+    Map<String, List<JobJSON>> groupedJobs = new HashMap<>();
+
+    for (JobJSON job : jobs) {
+      String key = keyGenerator.computeKey(job);
+      if (groupedJobs.containsKey(key)) {
+        groupedJobs.get(key).add(job);
+      } else {
+        List<JobJSON> list = new ArrayList<JobJSON>();
+        list.add(job);
+        groupedJobs.put(key, list);
+      }
+    }
+
+    return groupedJobs;
+  }
+
+  public Map<String, List<JobJSON>> aggregateByRegion(List<JobJSON> jobs) {
+    return aggregateBy(jobs, new KeyGenerator() {
+      public String computeKey(JobJSON job) {
+          return job.region;
+      }
+    }) ;
+  }
+
+  public Map<String, List<JobJSON>> aggregateBySDK(List<JobJSON> jobs) {
+    return aggregateBy(jobs, new KeyGenerator() {
+      public String computeKey(JobJSON job) {
+          return job.sdk + " " + job.sdkSupportStatus;
+      }
+    }) ;
+  }
+
+  public Map<String, List<JobJSON>> aggregateBySDKSupportStatus(List<JobJSON> jobs) {
+    return aggregateBy(jobs, new KeyGenerator() {
+      public String computeKey(JobJSON job) {
+          return job.sdkSupportStatus;
+      }
+    }) ;
+  }
+
+  public Map<String, List<JobJSON>> aggregateByProgrammingLanguage(List<JobJSON> jobs) {
+    return aggregateBy(jobs, new KeyGenerator() {
+      public String computeKey(JobJSON job) {
+        String key = job.sdkName;
+        if (key.contains("Java")) {
+          key = "Java";
+        } else if (key.contains("Python")) {
+          key = "Python";
+        }
+        return key;
+      }
+    }) ;
+  }
+}
+
+interface KeyGenerator {
+    public String computeKey(JobJSON job);
 }
