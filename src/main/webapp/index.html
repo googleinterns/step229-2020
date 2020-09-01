@@ -28,7 +28,35 @@
         </div>
     </div>
 
-    <p id="message-container"></p>
+    <div class="moduleSpace"></div>
+
+    <!-- Input for the Project ID-->
+    <form id="projectIDForm">
+      <input type="text" id="projectID" placeholder="Enter Project ID" name="projectID" required>
+      <input type="button" onclick="getJobsFromProject(this.projectID)">
+      <!-- Button visible when there are some permissions missing -->
+      <button 
+          class="permissionButton" 
+          id="showMissingPermision" 
+          onmouseover="document.getElementById('permissionDialog').hidden = false;" 
+          onmouseout="document.getElementById('permissionDialog').hidden = true;"
+          hidden>
+      </button>
+      <!-- Button visible when all permission are set up -->
+      <button 
+          class="permissionButton" 
+          id="allPermisionsCorrect" 
+          onmouseover="document.getElementById('permissionDialog').hidden = false;"
+          onmouseout="document.getElementById('permissionDialog').hidden = true;"
+          hidden>
+      </button> 
+    </form>
+
+    <!-- Pops up when the user hoover over a button from the permissionButton class -->
+    <div id="permissionDialog" hidden></div>
+
+    <div class="moduleSpace"></div>
+
     <div id="dataButtons">
       <button class="button" onclick="updateProjectDatabase()">Fetch Info</button>
       <button class="button" onclick="getJobsFromProject(accessDataflowAPI.projectID)">Show info</button>

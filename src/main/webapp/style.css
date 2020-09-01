@@ -56,6 +56,68 @@ header a:hover {
   font-size: 70px;
 }
 
+.moduleSpace {
+    height: 50px;
+}
+
+#projectIDForm {
+    display: flex;
+    justify-content: center;
+}
+
+input[type=text] {
+  font-size: 16px;
+  width: 40%;
+  padding: 12px 10px;
+  margin: 0;
+  outline: none;
+  border: none;
+  border-radius: 14px;
+  box-shadow: 0 3px 4px 0 rgba(0,0,0,.2), 0 3px 3px -2px rgba(0,0,0,.14), 0 1px 8px 0 rgba(0,0,0,.12); 
+}
+
+input[type=button] {
+    background: url(images/find.png) center no-repeat;
+    margin-left: 12px;
+    background-color: rgb(255, 187, 0);
+    width: 8%;
+    outline: none;
+    border: none;
+    box-shadow: 0 3px 4px 0 rgba(0,0,0,.2), 0 3px 3px -2px rgba(0,0,0,.14), 0 1px 8px 0 rgba(0,0,0,.12);
+}
+
+input[type=button]:hover {
+  background-color: #e88304;
+}
+
+.permissionButton {
+  margin-left: 10px;
+  width: 25px;
+  outline: none;
+  border: none;
+}
+
+#showMissingPermision {
+  background: url(images/warning.png) center no-repeat;
+  background-size: contain;
+}
+
+#allPermisionsCorrect {
+  background: url(images/check.png) center no-repeat;
+  background-size: contain;
+}
+
+#showMissingPermision:hover, #allPermisionsCorrect:hover {
+  background-color: #ddd;
+}
+
+#permissionDialog {
+    background-color: #ddd;
+    text-align: center;
+    padding: 4px;
+    margin: 8px;
+}
+
 #totalCost {
   padding: 20px;
 }
