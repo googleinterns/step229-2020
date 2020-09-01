@@ -112,12 +112,16 @@ input[type=button]:hover {
 }
 
 #permissionDialog {
-    background-color: #ddd;
-    text-align: center;
-    padding: 4px;
-    margin: 8px;
+  background-color: #ddd;
+  text-align: center;
+  padding: 4px;
+  margin: 8px;
 }
 
+#aggregationForm {
+  display: flex;
+  justify-content: center;
+}
 #aggregationForm label {
   font-family: "Google Sans",Arial,Helvetica,sans-serif;
 }
