@@ -81,6 +81,16 @@ function updateProjectDatabase() {
   }); 
 }
 
+/**
+ * Sends a GET request to the AggregationDataServlet to fetch the jobs 
+ * aggregated by the option checked by the user
+ */
+function fetchAggregatedJobsBy() {
+  var option = document.querySelector('input[name = option]:checked').value;
+  var aggregationUrl = formatURLs('get-aggregated-data', {'option': option});
+  fetch(aggregationUrl);
+}
+
 function getJobsFromProject(projectID) {
   fetch('/jobs?projectID=' + projectID)
   .then(response => response.json())

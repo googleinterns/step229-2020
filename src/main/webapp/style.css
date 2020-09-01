@@ -112,10 +112,38 @@ input[type=button]:hover {
 }
 
 #permissionDialog {
-    background-color: #ddd;
-    text-align: center;
-    padding: 4px;
-    margin: 8px;
+  background-color: #ddd;
+  text-align: center;
+  padding: 4px;
+  margin: 8px;
+}
+
+#aggregationForm {
+  display: flex;
+  justify-content: center;
+}
+#aggregationForm label {
+  font-family: "Google Sans",Arial,Helvetica,sans-serif;
+}
+
+#aggregationForm input[type=radio] {
+  visibility:hidden;
+}
+
+#aggregationForm label[for^="radio"] {
+  cursor: pointer;
+  border: 2px solid #e88304;
+  border-radius: 10px;
+  padding: 5px;
+}
+
+#aggregationForm label[for^="radio"]:hover {
+  background-color: #e88304;
+}
+
+#aggregationForm input:checked + label {
+  border: none;
+  background-color: #85bf85;
 }
 
 #totalCost {

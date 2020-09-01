@@ -61,13 +61,20 @@
       <button class="button" onclick="updateProjectDatabase()">Fetch Info</button>
       <button class="button" onclick="getJobsFromProject(accessDataflowAPI.projectID)">Show info</button>
     </div>
-    <form id="commentForm">
-      <label for="aggregationMethod">Choose a variable to aggregate the data by:</label>
-      <select id="aggregationMethod" name="aggregationMethod">
-        <option value="jobName">Job Name</option>
-        <option value="owner">Owner</option>
-      </select>
-      <button id="submitComment" type="input">Submit</button>
+
+    <!-- Choose what to aggregate the data by -->
+    <form id="aggregationForm" action="/get-aggregated-data" method="get">
+      <label>Choose a variable to aggregate the data by:</label>
+      <input type='radio' value='jobName' name='option' onchange="fetchAggregatedJobsBy()" id='radio1'/>
+      <label for='radio1'>Job Prefix</label>
+      <input type='radio' value='owner' name='option' onchange="fetchAggregatedJobsBy()" id='radio2'/>
+      <label for='radio2'>Owner</label>
+      <input type='radio' value='region' name='option' onchange="fetchAggregatedJobsBy()" id='radio3'/>
+      <label for='radio3'>Region</label>
+      <input type='radio' value='programmingLanguage' name='option' onchange="fetchAggregatedJobsBy()" id='radio4'/>
+      <label for='radio4'>Programming Language of SDK</label>
+      <input type='radio' value='sdk' name='option' onchange="fetchAggregatedJobsBy()" id='radio5'/>
+      <label for='radio5'>SDK</label>
     </form>
     <div class="gridContainer">
       <!--Total cost of jobs within each aggregation.-->
