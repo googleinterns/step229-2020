@@ -22,11 +22,6 @@ function initBody() {
   document.getElementById('dataButtons').style.display = 'none';
   setCredentialsServlet();
   google.charts.load('current', {'packages':['corechart']});
-  google.charts.setOnLoadCallback(getTotalCosts);
-  google.charts.setOnLoadCallback(getFailedJobs);
-  google.charts.setOnLoadCallback(getFailedJobsCost);
-  google.charts.setOnLoadCallback(getAveragevCPUCount);
-  google.charts.setOnLoadCallback(SSDVsHDDTimeComparison);
 }
 
 function setCredentialsServlet() {
@@ -87,8 +82,17 @@ function updateProjectDatabase() {
  */
 function fetchAggregatedJobsBy() {
   var option = document.querySelector('input[name = option]:checked').value;
-  var aggregationUrl = formatURLs('get-aggregated-data', {'option': option});
-  fetch(aggregationUrl);
+  var aggregationUrl = formatURLs('get-aggregated-data', {'projectID': config.projectID, 'option': option});
+  fetch(aggregationUrl)
+  .then(response => response.json())
+  .then(jobs => {
+    google.charts.setOnLoadCallback(getTotalCosts(jobs));
+    google.charts.setOnLoadCallback(getAverageCosts(jobs));
+    google.charts.setOnLoadCallback(getFailedJobs(jobs));
+    google.charts.setOnLoadCallback(getFailedJobsCost(jobs));
+    google.charts.setOnLoadCallback(getAveragevCPUCount(jobs));
+    google.charts.setOnLoadCallback(SSDVsHDDTimeComparison(jobs));
+  });
 }
 
 function getJobsFromProject(projectID) {
@@ -196,46 +200,44 @@ function formatURLs(url, parameters) {
   return `/${url}?${encodedParameters.toString()}`;
 }
 
-function getTotalCosts(){
+function getTotalCosts(aggregated){
   //takes each of the jobs and finds the total cost of each aggregated group of jobs
   var data = [];
-  /*data.push(['Category','Total Cost']);
-  for (job of jobs) {
+  data.push(['Category','Total Cost']);
+  for (category in aggregated) {
+    var totalCost = 0;
     var jobData = [];
-    jobData.push(job[0]);
-    var totalCost = job[1].reduce(function(a, b) {
-      return a.jobPrice + b.jobPrice;
-    }, 0);
+    jobData.push(category);
+    for (costs in aggregated[category]) {
+      totalCost += aggregated[category][costs].price;
+    }
     jobData.push(totalCost);
     data.push(jobData);
-  }*/
-  //test data
-   data = [['Category', 'Data'],['Person 1', 10],['Person 2', 50],['Person 3', 100]];
-  drawPieChart(data, 'Average Cost of Jobs Per Category', 'averageCost-container');
+  }
+  drawPieChart(data, 'Total Cost of Jobs Per Category', 'totalCost-container');
 }
 
-function getAverageCosts() {
+function getAverageCosts(aggregated) {
   //takes each of the jobs and finds the total cost of each aggregated group of jobs
   var data = [];
   data.push(['Category','Average Cost']);
-  /*for (job of jobs) {
+  for (category in aggregated) {
+    var totalCost = 0;
     var jobData = [];
-    jobData.push(job[0]);
-    var totalCost = job[1].reduce(function(a, b) {
-      return a.jobPrice + b.jobPrice;
-    }, 0);
-    totalCost /= job[1].length;
+    jobData.push(category);
+    for (costs in aggregated[category]) {
+      totalCost += aggregated[category][costs].price;
+    }
+    totalCost /= aggregated[category].length;
     jobData.push(totalCost);
     data.push(jobData);
-  }*/
-  //test data
-   data = [['Category', 'Data'],['Person 1', 10],['Person 2', 50],['Person 3', 100]];
-  drawPieChart(data, 'Total Cost of Jobs Per Category', 'totalCost-container');  
+  }
+  drawPieChart(data, 'Average Cost of Jobs Per Category', 'averageCost-container');  
 }
 
-function getFailedJobs(){
+function getFailedJobs(jobs){
   //takes each of the jobs and finds the total number of failed jobs within each aggregated group of jobs
-  var data = [];
+  //var data = [];
   /*(data.push(['Category','Total Count']);
   for (job of jobs) {
     var failed = 0;
@@ -251,13 +253,13 @@ function getFailedJobs(){
     data.push(jobData);
   }*/
   //test data
-   data = [['Category', 'Data'],['Person 1', 10],['Person 2', 50],['Person 3', 100]];
+  var data = [['Category', 'Data'],['Person 1', 10],['Person 2', 50],['Person 3', 100]];
   drawPieChart(data, 'Total Number of Failed Jobs Per Category', 'failedJobs-container');
 }
 
-function getFailedJobsCost() {
+function getFailedJobsCost(jobs) {
   //takes each of the failed jobs within each aggregated group and finds the total cost for each group
-  var data = []
+  //var data = []
   /*data.push(['Category','Total Cost']);
   for (job of jobs) {
     var failedCost = 0;
@@ -273,7 +275,7 @@ function getFailedJobsCost() {
     data.push(jobData);
   }*/
   //test data
-   data = [['Category', 'Data'],['Person 1', 10],['Person 2', 50],['Person 3', 100]];
+  var data = [['Category', 'Data'],['Person 1', 10],['Person 2', 50],['Person 3', 100]];
   drawPieChart(data, 'Total Cost of Failed Jobs Per Category', 'failedJobsCost-container');
 }
 
@@ -304,14 +306,15 @@ function getDailyView() {
   }
   data = jobs;
   data.unshift(['Category', 'Average Cost']);
+  */
   //test data
-  /*var data = [
+  var data = [
           ['Year', 'Sales', 'Expenses'],
           ['2004',  1000,      400],
           ['2005',  1170,      460],
           ['2006',  660,       1120],
           ['2007',  1030,      540]
-        ];*/
+        ];
  
   drawLineGraph(data, 'Cost Prediction On Daily Scale', 'costPrediction-container');  
 }
@@ -320,7 +323,7 @@ function getWeeklyView() {
   //find the moving average for 30 days worth of data
   //need to aggregate aggregated data to get groups of jobs run on the same day
   
-  for (job of jobs) {
+  /*for (job of jobs) {
     var dailyAverage = job[1].reduce(function(a, b) {
         return a.jobPrice + b.jobPrice;
     }, 0);
@@ -335,19 +338,19 @@ function getWeeklyView() {
   }
   data = jobs;
   data.unshift(['Category', 'Average Cost']);
-
-  /*var data = [
+*/
+  var data = [
           ['Year', 'Sales', 'Expenses'],
           ['2004',  1000,      400],
           ['2005',  1170,      460],
           ['2006',  660,       1120],
           ['2007',  1030,      540]
-        ];*/
+        ];
  
   drawLineGraph(data, 'Cost Prediction On Weekly Scale', 'costPrediction-container');  
 }
 
-function getAveragevCPUCount() {
+function getAveragevCPUCount(jobs) {
   //takes each of the jobs and finds the total cost of each aggregated group of jobs
   /*var data = [];
   data.push(['Category', 'Average Count']);
@@ -366,8 +369,8 @@ function getAveragevCPUCount() {
   drawPieChart(data, 'Average vCPU Usage', 'vCPU-container');
 }
 
-function SSDVsHDDTimeComparison() {
-  var data = [];
+function SSDVsHDDTimeComparison(jobs) {
+  /*var data = [];
   data.push(['Category','Average SSD Time', 'Average HDD Time']);
   for (job of jobs) {
     var jobData = [];
@@ -384,15 +387,15 @@ function SSDVsHDDTimeComparison() {
     jobData.push(ssdCount);
     jobData.push(hddCount);
     data.push(jobData);
-  }
+  }*/
   //test data
-   /*data = [
+   data = [
         ['Genre', 'Fantasy & Sci Fi', 'Romance', 'Mystery/Crime', 'General',
          'Western', 'Literature', { role: 'annotation' } ],
         ['2010', 10, 24, 20, 32, 18, 5, ''],
         ['2020', 16, 22, 23, 30, 16, 9, ''],
         ['2030', 28, 19, 29, 30, 12, 13, '']
-      ];*/
+      ];
 
   drawColumnChart(data, 'Comparison of SSDTime VS HDDTime', 'SSDVsHDDTime-container', true);
 }

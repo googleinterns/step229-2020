@@ -203,7 +203,7 @@ tr:nth-child(even) {
 .gridElement {
   display: grid;
   grid-template-columns: repeat(2, 50%);
-  grid-template-rows: auto auto auto auto;
+  grid-template-rows: auto auto auto auto auto;
   align-content: center;
   justify-content: center;
   grid-gap: 1em;
@@ -220,29 +220,34 @@ tr:nth-child(even) {
   grid-row: 1;
 }
 
+.costSubtitle {
+  grid-column: 1;
+  grid-row: 2;
+}
+
 .totalCost {
-  grid-column: 1 / 2;
-  grid-row: 2;
-}
-
-.averageCost {
-  grid-column: 2 / 3;
-  grid-row: 2;
-}
-
-.costPrediction {
   grid-column: 1 / 2;
   grid-row: 3;
 }
 
-.dayOptionButton {
+.averageCost {
+  grid-column: 2 / 3;
+  grid-row: 3;
+}
+
+.costPrediction {
   grid-column: 1 / 2;
   grid-row: 4;
 }
 
+.dayOptionButton {
+  grid-column: 1 / 2;
+  grid-row: 5;
+}
+
 .weekOptionButton {
   grid-column: 2 / 3;
-  grid-row: 4;
+  grid-row: 5;
 }
 
 .failedJobs {
@@ -321,8 +326,8 @@ body {
   padding: 30px;
 }
 
-h1, h2, p, label {
-  font-family: Arial, Helvetica, sans-serif;
+h1, h2, p, label, #permissionDialog {
+  font-family: "Google Sans", Arial, Helvetica, sans-serif;
 }
 
 h2 {
