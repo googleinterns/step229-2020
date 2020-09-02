@@ -297,14 +297,19 @@ tr:nth-child(even) {
   grid-row: 1;
 }
 
+.resourceSubtitle {
+  grid-column: 1 / 3;
+  grid-row: 2;
+}
+
 .vCPUAnalysis {
   grid-column: 1 / 2;
-  grid-row: 2;
+  grid-row: 3;
 }
 
 .SSDVsHDDTimeAnalysis {
   grid-column: 2 / 3;
-  grid-row: 2;
+  grid-row: 3;
 }
 
 .locationAnalysis {
