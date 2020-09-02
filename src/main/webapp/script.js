@@ -19,14 +19,16 @@ document.getElementById('theform').onsubmit = function() {
 };*/
 
 function initBody() {
-  document.getElementById('dataButtons').style.display = 'none';
-  setCredentialsServlet();
+  //document.getElementById('dataButtons').style.display = 'none';
+  document.getElementById('projectID').value = accessDataflowAPI.projectID;
+  //setCredentialsServlet();
   google.charts.load('current', {'packages':['corechart']});
   google.charts.setOnLoadCallback(getTotalCosts);
   google.charts.setOnLoadCallback(getFailedJobs);
   google.charts.setOnLoadCallback(getFailedJobsCost);
   google.charts.setOnLoadCallback(getAveragevCPUCount);
   google.charts.setOnLoadCallback(SSDVsHDDTimeComparison);
+  google.setOnLoadCallback(getWeeklyView);
 }
 
 function setCredentialsServlet() {
@@ -53,7 +55,7 @@ function checkPermissions() {
         button.hidden = false;
 
         message.innerText = 'The permissions are all correctly setup. Nothing more needs doing.';
-        document.getElementById('dataButtons').style.display = 'block';
+        //document.getElementById('dataButtons').style.display = 'block';
       } else if (missing == 1) {
         const button = document.getElementById('showMissingPermision');
         button.hidden = false;
@@ -63,7 +65,7 @@ function checkPermissions() {
         const button = document.getElementById('showMissingPermision');
         button.hidden = false;
 
-        message.innerText = 'There are '+missing+' permissions missing. These are: '+missingPermissionList;
+        message.innerText = 'There are ' + missing + ' permissions missing. These are: ' + missingPermissionList;
       }
     } else {
       message.innerText = permission;
@@ -87,8 +89,10 @@ function updateProjectDatabase() {
  */
 function fetchAggregatedJobsBy() {
   var option = document.querySelector('input[name = option]:checked').value;
-  var aggregationUrl = formatURLs('get-aggregated-data', {'option': option});
-  fetch(aggregationUrl);
+  var aggregationUrl = formatURLs('get-aggregated-data', {
+      'option': option, 
+      'projectID' : accessDataflowAPI.projectID});
+  fetch(aggregationUrl).then(document.getElementById('container').style.visibility = 'visible');
 }
 
 function getJobsFromProject(projectID) {
@@ -303,15 +307,15 @@ function getDailyView() {
     jobs.push(['Future Day '+i, prediction])
   }
   data = jobs;
-  data.unshift(['Category', 'Average Cost']);
+  data.unshift(['Category', 'Average Cost']);*/
   //test data
-  /*var data = [
+  var data = [
           ['Year', 'Sales', 'Expenses'],
           ['2004',  1000,      400],
           ['2005',  1170,      460],
           ['2006',  660,       1120],
           ['2007',  1030,      540]
-        ];*/
+        ];
  
   drawLineGraph(data, 'Cost Prediction On Daily Scale', 'costPrediction-container');  
 }
@@ -320,7 +324,7 @@ function getWeeklyView() {
   //find the moving average for 30 days worth of data
   //need to aggregate aggregated data to get groups of jobs run on the same day
   
-  for (job of jobs) {
+  /*for (job of jobs) {
     var dailyAverage = job[1].reduce(function(a, b) {
         return a.jobPrice + b.jobPrice;
     }, 0);
@@ -334,15 +338,15 @@ function getWeeklyView() {
     jobs.push(['Future Week '+i, prediction])
   }
   data = jobs;
-  data.unshift(['Category', 'Average Cost']);
+  data.unshift(['Category', 'Average Cost']);*/
 
-  /*var data = [
+  var data = [
           ['Year', 'Sales', 'Expenses'],
           ['2004',  1000,      400],
           ['2005',  1170,      460],
           ['2006',  660,       1120],
           ['2007',  1030,      540]
-        ];*/
+        ];
  
   drawLineGraph(data, 'Cost Prediction On Weekly Scale', 'costPrediction-container');  
 }
@@ -368,7 +372,7 @@ function getAveragevCPUCount() {
 
 function SSDVsHDDTimeComparison() {
   var data = [];
-  data.push(['Category','Average SSD Time', 'Average HDD Time']);
+  /*data.push(['Category','Average SSD Time', 'Average HDD Time']);
   for (job of jobs) {
     var jobData = [];
     var numberJobs = job[1].length;
@@ -384,15 +388,15 @@ function SSDVsHDDTimeComparison() {
     jobData.push(ssdCount);
     jobData.push(hddCount);
     data.push(jobData);
-  }
+  }*/
   //test data
-   /*data = [
+   data = [
         ['Genre', 'Fantasy & Sci Fi', 'Romance', 'Mystery/Crime', 'General',
          'Western', 'Literature', { role: 'annotation' } ],
         ['2010', 10, 24, 20, 32, 18, 5, ''],
         ['2020', 16, 22, 23, 30, 16, 9, ''],
         ['2030', 28, 19, 29, 30, 12, 13, '']
-      ];*/
+      ];
 
   drawColumnChart(data, 'Comparison of SSDTime VS HDDTime', 'SSDVsHDDTime-container', true);
 }
@@ -400,8 +404,18 @@ function SSDVsHDDTimeComparison() {
 function drawLineGraph(data, title, containerName) {
   var chartData = google.visualization.arrayToDataTable(data);
   var options = {
+    chartArea: {
+      // leave room for y-axis labels
+      width: '80%'
+    },
+    legend: {
+      position: 'top'
+    },
+    //height: 250,
+    width: '100%',
     title: title,
     curveType: 'function',
+    overflow: 'hidden',
   }
   var chart = new google.visualization.LineChart(document.getElementById(containerName));
   chart.draw(chartData, options);

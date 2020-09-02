@@ -33,7 +33,7 @@
     <!-- Input for the Project ID-->
     <form id="projectIDForm">
       <input type="text" id="projectID" placeholder="Enter Project ID" name="projectID" required>
-      <input type="button" onclick="getJobsFromProject(this.projectID)">
+      <input type="button" onclick="updateProjectDatabase()" value = "Fetch">
       <!-- Button visible when there are some permissions missing -->
       <button 
           class="permissionButton" 
@@ -56,11 +56,11 @@
     <div id="permissionDialog" hidden></div>
 
     <div class="moduleSpace"></div>
-
+    <!--
     <div id="dataButtons">
       <button class="button" onclick="updateProjectDatabase()">Fetch Info</button>
       <button class="button" onclick="getJobsFromProject(accessDataflowAPI.projectID)">Show info</button>
-    </div>
+    </div> -->
 
     <!-- Choose what to aggregate the data by -->
     <form id="aggregationForm" action="/get-aggregated-data" method="get">
@@ -76,14 +76,17 @@
       <input type='radio' value='sdk' name='option' onchange="fetchAggregatedJobsBy()" id='radio5'/>
       <label for='radio5'>SDK</label>
     </form>
-    <div class="gridContainer">
+    
+    <div class="gridContainer" id="container" hidden>
       <!--Total cost of jobs within each aggregation.-->
       <!--Predicted cost of future jobs using moving averages.-->
       <div class="gridElement cost">
         <h2 class="costTitle">Cost and Cost Estimation</h2>
         <div class="totalCost" id="totalCost-container"></div>
-        <button class="button dayOptionButton" id="dailyView" onclick="dailyViewHandler();">Day</button>
-        <button class="button weekOptionButton" id="weeklyView" onclick="weeklyViewHandler();">Month</button>
+        <div class="graphButton">
+          <button class="button dayOptionButton" id="dailyView" onclick="dailyViewHandler();">Day</button>
+          <button class="button weekOptionButton" id="weeklyView" onclick="weeklyViewHandler();">Month</button>
+        </div>
         <div class="costPrediction" id="costPrediction-container"></div>
         <div class="averageCost" id="averageCost-container"></div>
       </div>

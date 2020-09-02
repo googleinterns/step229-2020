@@ -47,7 +47,7 @@ public final class ProjectCenter {
     public ProjectCenter(String projectId, String pathToJsonFile) throws IOException,  GeneralSecurityException {
       this.projectId = projectId;
       this.pathToJsonFile = pathToJsonFile;
-        
+      
       credential = GoogleCredential.fromStream(new FileInputStream(pathToJsonFile));
       if (credential.createScopedRequired()) {
         credential = credential.createScoped(Collections.singletonList("https://www.googleapis.com/auth/cloud-platform"));
