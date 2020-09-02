@@ -235,7 +235,7 @@ function getAverageCosts(aggregated) {
   drawPieChart(data, 'Average Cost of Jobs Per Category', 'averageCost-container');  
 }
 
-function getFailedJobs(jobs){
+function getFailedJobs(aggregated){
   //takes each of the jobs and finds the total number of failed jobs within each aggregated group of jobs
   //var data = [];
   /*(data.push(['Category','Total Count']);
@@ -253,30 +253,57 @@ function getFailedJobs(jobs){
     data.push(jobData);
   }*/
   //test data
-  var data = [['Category', 'Data'],['Person 1', 10],['Person 2', 50],['Person 3', 100]];
-  drawPieChart(data, 'Total Number of Failed Jobs Per Category', 'failedJobs-container');
-}
-
-function getFailedJobsCost(jobs) {
-  //takes each of the failed jobs within each aggregated group and finds the total cost for each group
-  //var data = []
-  /*data.push(['Category','Total Cost']);
-  for (job of jobs) {
-    var failedCost = 0;
+  //var data = [['Category', 'Data'],['Person 1', 10],['Person 2', 50],['Person 3', 100]];
+    var data = [];
+  data.push(['Category','Total Count']);
+  for (category in aggregated) {
+    var count = 0;
     var jobData = [];
-    jobData.push(job[0]);
-    for (var i = 0; i < job[1].length; i++) {
-      //check that it is the jobState we need
-      if (job[i].jobState == 'Failed') {
-        failedCost += job[i].jobPrice;
+    jobData.push(category);
+    for (costs in aggregated[category]) {
+      console.log(aggregated[category][costs]);
+      if (aggregated[category][costs].state == 'JOB_STATE_FAILED') {
+        count ++;
       }
     }
+    jobData.push(count);
+    data.push(jobData);
+  }
+  if (data[1][1] == 0 && data.length == 2) {
+    var container = document.getElementById('failedJobsCost-container');
+    container.innerText = "There are no failed jobs.";
+  } else {
+    drawPieChart(data, 'Total Number of Failed Jobs Per Category', 'failedJobs-container');
+  }
+}
+
+function getFailedJobsCost(aggregated) {
+  //takes each of the failed jobs within each aggregated group and finds the total cost for each group
+  var data = [];
+  data.push(['Category','Total Cost']);
+  var isAllZero = true;
+  for (category in aggregated) {
+    var count = 0;
+    var failedCost = 0;
+    var jobData = [];
+    jobData.push(category);
+    for (costs in aggregated[category]) {
+      if (aggregated[category][costs].state == 'JOB_STATE_FAILED') {
+        count ++;
+        failedCost += aggregated[category][costs].price;
+      }
+    }
+    failedCost /= count;
     jobData.push(failedCost);
     data.push(jobData);
-  }*/
-  //test data
-  var data = [['Category', 'Data'],['Person 1', 10],['Person 2', 50],['Person 3', 100]];
-  drawPieChart(data, 'Total Cost of Failed Jobs Per Category', 'failedJobsCost-container');
+    isAllZero = isAllZero && ((failedCost == 0) || isNaN(failedCost));
+  }
+  if (isAllZero) {
+    var container = document.getElementById('failedJobsCost-container');
+    container.innerText = "No money has been spent on failed jobs.";
+  } else {
+    drawPieChart(data, 'Total Cost of Failed Jobs Per Category', 'failedJobsCost-container');
+  }
 }
 
 function dailyViewHandler() {
