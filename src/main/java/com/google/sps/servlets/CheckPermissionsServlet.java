@@ -70,13 +70,14 @@ public class CheckPermissionsServlet extends HttpServlet {
     }
 
     List<String> requiredPermissions =
-      Arrays.asList("compute.instanceGroupManagers.update",
-        "compute.instances.delete",
-        "compute.instances.setDiskAutoDelete",
-        "dataflow.jobs.get",
-        "logging.logEntries.create",
-        "storage.objects.create",
-        "storage.objects.get");
+      Arrays.asList("dataflow.jobs.get",
+        "dataflow.jobs.list",
+        "dataflow.messages.list",
+        "dataflow.metrics.get",
+        "dataflow.snapshots.get",
+        "dataflow.snapshots.list");
+        //"resourcemanager.projects.get",
+        //"resourcemanager.projects.list");
 
     try {
       TestIamPermissionsRequest permissionsRequestBody = 

@@ -321,8 +321,8 @@ body {
   padding: 30px;
 }
 
-h1, h2, p, label {
-  font-family: Arial, Helvetica, sans-serif;
+h1, h2, p, label, #permissionDialog {
+  font-family: "Google Sans", Arial, Helvetica, sans-serif;
 }
 
 h2 {
