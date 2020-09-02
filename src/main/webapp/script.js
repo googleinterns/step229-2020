@@ -217,7 +217,7 @@ function getTotalCosts(aggregated){
   drawPieChart(data, 'Total Cost of Jobs Per Category', 'totalCost-container');
 }
 
-function getAverageCosts(jobs) {
+function getAverageCosts(aggregated) {
   //takes each of the jobs and finds the total cost of each aggregated group of jobs
   //var data = [];
   //data.push(['Category','Average Cost']);
@@ -231,8 +231,22 @@ function getAverageCosts(jobs) {
     jobData.push(totalCost);
     data.push(jobData);
   }*/
+  var data = [];
+  data.push(['Category','Average Cost']);
+  for (category in aggregated) {
+    var totalCost = 0;
+    var jobData = [];
+    jobData.push(category);
+    for (costs in aggregated[category]) {
+      totalCost += aggregated[category][costs].price;
+    }
+    console.log(aggregated[category].length);
+    totalCost /= aggregated[category].length;
+    jobData.push(totalCost);
+    data.push(jobData);
+  }
   //test data
-  var data = [['Category', 'Data'],['Person 1', 10],['Person 2', 50],['Person 3', 100]];
+  //var data = [['Category', 'Data'],['Person 1', 10],['Person 2', 50],['Person 3', 100]];
   drawPieChart(data, 'Average Cost of Jobs Per Category', 'averageCost-container');  
 }
 
