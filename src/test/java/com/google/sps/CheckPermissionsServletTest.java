@@ -11,7 +11,12 @@ import org.junit.Test;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.junit.Ignore;
+import java.util.Arrays;
+import java.util.*;
+import com.google.gson.Gson;
+
+
+//import org.junit.Ignore;
 
 public class CheckPermissionsServletTest {
 
@@ -42,8 +47,9 @@ public class CheckPermissionsServletTest {
 
     writer.flush();
 
-    assertTrue(stringWriter.toString().contains("[]"));
-      //"[{\"permissions\":[\"compute.instanceGroupManagers.update\",\"compute.instances.delete\",\"compute.instances.setDiskAutoDelete\"," +
-      //  "\"dataflow.jobs.get\",\"logging.logEntries.create\",\"storage.objects.create\",\"storage.objects.get\"]},0]"));
+    Gson gson = new Gson();
+    Set<String> correctResponse = new HashSet<>();
+
+    assertTrue(stringWriter.toString().contains(gson.toJson(Arrays.asList(correctResponse, 0))));
   }
 }
