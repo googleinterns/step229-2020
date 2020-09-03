@@ -13,10 +13,11 @@
     <!-- TODO add links to different parts of the page -->
     <!-- Sticky Navigation Bar -->
     <header id="topNavigator">
-      <a href="">Section1</a>
-      <a href="">Section2</a>
-      <a href="">Section3</a>
-      <a href="">Section4</a>
+      <a href="#costAnchor">Cost Analysis and Prediction</a>
+      <a href="#jobStatusAnchor">Job Status Analysis</a>
+      <a href="#sdkAnchor">SDK Analysis</a>
+      <a href="#resourceAnchor">Resource Analysis</a>
+      <a href="#locationAnchor">Location Analysis</a>
     </header>
     
     <!--Title -->
@@ -33,7 +34,7 @@
     <!-- Input for the Project ID-->
     <form id="projectIDForm">
       <input type="text" id="projectID" placeholder="Enter Project ID" name="projectID" required>
-      <input type="button" onclick="getJobsFromProject(this.projectID)">
+      <input type="button" onclick="updateProjectDatabase()" value = "Fetch">
       <!-- Button visible when there are some permissions missing -->
       <button 
           class="permissionButton" 
@@ -52,43 +53,49 @@
       </button> 
     </form>
 
-    <!-- Pops up when the user hoover over a button from the permissionButton class -->
+    <!-- Pops up when the user hover over a button from the permissionButton class -->
     <div id="permissionDialog" hidden></div>
 
     <div class="moduleSpace"></div>
-
+    <!--
     <div id="dataButtons">
       <button class="button" onclick="updateProjectDatabase()">Fetch Info</button>
       <button class="button" onclick="getJobsFromProject(accessDataflowAPI.projectID)">Show info</button>
-    </div>
+    </div> -->
 
     <!-- Choose what to aggregate the data by -->
     <form id="aggregationForm" action="/get-aggregated-data" method="get">
       <label>Choose a variable to aggregate the data by:</label>
-      <input type='radio' value='jobName' name='option' onchange="fetchAggregatedJobsBy()" id='radio1'/>
+      <input type='radio' value='jobName' name='option' onchange="setUpGraphs()" id='radio1'/>
       <label for='radio1'>Job Prefix</label>
-      <input type='radio' value='owner' name='option' onchange="fetchAggregatedJobsBy()" id='radio2'/>
+      <input type='radio' value='owner' name='option' onchange="setUpGraphs()" id='radio2'/>
       <label for='radio2'>Owner</label>
-      <input type='radio' value='region' name='option' onchange="fetchAggregatedJobsBy()" id='radio3'/>
+      <input type='radio' value='region' name='option' onchange="setUpGraphs()" id='radio3'/>
       <label for='radio3'>Region</label>
-      <input type='radio' value='programmingLanguage' name='option' onchange="fetchAggregatedJobsBy()" id='radio4'/>
+      <input type='radio' value='programmingLanguage' name='option' onchange="setUpGraphs()" id='radio4'/>
       <label for='radio4'>Programming Language of SDK</label>
-      <input type='radio' value='sdk' name='option' onchange="fetchAggregatedJobsBy()" id='radio5'/>
+      <input type='radio' value='sdk' name='option' onchange="setUpGraphs()" id='radio5'/>
       <label for='radio5'>SDK</label>
     </form>
-    <div class="gridContainer">
+    
+    <div class="gridContainer" id="container" hidden>
       <!--Total cost of jobs within each aggregation.-->
       <!--Predicted cost of future jobs using moving averages.-->
+      <!--<a id="costAnchor">-->
+      <a id="costAnchor">
       <div class="gridElement cost">
         <h2 class="costTitle">Cost and Cost Estimation</h2>
         <p class="costSubtitle">Hover over segment for costs. All costs in US$.</p>
         <div class="totalCost" id="totalCost-container"></div>
-        <button class="button dayOptionButton" id="dailyView" onclick="dailyViewHandler();">Day</button>
-        <button class="button weekOptionButton" id="weeklyView" onclick="weeklyViewHandler();">Month</button>
+        <div class="graphButton">
+          <button class="button dayOptionButton" id="dailyView" onclick="dailyViewHandler();">Daily Scale</button>
+          <button class="button weekOptionButton" id="weeklyView" onclick="weeklyViewHandler();">Weekly Scale</button>
+        </div>
         <div class="costPrediction" id="costPrediction-container"></div>
         <div class="averageCost" id="averageCost-container"></div>
       </div>
       <!--Comparison of number of failed jobs within each aggreation etc.-->
+      <a id="jobStatusAnchor">
       <div class="gridElement failedJobs">
         <h2 class="failedJobsTitle">Job Status Analysis</h2>
         <p class="failedJobsSubtitle">Hover over segment for total count/ cost. All costs in US$.</p>
@@ -97,11 +104,13 @@
       </div>
       <!--Comparison of different SDKs being used - e.g. proportion of Java vs Python etc.-->
       <!--Analysis on number of outdated SDKs being used - perhaps list of jobs returned using outdated SDKS?-->
+      <a id="sdkAnchor">
       <div class="gridElement sdkAnalysis">
         <h2 class="sdkTitle">SDK Analysis</h2>
         <div id="sdk-Analysis"></div>
       </div>
       <!--Analysis of various resource metrics e.g. vCPU count, memory, SSD/HDD comparison.-->
+      <a id="resourceAnchor">
       <div class="gridElement resourceAnalysis">
         <h2 class="resourceTitle">Resource Analysis</h2>
         <p class="resourceSubtitle">Hover over segment for total count. SSD Time and HDD Time is measured in GB hr.</p>
@@ -110,6 +119,7 @@
       </div>
       <!--Map here showing where the different jobs are being run as a visual representation.-->
       <!--Perhaps basic analysis e.g. region where most are run, region where most fail etc.-->
+      <a id="locationAnchor">
       <div class="gridElement locationAnalysis">
         <h2 class="locationTitle">Location Analysis</h2>
         <div id=""></div>

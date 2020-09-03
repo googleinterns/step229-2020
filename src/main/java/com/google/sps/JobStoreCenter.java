@@ -108,7 +108,6 @@ public final class JobStoreCenter {
 
       PreparedQuery resultsJobs = datastore.prepare(queryJobs);
 
-      
       for (Entity entity : resultsJobs.asIterable()) {
         String name = (String) entity.getProperty("name");
         String id = (String) entity.getProperty("jobId");

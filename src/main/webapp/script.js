@@ -5,21 +5,9 @@
  * @author tblanshard
  */
 
-/*
-//Commented as requires discussion with Andreea
-document.getElementById('theform').onsubmit = function() { 
-  var method = document.getElementById('aggregationMethod').value;
-  var aggregationUrl = formatURLs('get-aggregated-data', {'method': method});
-  fetch(aggregationUrl)
-  .then(response => response.json())
-  .then((jobs) => {
-    getTotalCosts(jobs);
-  });
-  return false;
-};*/
-
 function initBody() {
-  document.getElementById('dataButtons').style.display = 'none';
+  //document.getElementById('dataButtons').style.display = 'none';
+  document.getElementById('projectID').value = accessDataflowAPI.projectID;
   setCredentialsServlet();
   google.charts.load('current', {'packages':['corechart']});
 }
@@ -48,7 +36,7 @@ function checkPermissions() {
         button.hidden = false;
 
         message.innerText = 'The permissions are all correctly setup. Nothing more needs doing.';
-        document.getElementById('dataButtons').style.display = 'block';
+        //document.getElementById('dataButtons').style.display = 'block';
       } else if (missing == 1) {
         const button = document.getElementById('showMissingPermision');
         button.hidden = false;
@@ -58,7 +46,7 @@ function checkPermissions() {
         const button = document.getElementById('showMissingPermision');
         button.hidden = false;
 
-        message.innerText = 'There are '+missing+' permissions missing. These are: '+missingPermissionList;
+        message.innerText = 'There are ' + missing + ' permissions missing. These are: ' + missingPermissionList;
       }
     } else {
       message.innerText = permission;
@@ -80,18 +68,28 @@ function updateProjectDatabase() {
  * Sends a GET request to the AggregationDataServlet to fetch the jobs 
  * aggregated by the option checked by the user
  */
-function fetchAggregatedJobsBy() {
-  var option = document.querySelector('input[name = option]:checked').value;
+
+function fetchAggregatedJobsBy(option) {
   var aggregationUrl = formatURLs('get-aggregated-data', {'projectID': config.projectID, 'option': option});
-  fetch(aggregationUrl)
+  return fetch(aggregationUrl)
   .then(response => response.json())
   .then(jobs => {
-    google.charts.setOnLoadCallback(getTotalCosts(jobs));
-    google.charts.setOnLoadCallback(getAverageCosts(jobs));
-    google.charts.setOnLoadCallback(getFailedJobs(jobs));
-    google.charts.setOnLoadCallback(getFailedJobsCost(jobs));
-    google.charts.setOnLoadCallback(getAveragevCPUCount(jobs));
-    google.charts.setOnLoadCallback(SSDVsHDDTimeComparison(jobs));
+    return jobs;
+  });
+}
+
+function setUpGraphs() {
+  var option = document.querySelector('input[name = option]:checked').value;
+  var jobs = fetchAggregatedJobsBy(option);
+  jobs.then(jobData => {
+    google.charts.setOnLoadCallback(getTotalCosts(jobData));
+    google.charts.setOnLoadCallback(getAverageCosts(jobData));
+    google.charts.setOnLoadCallback(getDailyView(jobData));
+    google.charts.setOnLoadCallback(getFailedJobs(jobData));
+    google.charts.setOnLoadCallback(getFailedJobsCost(jobData));
+    google.charts.setOnLoadCallback(getAveragevCPUCount(jobData));
+    google.charts.setOnLoadCallback(SSDVsHDDTimeComparison(jobData));
+    document.getElementById('container').style.visibility = 'visible';    
   });
 }
 
@@ -237,24 +235,7 @@ function getAverageCosts(aggregated) {
 
 function getFailedJobs(aggregated){
   //takes each of the jobs and finds the total number of failed jobs within each aggregated group of jobs
-  //var data = [];
-  /*(data.push(['Category','Total Count']);
-  for (job of jobs) {
-    var failed = 0;
-    var jobData = [];
-    jobData.push(job[0]);
-    for (var i = 0; i < job[1].length; i++) {
-      //check that it is jobState we need
-      if (job[i].jobState == 'Failed') {
-        failed ++;
-      }
-    }
-    jobData.push(failed);
-    data.push(jobData);
-  }*/
-  //test data
-  //var data = [['Category', 'Data'],['Person 1', 10],['Person 2', 50],['Person 3', 100]];
-    var data = [];
+  var data = [];
   data.push(['Category','Total Count']);
   for (category in aggregated) {
     var count = 0;
@@ -307,17 +288,58 @@ function getFailedJobsCost(aggregated) {
 }
 
 function dailyViewHandler() {
-  google.setOnLoadCallback(getDailyView);
+  var option = document.querySelector('input[name = option]:checked').value;
+  var jobs = fetchAggregatedJobsBy(option);
+  jobs.then(jobData => {
+    google.setOnLoadCallback(getDailyView(jobData));
+  });
 }
 
 function weeklyViewHandler() {
-  google.setOnLoadCallback(getWeeklyView);
+  var option = document.querySelector('input[name = option]:checked').value;
+  var jobs = fetchAggregatedJobsBy(option);
+  jobs.then(jobData => {
+    google.setOnLoadCallback(getWeeklyView(jobData));
+  });
 }
 
-function getDailyView() {
+function getDatesBetweenDates(endDate, startDate) {
+  let dates = [];
+  const theDate = new Date(startDate);
+  while (theDate < endDate) {
+    dates = [...dates, new Date(theDate)];
+    theDate.setDate(theDate.getDate() + 1);
+  }
+  return dates;
+}
+
+function getDailyView(aggregated) {
   //find the moving average for 30 days worth of data
   //need to aggregate aggregated data to get groups of jobs run on the same day
+
+  const today = new Date();
+  const thirtyDaysFromNow = new Date(today);
+  thirtyDaysFromNow.setDate( thirtyDaysFromNow.getDate() - 30);
+
+  var dateList = getDatesBetweenDates(today, thirtyDaysFromNow);
   
+  /*
+  var data = [];
+  //set up the headers section
+  data.push(['Date']);
+  for (category in aggregated) {
+    data[0].push(category);
+    var totalCost = 0;
+    var jobData = [];
+    jobData.push(category);
+    for (costs in aggregated[category]) {
+      totalCost += aggregated[category][costs].price;
+    }
+    totalCost /= aggregated[category].length;
+    jobData.push(totalCost);
+    data.push(jobData);
+  }
+  */
   /*for (job of jobs) {
     var dailyAverage = job[1].reduce(function(a, b) {
         return a.jobPrice + b.jobPrice;
@@ -460,8 +482,18 @@ function SSDVsHDDTimeComparison(aggregated) {
 function drawLineGraph(data, title, containerName) {
   var chartData = google.visualization.arrayToDataTable(data);
   var options = {
+    chartArea: {
+      // leave room for y-axis labels
+      width: '80%'
+    },
+    legend: {
+      position: 'top'
+    },
+    //height: 250,
+    width: '100%',
     title: title,
     curveType: 'function',
+    overflow: 'hidden',
   }
   var chart = new google.visualization.LineChart(document.getElementById(containerName));
   chart.draw(chartData, options);
