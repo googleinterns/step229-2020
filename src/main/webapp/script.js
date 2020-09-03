@@ -305,23 +305,62 @@ function weeklyViewHandler() {
 
 function getDatesBetweenDates(endDate, startDate) {
   let dates = [];
-  const theDate = new Date(startDate);
+  var theDate = new Date(startDate);
   while (theDate < endDate) {
-    dates = [...dates, new Date(theDate)];
+    dates = [...dates, new Date(theDate).toLocaleDateString("en-US")];
     theDate.setDate(theDate.getDate() + 1);
   }
   return dates;
+}
+
+function transpose(a) {
+  return Object.keys(a[0]).map(function(c) {
+      return a.map(function(r) { return r[c]; });
+  });
 }
 
 function getDailyView(aggregated) {
   //find the moving average for 30 days worth of data
   //need to aggregate aggregated data to get groups of jobs run on the same day
 
-  const today = new Date();
-  const thirtyDaysFromNow = new Date(today);
+
+  var today = new Date();
+  var thirtyDaysFromNow = new Date(today);
   thirtyDaysFromNow.setDate( thirtyDaysFromNow.getDate() - 30);
 
   var dateList = getDatesBetweenDates(today, thirtyDaysFromNow);
+
+  var dateDict = {};
+  for (date in dateList) {
+    dateDict[dateList[date]] = 0;
+  }
+  
+  var data = [];
+  var titles = ['Category', ...dateList];
+  data.push(titles);
+  
+  for (category in aggregated) {
+    var totalCosts = {...dateDict};
+    for (jobs in aggregated[category]) {
+      totalCosts[new Date(aggregated[category][jobs].startTime).toLocaleDateString("en-US")] += aggregated[category][jobs].price;
+    }
+    var totalCostsOrdered = [];
+    totalCostsOrdered.push(category);
+    for (date in dateList) {
+      totalCostsOrdered.push(totalCosts[dateList[date]]);
+    }
+    data.push(totalCostsOrdered);
+  }
+
+  data = transpose(data);
+
+
+  /*
+  for (category in aggregated) {
+    for (dates in aggregated[category]) {
+      console.log(new Date(aggregated[category][dates].startTime));
+    }
+  }*/
   
   /*
   var data = [];
@@ -357,14 +396,14 @@ function getDailyView(aggregated) {
   data.unshift(['Category', 'Average Cost']);
   */
   //test data
-  var data = [
+  /*var data = [
           ['Year', 'Sales', 'Expenses'],
           ['2004',  1000,      400],
           ['2005',  1170,      460],
           ['2006',  660,       1120],
           ['2007',  1030,      540]
         ];
- 
+  */
   drawLineGraph(data, 'Cost Prediction On Daily Scale', 'costPrediction-container');  
 }
 
@@ -494,6 +533,12 @@ function drawLineGraph(data, title, containerName) {
     title: title,
     curveType: 'function',
     overflow: 'hidden',
+    vAxis: {
+      minValue:0,
+      viewWindow: {
+        min: 0
+      }
+    }
   }
   var chart = new google.visualization.LineChart(document.getElementById(containerName));
   chart.draw(chartData, options);
