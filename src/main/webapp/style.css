@@ -277,6 +277,7 @@ tr:nth-child(even) {
 .sdkAnalysis {
   grid-column: 1;
   grid-row: row 3;
+  background-color: papayawhip;
 }
 
 .sdkTitle {
