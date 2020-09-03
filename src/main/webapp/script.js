@@ -313,9 +313,9 @@ function getDatesBetweenDates(endDate, startDate) {
   return dates;
 }
 
-function transpose(a) {
-  return Object.keys(a[0]).map(function(c) {
-      return a.map(function(r) { return r[c]; });
+function transpose(array) {
+  return Object.keys(array[0]).map(function(column) {
+      return array.map(function(row) { return row[column]; });
   });
 }
 
