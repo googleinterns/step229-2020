@@ -19,8 +19,9 @@ document.getElementById('theform').onsubmit = function() {
 };*/
 
 function initBody() {
-  document.getElementById('dataButtons').style.display = 'none';
-  setCredentialsServlet();
+  //document.getElementById('dataButtons').style.display = 'none';
+  document.getElementById('projectID').value = accessDataflowAPI.projectID;
+  //setCredentialsServlet();
   google.charts.load('current', {'packages':['corechart']});
 }
 
@@ -48,7 +49,7 @@ function checkPermissions() {
         button.hidden = false;
 
         message.innerText = 'The permissions are all correctly setup. Nothing more needs doing.';
-        document.getElementById('dataButtons').style.display = 'block';
+        //document.getElementById('dataButtons').style.display = 'block';
       } else if (missing == 1) {
         const button = document.getElementById('showMissingPermision');
         button.hidden = false;
@@ -58,7 +59,7 @@ function checkPermissions() {
         const button = document.getElementById('showMissingPermision');
         button.hidden = false;
 
-        message.innerText = 'There are '+missing+' permissions missing. These are: '+missingPermissionList;
+        message.innerText = 'There are ' + missing + ' permissions missing. These are: ' + missingPermissionList;
       }
     } else {
       message.innerText = permission;
@@ -92,6 +93,7 @@ function fetchAggregatedJobsBy() {
     google.charts.setOnLoadCallback(getFailedJobsCost(jobs));
     google.charts.setOnLoadCallback(getAveragevCPUCount(jobs));
     google.charts.setOnLoadCallback(SSDVsHDDTimeComparison(jobs));
+    document.getElementById('container').style.visibility = 'visible'
   });
 }
 
@@ -460,8 +462,18 @@ function SSDVsHDDTimeComparison(aggregated) {
 function drawLineGraph(data, title, containerName) {
   var chartData = google.visualization.arrayToDataTable(data);
   var options = {
+    chartArea: {
+      // leave room for y-axis labels
+      width: '80%'
+    },
+    legend: {
+      position: 'top'
+    },
+    //height: 250,
+    width: '100%',
     title: title,
     curveType: 'function',
+    overflow: 'hidden',
   }
   var chart = new google.visualization.LineChart(document.getElementById(containerName));
   chart.draw(chartData, options);
