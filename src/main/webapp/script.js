@@ -80,8 +80,17 @@ function fetchAggregatedJobsBy(option) {
 
 function setUpGraphs() {
   var option = document.querySelector('input[name = option]:checked').value;
+  var isSDKSelected = (option == 'sdk');
+  if (isSDKSelected) {
+    document.getElementById('sdkAnalysis').style.display = 'block';
+  } else {
+    document.getElementById('sdkAnalysis').style.display = 'none';
+  }
   var jobs = fetchAggregatedJobsBy(option);
   jobs.then(jobData => {
+    if (isSDKSelected) {
+      getOutdatedSDK(jobData);
+    }
     google.charts.setOnLoadCallback(getTotalCosts(jobData));
     google.charts.setOnLoadCallback(getAverageCosts(jobData));
     google.charts.setOnLoadCallback(getDailyView(jobData));
@@ -417,6 +426,14 @@ function getWeeklyView(aggregated) {
   drawLineGraph(data, 'Cost Prediction On Weekly Scale', 'costPrediction-container');  
 }
 
+function getOutdatedSDK(aggregated) {
+  var container = document.getElementById('sdkAnalysis');
+  container.innerHTML += '<h3>The following jobs are using outdated SDKs.</h3>';
+  for (outdatedJob in aggregated['STALE']) {
+    container.innerHTML += '<p>'+JSON.stringify(aggregated['STALE'][outdatedJob].name)+'</p>';
+  }
+}
+
 function getAveragevCPUCount(aggregated) {
   var data = [];
   data.push(['Category','Average Count']);
@@ -439,33 +456,6 @@ function getAveragevCPUCount(aggregated) {
 }
 
 function SSDVsHDDTimeComparison(aggregated) {
-  /*var data = [];
-  data.push(['Category','Average SSD Time', 'Average HDD Time']);
-  for (job of jobs) {
-    var jobData = [];
-    var numberJobs = job[1].length;
-    jobData.push(job[0]);
-    var ssdCount = job[1].reduce(function(a, b) {
-      return a.totalDiskTimeSSD + b.totalDiskTimeSSD;
-    }, 0);
-    var hddCount = job[1].reduce(function(a, b) {
-      return a.totalDiskTimeHDD + b.totalDiskTimeHDD;
-    }, 0);
-    ssdCount /= numberJobs;
-    hddCount /= numberJobs;
-    jobData.push(ssdCount);
-    jobData.push(hddCount);
-    data.push(jobData);
-  }*/
-  //test data
-  /* data = [
-        ['Genre', 'Fantasy & Sci Fi', 'Romance', 'Mystery/Crime', 'General',
-         'Western', 'Literature', { role: 'annotation' } ],
-        ['2010', 10, 24, 20, 32, 18, 5, ''],
-        ['2020', 16, 22, 23, 30, 16, 9, ''],
-        ['2030', 28, 19, 29, 30, 12, 13, '']
-      ];
-  */
   var data = [];
   data.push(['Category','Average SSD Time', 'Average HDD Time']);
   for (category in aggregated) {
