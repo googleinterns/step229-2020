@@ -46,7 +46,9 @@ public class JobsServlet extends HttpServlet {
       AccessRequest accessRequest = gson.fromJson(request.getReader(), AccessRequest.class);
 
       String projectId = accessRequest.projectID;
-      String pathToJsonFile = accessRequest.pathToJsonFile;
+
+      File file = new File(projectId + ".json");
+      String pathToJsonFile = file.getAbsolutePath();
       
       JobStoreCenter jobCenter = new JobStoreCenter();
 

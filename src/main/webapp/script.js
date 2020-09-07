@@ -20,8 +20,8 @@ document.getElementById('theform').onsubmit = function() {
 
 function initBody() {
   //document.getElementById('dataButtons').style.display = 'none';
-  document.getElementById('projectID').value = accessDataflowAPI.projectID;
-  //setCredentialsServlet();
+  document.getElementById('projectID').value = config.projectID;
+  setCredentialsServlet();
   google.charts.load('current', {'packages':['corechart']});
 }
 
@@ -68,12 +68,16 @@ function checkPermissions() {
 }
 
 function updateProjectDatabase() {
+  const accessObject = {
+      projectID : config.projectID, 
+  };
+
   fetch('/jobs', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(accessDataflowAPI),
+    body: JSON.stringify(accessObject),
   }); 
 }
 
