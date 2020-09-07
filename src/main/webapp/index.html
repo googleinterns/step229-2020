@@ -82,6 +82,7 @@
       <!--Predicted cost of future jobs using moving averages.-->
       <div class="gridElement cost">
         <h2 class="costTitle">Cost and Cost Estimation</h2>
+        <p class="costSubtitle">Hover over segment for costs. All costs in US$.</p>
         <div class="totalCost" id="totalCost-container"></div>
         <div class="graphButton">
           <button class="button dayOptionButton" id="dailyView" onclick="dailyViewHandler();">Day</button>
@@ -93,6 +94,7 @@
       <!--Comparison of number of failed jobs within each aggreation etc.-->
       <div class="gridElement failedJobs">
         <h2 class="failedJobsTitle">Job Status Analysis</h2>
+        <p class="failedJobsSubtitle">Hover over segment for total count/ cost. All costs in US$.</p>
         <div class="failedJobsPieChart" id="failedJobs-container"></div>
         <div class="failedJobsCostPieChart" id="failedJobsCost-container"></div>
       </div>
@@ -105,6 +107,7 @@
       <!--Analysis of various resource metrics e.g. vCPU count, memory, SSD/HDD comparison.-->
       <div class="gridElement resourceAnalysis">
         <h2 class="resourceTitle">Resource Analysis</h2>
+        <p class="resourceSubtitle">Hover over segment for total count. SSD Time and HDD Time is measured in GB hr.</p>
         <div class="vCPUAnalysis" id="vCPU-container"></div>
         <div class="SSDVsHDDTimeAnalysis" id="SSDVsHDDTime-container"></div>
       </div>
