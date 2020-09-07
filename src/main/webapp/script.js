@@ -508,8 +508,7 @@ function drawLineGraph(data, title, containerName) {
       position: 'top'
     },
     //height: 250,
-    //width: '500%',
-    width: 500,
+    width: '300%',
     title: title,
     curveType: 'function',
     overflow: 'hidden',
