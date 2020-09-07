@@ -323,7 +323,6 @@ function getDailyView(aggregated) {
   //find the moving average for 30 days worth of data
   //need to aggregate aggregated data to get groups of jobs run on the same day
 
-
   var today = new Date();
   var thirtyDaysFromNow = new Date(today);
   thirtyDaysFromNow.setDate( thirtyDaysFromNow.getDate() - 30);
@@ -352,89 +351,69 @@ function getDailyView(aggregated) {
     data.push(totalCostsOrdered);
   }
 
+  for (var i = 1; i < 4; i++) {
+    var totalCost = data[1].slice(i, data[1].length).reduce((a, b) => a + b, 0);
+    totalCost /= 30;
+    data[0].push("Pred "+i);
+    data[1].push(totalCost);
+  }
+
+  console.log(data);
+
   data = transpose(data);
 
-
-  /*
-  for (category in aggregated) {
-    for (dates in aggregated[category]) {
-      console.log(new Date(aggregated[category][dates].startTime));
-    }
-  }*/
-  
-  /*
-  var data = [];
-  //set up the headers section
-  data.push(['Date']);
-  for (category in aggregated) {
-    data[0].push(category);
-    var totalCost = 0;
-    var jobData = [];
-    jobData.push(category);
-    for (costs in aggregated[category]) {
-      totalCost += aggregated[category][costs].price;
-    }
-    totalCost /= aggregated[category].length;
-    jobData.push(totalCost);
-    data.push(jobData);
-  }
-  */
-  /*for (job of jobs) {
-    var dailyAverage = job[1].reduce(function(a, b) {
-        return a.jobPrice + b.jobPrice;
-    }, 0);
-    job[1] = dailyAverage / job[1].length;
-  }
-  for (var i = 0; i < 3; i++) {
-    var prediction = jobs.slice(i, jobs.length).reduce(function(a, b) {
-      return a + b;
-    }, 0);
-    prediction /= (jobs.length - i);
-    jobs.push(['Future Day '+i, prediction])
-  }
-  data = jobs;
-  data.unshift(['Category', 'Average Cost']);
-  */
-  //test data
-  /*var data = [
-          ['Year', 'Sales', 'Expenses'],
-          ['2004',  1000,      400],
-          ['2005',  1170,      460],
-          ['2006',  660,       1120],
-          ['2007',  1030,      540]
-        ];
-  */
   drawLineGraph(data, 'Cost Prediction On Daily Scale', 'costPrediction-container');  
 }
 
-function getWeeklyView() {
+function getWeeklyView(aggregated) {
   //find the moving average for 30 days worth of data
-  //need to aggregate aggregated data to get groups of jobs run on the same day
-  
-  /*for (job of jobs) {
-    var dailyAverage = job[1].reduce(function(a, b) {
-        return a.jobPrice + b.jobPrice;
-    }, 0);
-    job[1] = dailyAverage / job[1].length;
+  //need to aggregate aggregated data to get groups of jobs run in the same week
+
+  var today = new Date();
+  var thirtyDaysFromNow = new Date(today);
+  thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() - 30);
+
+  var firstDayOfWeek = new Date(thirtyDaysFromNow);
+  firstDayOfWeek.setDate(firstDayOfWeek.getDate() - (today.getDay() - 1));
+
+  var weekStarts = [];
+  weekStarts.push(firstDayOfWeek.toLocaleDateString("en-US"));
+
+  for (var i = 0; i < 3; i++) {
+    weekStarts.push(new Date(firstDayOfWeek.setDate(firstDayOfWeek.getDate() + 7)).toLocaleDateString("en-US"));
   }
-  for (var i = 0; i < 1; i++) {
-    var prediction = jobs.slice(i, jobs.length).reduce(function(a, b) {
-      return a + b;
-    }, 0);
-    prediction /= (jobs.length - i);
-    jobs.push(['Future Week '+i, prediction])
+
+  var data = [];
+  var titles = ['Category', ...weekStarts];
+  data.push(titles);
+
+  var dateDict = {};
+  for (weekDate in weekStarts) {
+    dateDict[weekStarts[weekDate]] = 0;
   }
-  data = jobs;
-  data.unshift(['Category', 'Average Cost']);
-*/
-  var data = [
-          ['Year', 'Sales', 'Expenses'],
-          ['2004',  1000,      400],
-          ['2005',  1170,      460],
-          ['2006',  660,       1120],
-          ['2007',  1030,      540]
-        ];
- 
+
+  for (category in aggregated) {
+    var totalCosts = {...dateDict};
+    for (jobs in aggregated[category]) {
+      var jobDate = new Date(aggregated[category][jobs].startTime);
+      var weekStart = new Date(jobDate.getDate() - (jobDate.getDay() - 1));
+      totalCosts[weekStart.toLocaleDateString("en-US")] += aggregated[category][jobs].price;
+    }
+    var totalCostsOrdered = [];
+    totalCostsOrdered.push(category);
+    for (date in weekStarts) {
+      totalCostsOrdered.push(totalCosts[weekStarts[date]]);
+    }
+    data.push(totalCostsOrdered);
+  } 
+
+  var totalCost = data[1].slice(1, data[1].length).reduce((a, b) => a + b, 0);
+  totalCost /= 4;
+  data[0].push("Pred 1");
+  data[1].push(totalCost);
+
+  data = transpose(data);
+
   drawLineGraph(data, 'Cost Prediction On Weekly Scale', 'costPrediction-container');  
 }
 
@@ -529,7 +508,8 @@ function drawLineGraph(data, title, containerName) {
       position: 'top'
     },
     //height: 250,
-    width: '100%',
+    //width: '500%',
+    width: 500,
     title: title,
     curveType: 'function',
     overflow: 'hidden',
