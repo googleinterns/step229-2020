@@ -5,23 +5,10 @@
  * @author tblanshard
  */
 
-/*
-//Commented as requires discussion with Andreea
-document.getElementById('theform').onsubmit = function() { 
-  var method = document.getElementById('aggregationMethod').value;
-  var aggregationUrl = formatURLs('get-aggregated-data', {'method': method});
-  fetch(aggregationUrl)
-  .then(response => response.json())
-  .then((jobs) => {
-    getTotalCosts(jobs);
-  });
-  return false;
-};*/
-
 function initBody() {
   //document.getElementById('dataButtons').style.display = 'none';
   document.getElementById('projectID').value = accessDataflowAPI.projectID;
-  //setCredentialsServlet();
+  setCredentialsServlet();
   google.charts.load('current', {'packages':['corechart']});
 }
 
@@ -81,19 +68,28 @@ function updateProjectDatabase() {
  * Sends a GET request to the AggregationDataServlet to fetch the jobs 
  * aggregated by the option checked by the user
  */
-function fetchAggregatedJobsBy() {
-  var option = document.querySelector('input[name = option]:checked').value;
+
+function fetchAggregatedJobsBy(option) {
   var aggregationUrl = formatURLs('get-aggregated-data', {'projectID': config.projectID, 'option': option});
-  fetch(aggregationUrl)
+  return fetch(aggregationUrl)
   .then(response => response.json())
   .then(jobs => {
-    google.charts.setOnLoadCallback(getTotalCosts(jobs));
-    google.charts.setOnLoadCallback(getAverageCosts(jobs));
-    google.charts.setOnLoadCallback(getFailedJobs(jobs));
-    google.charts.setOnLoadCallback(getFailedJobsCost(jobs));
-    google.charts.setOnLoadCallback(getAveragevCPUCount(jobs));
-    google.charts.setOnLoadCallback(SSDVsHDDTimeComparison(jobs));
-    document.getElementById('container').style.visibility = 'visible'
+    return jobs;
+  });
+}
+
+function setUpGraphs() {
+  var option = document.querySelector('input[name = option]:checked').value;
+  var jobs = fetchAggregatedJobsBy(option);
+  jobs.then(jobData => {
+    google.charts.setOnLoadCallback(getTotalCosts(jobData));
+    google.charts.setOnLoadCallback(getAverageCosts(jobData));
+    google.charts.setOnLoadCallback(getDailyView(jobData));
+    google.charts.setOnLoadCallback(getFailedJobs(jobData));
+    google.charts.setOnLoadCallback(getFailedJobsCost(jobData));
+    google.charts.setOnLoadCallback(getAveragevCPUCount(jobData));
+    google.charts.setOnLoadCallback(SSDVsHDDTimeComparison(jobData));
+    document.getElementById('container').style.visibility = 'visible';    
   });
 }
 
@@ -239,24 +235,7 @@ function getAverageCosts(aggregated) {
 
 function getFailedJobs(aggregated){
   //takes each of the jobs and finds the total number of failed jobs within each aggregated group of jobs
-  //var data = [];
-  /*(data.push(['Category','Total Count']);
-  for (job of jobs) {
-    var failed = 0;
-    var jobData = [];
-    jobData.push(job[0]);
-    for (var i = 0; i < job[1].length; i++) {
-      //check that it is jobState we need
-      if (job[i].jobState == 'Failed') {
-        failed ++;
-      }
-    }
-    jobData.push(failed);
-    data.push(jobData);
-  }*/
-  //test data
-  //var data = [['Category', 'Data'],['Person 1', 10],['Person 2', 50],['Person 3', 100]];
-    var data = [];
+  var data = [];
   data.push(['Category','Total Count']);
   for (category in aggregated) {
     var count = 0;
@@ -309,17 +288,97 @@ function getFailedJobsCost(aggregated) {
 }
 
 function dailyViewHandler() {
-  google.setOnLoadCallback(getDailyView);
+  var option = document.querySelector('input[name = option]:checked').value;
+  var jobs = fetchAggregatedJobsBy(option);
+  jobs.then(jobData => {
+    google.setOnLoadCallback(getDailyView(jobData));
+  });
 }
 
 function weeklyViewHandler() {
-  google.setOnLoadCallback(getWeeklyView);
+  var option = document.querySelector('input[name = option]:checked').value;
+  var jobs = fetchAggregatedJobsBy(option);
+  jobs.then(jobData => {
+    google.setOnLoadCallback(getWeeklyView(jobData));
+  });
 }
 
-function getDailyView() {
+function getDatesBetweenDates(endDate, startDate) {
+  let dates = [];
+  var theDate = new Date(startDate);
+  while (theDate < endDate) {
+    dates = [...dates, new Date(theDate).toLocaleDateString("en-US")];
+    theDate.setDate(theDate.getDate() + 1);
+  }
+  return dates;
+}
+
+function transpose(array) {
+  return Object.keys(array[0]).map(function(column) {
+      return array.map(function(row) { return row[column]; });
+  });
+}
+
+function getDailyView(aggregated) {
   //find the moving average for 30 days worth of data
   //need to aggregate aggregated data to get groups of jobs run on the same day
+
+
+  var today = new Date();
+  var thirtyDaysFromNow = new Date(today);
+  thirtyDaysFromNow.setDate( thirtyDaysFromNow.getDate() - 30);
+
+  var dateList = getDatesBetweenDates(today, thirtyDaysFromNow);
+
+  var dateDict = {};
+  for (date in dateList) {
+    dateDict[dateList[date]] = 0;
+  }
   
+  var data = [];
+  var titles = ['Category', ...dateList];
+  data.push(titles);
+  
+  for (category in aggregated) {
+    var totalCosts = {...dateDict};
+    for (jobs in aggregated[category]) {
+      totalCosts[new Date(aggregated[category][jobs].startTime).toLocaleDateString("en-US")] += aggregated[category][jobs].price;
+    }
+    var totalCostsOrdered = [];
+    totalCostsOrdered.push(category);
+    for (date in dateList) {
+      totalCostsOrdered.push(totalCosts[dateList[date]]);
+    }
+    data.push(totalCostsOrdered);
+  }
+
+  data = transpose(data);
+
+
+  /*
+  for (category in aggregated) {
+    for (dates in aggregated[category]) {
+      console.log(new Date(aggregated[category][dates].startTime));
+    }
+  }*/
+  
+  /*
+  var data = [];
+  //set up the headers section
+  data.push(['Date']);
+  for (category in aggregated) {
+    data[0].push(category);
+    var totalCost = 0;
+    var jobData = [];
+    jobData.push(category);
+    for (costs in aggregated[category]) {
+      totalCost += aggregated[category][costs].price;
+    }
+    totalCost /= aggregated[category].length;
+    jobData.push(totalCost);
+    data.push(jobData);
+  }
+  */
   /*for (job of jobs) {
     var dailyAverage = job[1].reduce(function(a, b) {
         return a.jobPrice + b.jobPrice;
@@ -337,14 +396,14 @@ function getDailyView() {
   data.unshift(['Category', 'Average Cost']);
   */
   //test data
-  var data = [
+  /*var data = [
           ['Year', 'Sales', 'Expenses'],
           ['2004',  1000,      400],
           ['2005',  1170,      460],
           ['2006',  660,       1120],
           ['2007',  1030,      540]
         ];
- 
+  */
   drawLineGraph(data, 'Cost Prediction On Daily Scale', 'costPrediction-container');  
 }
 
@@ -474,6 +533,12 @@ function drawLineGraph(data, title, containerName) {
     title: title,
     curveType: 'function',
     overflow: 'hidden',
+    vAxis: {
+      minValue:0,
+      viewWindow: {
+        min: 0
+      }
+    }
   }
   var chart = new google.visualization.LineChart(document.getElementById(containerName));
   chart.draw(chartData, options);
