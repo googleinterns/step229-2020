@@ -98,6 +98,7 @@ function setUpGraphs() {
     google.charts.setOnLoadCallback(getFailedJobsCost(jobData));
     google.charts.setOnLoadCallback(getAveragevCPUCount(jobData));
     google.charts.setOnLoadCallback(SSDVsHDDTimeComparison(jobData));
+    google.charts.setOnLoadCallback(SSDVsHDDComparison(jobData));
     document.getElementById('container').style.visibility = 'visible';    
   });
 }
@@ -485,6 +486,37 @@ function SSDVsHDDTimeComparison(aggregated) {
   }
 
   drawColumnChart(data, 'Comparison of SSDTime VS HDDTime', 'SSDVsHDDTime-container', true);
+}
+
+function SSDVsHDDComparison(aggregated) {
+  var data = [];
+  data.push(['Category','Average SSD Usage', 'Average HDD Usage']);
+  for (category in aggregated) {
+    var jobData = [];
+    var ssd = 0;
+    var hdd = 0;
+    jobData.push(category);
+    for (costs in aggregated[category]) {
+      if (aggregated[category][costs].totalDiskTimeHDD == undefined) {
+        hdd += 0;
+      } else {
+        hdd += ((aggregated[category][costs].totalDiskTimeHDD / 3600) / (aggregated[category][costs].totalElapsedTime));
+      }
+      if (aggregated[category][costs].totalDiskTimeSSD == undefined) {
+        ssd += 0;
+      } else {
+        ssd += ((aggregated[category][costs].totalDiskTimeSSD / 3600)  / (aggregated[category][costs].totalElapsedTime));
+      }
+    }
+    ssd /= aggregated[category].length;
+    hdd /= aggregated[category].length;
+
+    jobData.push(ssd);
+    jobData.push(hdd);
+    data.push(jobData);
+  }
+
+  drawColumnChart(data, 'Comparison of SSD usage VS HDD usage', 'SSDVsHDD-container', true);
 }
 
 function drawLineGraph(data, title, containerName) {

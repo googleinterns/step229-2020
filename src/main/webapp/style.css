@@ -320,6 +320,11 @@ tr:nth-child(even) {
   grid-row: 3;
 }
 
+.SSDVsHDDAnalysis {
+  grid-column: 1 / 3;
+  grid-row: 4;
+}
+
 .locationAnalysis {
   grid-column: 1;
   grid-row: row 5;
