@@ -51,7 +51,7 @@ public class JobsServlet extends HttpServlet {
       JobStoreCenter jobCenter = new JobStoreCenter();
 
       try{
-        jobCenter.addNewProject(projectId, pathToJsonFile);
+        jobCenter.dealWithProject(projectId, pathToJsonFile);
       } catch (GeneralSecurityException e) {
         System.out.println("Unable to initialize service: \n" + e.toString());
         return;
