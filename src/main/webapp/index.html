@@ -10,9 +10,9 @@
   </head>
   <body onload="initBody();">
 
-    <!-- TODO add links to different parts of the page -->
     <!-- Sticky Navigation Bar -->
     <header id="topNavigator">
+      <a href="#returnTop">Return to Top</a>
       <a href="#costAnchor">Cost Analysis and Prediction</a>
       <a href="#jobStatusAnchor">Job Status Analysis</a>
       <a href="#sdkAnchor">SDK Analysis</a>
@@ -30,7 +30,7 @@
     </div>
 
     <div class="moduleSpace"></div>
-
+    <a id="returnTop">
     <!-- Input for the Project ID-->
     <form id="projectIDForm">
       <input type="text" id="projectID" placeholder="Enter Project ID" name="projectID" required>
@@ -62,7 +62,6 @@
       <button class="button" onclick="updateProjectDatabase()">Fetch Info</button>
       <button class="button" onclick="getJobsFromProject(accessDataflowAPI.projectID)">Show info</button>
     </div> -->
-
     <!-- Choose what to aggregate the data by -->
     <form id="aggregationForm" action="/get-aggregated-data" method="get">
       <label>Choose a variable to aggregate the data by:</label>

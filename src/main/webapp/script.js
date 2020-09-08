@@ -435,7 +435,8 @@ function getOutdatedSDK(aggregated) {
   container.innerHTML += '<h3>The following jobs are using outdated SDKs.</h3>';
   for (outdatedJob in aggregated['STALE']) {
     container.innerHTML += '<p>'+JSON.stringify(aggregated['STALE'][outdatedJob].name).replace(/\"/g, "")+'</p>';
-    container.innerHTML += '<p class="sdkDetails">'+JSON.stringify(aggregated['STALE'][outdatedJob].sdkName).replace(/\"/g, "")+' ('+JSON.stringify(aggregated['STALE'][outdatedJob].sdk).replace(/\"/g, "")+')<p>';
+    container.innerHTML += '<p class="sdkDetails">'+JSON.stringify(aggregated['STALE'][outdatedJob].sdkName).replace(/\"/g, "")+
+      ' ('+JSON.stringify(aggregated['STALE'][outdatedJob].sdk).replace(/\"/g, "")+')<p>';
   }
 }
 
