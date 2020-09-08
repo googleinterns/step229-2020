@@ -56,10 +56,9 @@ public class SetCredentialsServlet extends HttpServlet {
 
     Blob blob = storage.get(bucketName, objectName);
     String fileContent = new String(blob.getContent());
-    System.out.println(fileContent);
 
     File file = new File("pom.xml");
-    String outputPath = file.getAbsoluteFile().getParent()+"/"+projectId+".json";
+    String outputPath = file.getAbsoluteFile().getParent() + "/" + projectId + ".json";
 
     PrintWriter out = new PrintWriter(new FileWriter(outputPath));
     out.println(fileContent);

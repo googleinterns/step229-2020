@@ -9,7 +9,7 @@ var sdkVisited = false;
 
 function initBody() {
   //document.getElementById('dataButtons').style.display = 'none';
-  document.getElementById('projectID').value = accessDataflowAPI.projectID;
+  document.getElementById('projectID').value = config.projectID;
   setCredentialsServlet();
   google.charts.load('current', {'packages':['corechart']});
 }
@@ -57,12 +57,16 @@ function checkPermissions() {
 }
 
 function updateProjectDatabase() {
+  const accessObject = {
+      projectID : config.projectID, 
+  };
+
   fetch('/jobs', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(accessDataflowAPI),
+    body: JSON.stringify(accessObject),
   }); 
 }
 
@@ -335,7 +339,7 @@ function transpose(array) {
 function getDailyView(aggregated) {
   //find the moving average for 30 days worth of data
   //need to aggregate aggregated data to get groups of jobs run on the same day
-
+  
   var today = new Date();
   var thirtyDaysFromNow = new Date(today);
   thirtyDaysFromNow.setDate( thirtyDaysFromNow.getDate() - 30);
@@ -374,7 +378,6 @@ function getDailyView(aggregated) {
   console.log(data);
 
   data = transpose(data);
-
   drawLineGraph(data, 'Cost Prediction On Daily Scale', 'costPrediction-container');  
 }
 
