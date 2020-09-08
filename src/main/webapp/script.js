@@ -5,6 +5,8 @@
  * @author tblanshard
  */
 
+var sdkVisited = false;
+
 function initBody() {
   //document.getElementById('dataButtons').style.display = 'none';
   document.getElementById('projectID').value = accessDataflowAPI.projectID;
@@ -28,7 +30,7 @@ function checkPermissions() {
       var missingPermissions = permission[0];
       missingPermissionList = '';
       for (item of missingPermissions) {
-        missingPermissionList += item+', ';
+        missingPermissionList += item + ', ';
       }
       var missing = permission[1];
       if (missing == 0) {
@@ -41,7 +43,7 @@ function checkPermissions() {
         const button = document.getElementById('showMissingPermision');
         button.hidden = false;
 
-        message.innerText = 'There is '+missing+' permission missing. It is: '+missingPermissionList;
+        message.innerText = 'There is ' + missing + ' permission missing. It is: ' + missingPermissionList;
       } else {
         const button = document.getElementById('showMissingPermision');
         button.hidden = false;
@@ -80,8 +82,18 @@ function fetchAggregatedJobsBy(option) {
 
 function setUpGraphs() {
   var option = document.querySelector('input[name = option]:checked').value;
+  var isSDKSelected = (option == 'sdk');
+  if (isSDKSelected) {
+    document.getElementById('sdkAnalysis').style.display = 'block';
+  } else {
+    document.getElementById('sdkAnalysis').style.display = 'none';
+  }
   var jobs = fetchAggregatedJobsBy(option);
   jobs.then(jobData => {
+    if (isSDKSelected && !sdkVisited) {
+      getOutdatedSDK(jobData);
+      sdkVisited = true;
+    }
     google.charts.setOnLoadCallback(getTotalCosts(jobData));
     google.charts.setOnLoadCallback(getAverageCosts(jobData));
     google.charts.setOnLoadCallback(getDailyView(jobData));
@@ -89,6 +101,7 @@ function setUpGraphs() {
     google.charts.setOnLoadCallback(getFailedJobsCost(jobData));
     google.charts.setOnLoadCallback(getAveragevCPUCount(jobData));
     google.charts.setOnLoadCallback(SSDVsHDDTimeComparison(jobData));
+    google.charts.setOnLoadCallback(SSDVsHDDComparison(jobData));
     document.getElementById('container').style.visibility = 'visible';    
   });
 }
@@ -281,7 +294,7 @@ function getFailedJobsCost(aggregated) {
   }
   if (isAllZero) {
     var container = document.getElementById('failedJobsCost-container');
-    container.innerText = "No money has been spent on failed jobs.";
+    container.innerHTML = '<p id="noMoneyMessage">No money has been spent on failed jobs.</p>';
   } else {
     drawPieChart(data, 'Total Cost of Failed Jobs Per Category', 'failedJobsCost-container');
   }
@@ -323,7 +336,6 @@ function getDailyView(aggregated) {
   //find the moving average for 30 days worth of data
   //need to aggregate aggregated data to get groups of jobs run on the same day
 
-
   var today = new Date();
   var thirtyDaysFromNow = new Date(today);
   thirtyDaysFromNow.setDate( thirtyDaysFromNow.getDate() - 30);
@@ -352,90 +364,80 @@ function getDailyView(aggregated) {
     data.push(totalCostsOrdered);
   }
 
+  for (var i = 1; i < 4; i++) {
+    var totalCost = data[1].slice(i, data[1].length).reduce((a, b) => a + b, 0);
+    totalCost /= 30;
+    data[0].push("Pred " + i);
+    data[1].push(totalCost);
+  }
+
+  console.log(data);
+
   data = transpose(data);
 
-
-  /*
-  for (category in aggregated) {
-    for (dates in aggregated[category]) {
-      console.log(new Date(aggregated[category][dates].startTime));
-    }
-  }*/
-  
-  /*
-  var data = [];
-  //set up the headers section
-  data.push(['Date']);
-  for (category in aggregated) {
-    data[0].push(category);
-    var totalCost = 0;
-    var jobData = [];
-    jobData.push(category);
-    for (costs in aggregated[category]) {
-      totalCost += aggregated[category][costs].price;
-    }
-    totalCost /= aggregated[category].length;
-    jobData.push(totalCost);
-    data.push(jobData);
-  }
-  */
-  /*for (job of jobs) {
-    var dailyAverage = job[1].reduce(function(a, b) {
-        return a.jobPrice + b.jobPrice;
-    }, 0);
-    job[1] = dailyAverage / job[1].length;
-  }
-  for (var i = 0; i < 3; i++) {
-    var prediction = jobs.slice(i, jobs.length).reduce(function(a, b) {
-      return a + b;
-    }, 0);
-    prediction /= (jobs.length - i);
-    jobs.push(['Future Day '+i, prediction])
-  }
-  data = jobs;
-  data.unshift(['Category', 'Average Cost']);
-  */
-  //test data
-  /*var data = [
-          ['Year', 'Sales', 'Expenses'],
-          ['2004',  1000,      400],
-          ['2005',  1170,      460],
-          ['2006',  660,       1120],
-          ['2007',  1030,      540]
-        ];
-  */
   drawLineGraph(data, 'Cost Prediction On Daily Scale', 'costPrediction-container');  
 }
 
-function getWeeklyView() {
+function getWeeklyView(aggregated) {
   //find the moving average for 30 days worth of data
-  //need to aggregate aggregated data to get groups of jobs run on the same day
-  
-  /*for (job of jobs) {
-    var dailyAverage = job[1].reduce(function(a, b) {
-        return a.jobPrice + b.jobPrice;
-    }, 0);
-    job[1] = dailyAverage / job[1].length;
+  //need to aggregate aggregated data to get groups of jobs run in the same week
+
+  var today = new Date();
+  var thirtyDaysFromNow = new Date(today);
+  thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() - 30);
+
+  var firstDayOfWeek = new Date(thirtyDaysFromNow);
+  firstDayOfWeek.setDate(firstDayOfWeek.getDate() - (today.getDay() - 1));
+
+  var weekStarts = [];
+  weekStarts.push(firstDayOfWeek.toLocaleDateString("en-US"));
+
+  for (var i = 0; i < 3; i++) {
+    weekStarts.push(new Date(firstDayOfWeek.setDate(firstDayOfWeek.getDate() + 7)).toLocaleDateString("en-US"));
   }
-  for (var i = 0; i < 1; i++) {
-    var prediction = jobs.slice(i, jobs.length).reduce(function(a, b) {
-      return a + b;
-    }, 0);
-    prediction /= (jobs.length - i);
-    jobs.push(['Future Week '+i, prediction])
+
+  var data = [];
+  var titles = ['Category', ...weekStarts];
+  data.push(titles);
+
+  var dateDict = {};
+  for (weekDate in weekStarts) {
+    dateDict[weekStarts[weekDate]] = 0;
   }
-  data = jobs;
-  data.unshift(['Category', 'Average Cost']);
-*/
-  var data = [
-          ['Year', 'Sales', 'Expenses'],
-          ['2004',  1000,      400],
-          ['2005',  1170,      460],
-          ['2006',  660,       1120],
-          ['2007',  1030,      540]
-        ];
- 
+
+  for (category in aggregated) {
+    var totalCosts = {...dateDict};
+    for (jobs in aggregated[category]) {
+      var jobDate = new Date(aggregated[category][jobs].startTime);
+      var weekStart = new Date(jobDate.getDate() - (jobDate.getDay() - 1));
+      totalCosts[weekStart.toLocaleDateString("en-US")] += aggregated[category][jobs].price;
+    }
+    var totalCostsOrdered = [];
+    totalCostsOrdered.push(category);
+    for (date in weekStarts) {
+      totalCostsOrdered.push(totalCosts[weekStarts[date]]);
+    }
+    data.push(totalCostsOrdered);
+  } 
+
+  var totalCost = data[1].slice(1, data[1].length).reduce((a, b) => a + b, 0);
+  totalCost /= 4;
+  data[0].push("Pred 1");
+  data[1].push(totalCost);
+
+  data = transpose(data);
+
   drawLineGraph(data, 'Cost Prediction On Weekly Scale', 'costPrediction-container');  
+}
+
+function getOutdatedSDK(aggregated) {
+  var container = document.getElementById('sdkAnalysis');
+  container.innerHTML += '<h3>The following jobs are using outdated SDKs.</h3>';
+  for (outdatedJob in aggregated['STALE']) {
+    container.innerHTML += '<p>' + JSON.stringify(aggregated['STALE'][outdatedJob].name).replace(/\"/g, "") + '</p>';
+    container.innerHTML += '<p class="sdkDetails">' + JSON.stringify(aggregated['STALE'][outdatedJob].sdkName).replace(/\"/g, "") +
+      ' (' + JSON.stringify(aggregated['STALE'][outdatedJob].sdk).replace(/\"/g, "") + ')<p>';
+  }
 }
 
 function getAveragevCPUCount(aggregated) {
@@ -460,33 +462,6 @@ function getAveragevCPUCount(aggregated) {
 }
 
 function SSDVsHDDTimeComparison(aggregated) {
-  /*var data = [];
-  data.push(['Category','Average SSD Time', 'Average HDD Time']);
-  for (job of jobs) {
-    var jobData = [];
-    var numberJobs = job[1].length;
-    jobData.push(job[0]);
-    var ssdCount = job[1].reduce(function(a, b) {
-      return a.totalDiskTimeSSD + b.totalDiskTimeSSD;
-    }, 0);
-    var hddCount = job[1].reduce(function(a, b) {
-      return a.totalDiskTimeHDD + b.totalDiskTimeHDD;
-    }, 0);
-    ssdCount /= numberJobs;
-    hddCount /= numberJobs;
-    jobData.push(ssdCount);
-    jobData.push(hddCount);
-    data.push(jobData);
-  }*/
-  //test data
-  /* data = [
-        ['Genre', 'Fantasy & Sci Fi', 'Romance', 'Mystery/Crime', 'General',
-         'Western', 'Literature', { role: 'annotation' } ],
-        ['2010', 10, 24, 20, 32, 18, 5, ''],
-        ['2020', 16, 22, 23, 30, 16, 9, ''],
-        ['2030', 28, 19, 29, 30, 12, 13, '']
-      ];
-  */
   var data = [];
   data.push(['Category','Average SSD Time', 'Average HDD Time']);
   for (category in aggregated) {
@@ -518,6 +493,37 @@ function SSDVsHDDTimeComparison(aggregated) {
   drawColumnChart(data, 'Comparison of SSDTime VS HDDTime', 'SSDVsHDDTime-container', true);
 }
 
+function SSDVsHDDComparison(aggregated) {
+  var data = [];
+  data.push(['Category','Average SSD Usage', 'Average HDD Usage']);
+  for (category in aggregated) {
+    var jobData = [];
+    var ssd = 0;
+    var hdd = 0;
+    jobData.push(category);
+    for (costs in aggregated[category]) {
+      if (aggregated[category][costs].totalDiskTimeHDD == undefined) {
+        hdd += 0;
+      } else {
+        hdd += ((aggregated[category][costs].totalDiskTimeHDD / 3600) / (aggregated[category][costs].totalElapsedTime));
+      }
+      if (aggregated[category][costs].totalDiskTimeSSD == undefined) {
+        ssd += 0;
+      } else {
+        ssd += ((aggregated[category][costs].totalDiskTimeSSD / 3600)  / (aggregated[category][costs].totalElapsedTime));
+      }
+    }
+    ssd /= aggregated[category].length;
+    hdd /= aggregated[category].length;
+
+    jobData.push(ssd);
+    jobData.push(hdd);
+    data.push(jobData);
+  }
+
+  drawColumnChart(data, 'Comparison of SSD usage VS HDD usage', 'SSDVsHDD-container', true);
+}
+
 function drawLineGraph(data, title, containerName) {
   var chartData = google.visualization.arrayToDataTable(data);
   var options = {
@@ -529,7 +535,7 @@ function drawLineGraph(data, title, containerName) {
       position: 'top'
     },
     //height: 250,
-    width: '100%',
+    width: '300%',
     title: title,
     curveType: 'function',
     overflow: 'hidden',
