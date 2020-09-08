@@ -229,6 +229,7 @@ function getTotalCosts(aggregated){
 }
 
 function getAverageCosts(aggregated) {
+  console.log(aggregated);
   //takes each of the jobs and finds the total cost of each aggregated group of jobs
   var data = [];
   data.push(['Category','Average Cost']);
@@ -338,7 +339,7 @@ function getDailyView(aggregated) {
 
   var today = new Date();
   var thirtyDaysFromNow = new Date(today);
-  thirtyDaysFromNow.setDate( thirtyDaysFromNow.getDate() - 30);
+  thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() - 30);
 
   var dateList = getDatesBetweenDates(today, thirtyDaysFromNow);
 
@@ -387,12 +388,19 @@ function getWeeklyView(aggregated) {
   thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() - 30);
 
   var firstDayOfWeek = new Date(thirtyDaysFromNow);
-  firstDayOfWeek.setDate(firstDayOfWeek.getDate() - (today.getDay() - 1));
+  console.log(firstDayOfWeek);
+  console.log(firstDayOfWeek.getDay());
+  if (firstDayOfWeek.getDay() == 0) {
+    firstDayOfWeek.setDate(firstDayOfWeek.getDate() - 6);
+  } else {
+    firstDayOfWeek.setDate(firstDayOfWeek.getDate() - (firstDayOfWeek.getDay() - 1));
+  }
+  
 
   var weekStarts = [];
   weekStarts.push(firstDayOfWeek.toLocaleDateString("en-US"));
 
-  for (var i = 0; i < 3; i++) {
+  for (var i = 0; i < 4; i++) {
     weekStarts.push(new Date(firstDayOfWeek.setDate(firstDayOfWeek.getDate() + 7)).toLocaleDateString("en-US"));
   }
 
@@ -563,7 +571,10 @@ function drawColumnChart(data, title, containerName, isStacked) {
   var chartData = google.visualization.arrayToDataTable(data);
   var options = {
     title: title,
-    isStacked: isStacked
+    isStacked: isStacked,
+    legend: {
+      position: 'bottom'
+    },
   };
   var chart = new google.visualization.ColumnChart(document.getElementById(containerName));
   chart.draw(chartData, options);
