@@ -208,6 +208,10 @@ tr:nth-child(even) {
   margin-top: 40px;
 }
 
+#returnToTop {
+  font-weight: bold;
+}
+
 .cost {
   grid-column: 1;
   grid-row: row;
@@ -286,8 +290,14 @@ tr:nth-child(even) {
 }
 
 .failedJobsCostPieChart {
-  grid-column: 2 / 3;
-  grid-row: 3;
+  grid-column: 1 / 2;
+  grid-row: 4;
+}
+
+#noMoneyMessage {
+  align-items: center;
+  font-weight: bold;
+  background-color: #ddd;
 }
 
 .sdkAnalysis {

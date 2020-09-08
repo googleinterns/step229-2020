@@ -294,7 +294,7 @@ function getFailedJobsCost(aggregated) {
   }
   if (isAllZero) {
     var container = document.getElementById('failedJobsCost-container');
-    container.innerText = "No money has been spent on failed jobs.";
+    container.innerHTML = '<p id="noMoneyMessage">No money has been spent on failed jobs.</p>';
   } else {
     drawPieChart(data, 'Total Cost of Failed Jobs Per Category', 'failedJobsCost-container');
   }
