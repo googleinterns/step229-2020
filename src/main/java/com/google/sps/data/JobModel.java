@@ -21,8 +21,7 @@ import java.io.IOException;
 import java.lang.IllegalArgumentException;
 import java.math.BigDecimal;
 import java.util.Map;
-
-
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 
 // Class used to represent a Job in memory, extracting just the 
 // information required by the analysis
@@ -68,7 +67,7 @@ public abstract class JobModel {
       name = null;
       type = null;
       sdkName = null;
-      region = region;
+      this.region = region;
       startTime = null;
       enableStreamingEngine = null;
     }
@@ -112,7 +111,13 @@ public abstract class JobModel {
       .jobs()
       .getMetrics(projectId, region, id);
       request2.setStartTime(startTime);
-      JobMetrics jobMetric = request2.execute();
+      JobMetrics jobMetric;
+      try {
+        jobMetric = request2.execute();
+      } catch (GoogleJsonResponseException e) {
+          // The job is no longer saved in the system, so we can fetch any metrics
+          return;
+      }
 
       metricTime = jobMetric.getMetricTime();
 
