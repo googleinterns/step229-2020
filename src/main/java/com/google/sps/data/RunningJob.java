@@ -30,4 +30,11 @@ public final class RunningJob extends JobModel {
         state = job.getCurrentState();
         stateTime = job.getCurrentStateTime();
     }
+
+    public RunningJob(String projectId, String id, String state, String stateTime, String region) throws IOException, IllegalArgumentException {
+      super(projectId, id, region);
+
+      this.state = state;
+      this.stateTime = stateTime;
+    }
 }

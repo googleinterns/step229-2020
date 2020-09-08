@@ -27,4 +27,11 @@ public final class FinalisedJob extends JobModel {
         state = job.getCurrentState();
         stateTime = job.getCurrentStateTime();
     }
+
+    public FinalisedJob(String projectId, String id, String state, String stateTime, String region) throws IOException, IllegalArgumentException {
+      super(projectId, id, region);
+
+      this.state = state;
+      this.stateTime = stateTime;
+    }
 }
