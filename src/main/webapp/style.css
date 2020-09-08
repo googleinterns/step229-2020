@@ -151,6 +151,12 @@ input[type=button]:hover {
   padding: 20px;
 }
 
+.sdkDetails {
+  color: #666;
+  font-size: 14px;
+  text-indent: 10px;
+}
+
 .button:hover {background-color: #3e8e41}
 
 .button:active {
@@ -200,6 +206,10 @@ tr:nth-child(even) {
   border-radius: 24px;
   padding: 30px 30px 30px 30px;
   margin-top: 40px;
+}
+
+#returnToTop {
+  font-weight: bold;
 }
 
 .cost {
@@ -280,14 +290,19 @@ tr:nth-child(even) {
 }
 
 .failedJobsCostPieChart {
-  grid-column: 2 / 3;
-  grid-row: 3;
+  grid-column: 1 / 2;
+  grid-row: 4;
+}
+
+#noMoneyMessage {
+  align-items: center;
+  font-weight: bold;
+  background-color: #ddd;
 }
 
 .sdkAnalysis {
   grid-column: 1;
   grid-row: row 3;
-  background-color: papayawhip;
 }
 
 .sdkTitle {
@@ -318,6 +333,11 @@ tr:nth-child(even) {
 .SSDVsHDDTimeAnalysis {
   grid-column: 2 / 3;
   grid-row: 3;
+}
+
+.SSDVsHDDAnalysis {
+  grid-column: 1 / 2;
+  grid-row: 4;
 }
 
 .locationAnalysis {
