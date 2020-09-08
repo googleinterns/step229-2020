@@ -18,6 +18,7 @@
       <a href="#sdkAnchor">SDK Analysis</a>
       <a href="#resourceAnchor">Resource Analysis</a>
       <a href="#locationAnchor">Location Analysis</a>
+      <a href="#regionGeochart" id="hiddenLink"hidden>Region Geochart</a>
     </header>
     
     <!--Title -->
@@ -79,6 +80,15 @@
     </form>
     
     <div class="gridContainer" id="container" hidden>
+      <!-- Map displaying all regions and how many jobs each region has -->
+      <!-- Click on the marker for the job list -->
+      <a id="regionGeochart">
+      <div id="regionDiv" class="gridElement" style="display: none">
+        <h2> Region Geochart </h2>
+        <div id="additionalData">Click on the markers to get all the jobs from a region</div>
+        <div id="chartDiv"></div>
+      </div>
+
       <!--Total cost of jobs within each aggregation.-->
       <!--Predicted cost of future jobs using moving averages.-->
       <!--<a id="costAnchor">-->
@@ -94,6 +104,7 @@
         <div class="costPrediction" id="costPrediction-container"></div>
         <div class="averageCost" id="averageCost-container"></div>
       </div>
+
       <!--Comparison of number of failed jobs within each aggreation etc.-->
       <a id="jobStatusAnchor">
       <div class="gridElement failedJobs">
@@ -117,6 +128,7 @@
         <div class="vCPUAnalysis" id="vCPU-container"></div>
         <div class="SSDVsHDDTimeAnalysis" id="SSDVsHDDTime-container"></div>
       </div>
+    
       <!--Map here showing where the different jobs are being run as a visual representation.-->
       <!--Perhaps basic analysis e.g. region where most are run, region where most fail etc.-->
       <a id="locationAnchor">
