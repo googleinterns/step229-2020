@@ -30,7 +30,7 @@ function checkPermissions() {
       var missingPermissions = permission[0];
       missingPermissionList = '';
       for (item of missingPermissions) {
-        missingPermissionList += item+', ';
+        missingPermissionList += item + ', ';
       }
       var missing = permission[1];
       if (missing == 0) {
@@ -43,7 +43,7 @@ function checkPermissions() {
         const button = document.getElementById('showMissingPermision');
         button.hidden = false;
 
-        message.innerText = 'There is '+missing+' permission missing. It is: '+missingPermissionList;
+        message.innerText = 'There is ' + missing + ' permission missing. It is: ' + missingPermissionList;
       } else {
         const button = document.getElementById('showMissingPermision');
         button.hidden = false;
@@ -367,7 +367,7 @@ function getDailyView(aggregated) {
   for (var i = 1; i < 4; i++) {
     var totalCost = data[1].slice(i, data[1].length).reduce((a, b) => a + b, 0);
     totalCost /= 30;
-    data[0].push("Pred "+i);
+    data[0].push("Pred " + i);
     data[1].push(totalCost);
   }
 
@@ -434,9 +434,9 @@ function getOutdatedSDK(aggregated) {
   var container = document.getElementById('sdkAnalysis');
   container.innerHTML += '<h3>The following jobs are using outdated SDKs.</h3>';
   for (outdatedJob in aggregated['STALE']) {
-    container.innerHTML += '<p>'+JSON.stringify(aggregated['STALE'][outdatedJob].name).replace(/\"/g, "")+'</p>';
-    container.innerHTML += '<p class="sdkDetails">'+JSON.stringify(aggregated['STALE'][outdatedJob].sdkName).replace(/\"/g, "")+
-      ' ('+JSON.stringify(aggregated['STALE'][outdatedJob].sdk).replace(/\"/g, "")+')<p>';
+    container.innerHTML += '<p>' + JSON.stringify(aggregated['STALE'][outdatedJob].name).replace(/\"/g, "") + '</p>';
+    container.innerHTML += '<p class="sdkDetails">' + JSON.stringify(aggregated['STALE'][outdatedJob].sdkName).replace(/\"/g, "") +
+      ' (' + JSON.stringify(aggregated['STALE'][outdatedJob].sdk).replace(/\"/g, "") + ')<p>';
   }
 }
 
