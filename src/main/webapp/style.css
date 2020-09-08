@@ -151,6 +151,12 @@ input[type=button]:hover {
   padding: 20px;
 }
 
+.sdkDetails {
+  color: #666;
+  font-size: 14px;
+  text-indent: 10px;
+}
+
 .button:hover {background-color: #3e8e41}
 
 .button:active {
@@ -287,7 +293,6 @@ tr:nth-child(even) {
 .sdkAnalysis {
   grid-column: 1;
   grid-row: row 3;
-  background-color: papayawhip;
 }
 
 .sdkTitle {
@@ -321,7 +326,7 @@ tr:nth-child(even) {
 }
 
 .SSDVsHDDAnalysis {
-  grid-column: 1 / 3;
+  grid-column: 1 / 2;
   grid-row: 4;
 }
 

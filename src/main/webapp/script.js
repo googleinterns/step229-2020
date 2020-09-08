@@ -5,6 +5,8 @@
  * @author tblanshard
  */
 
+var sdkVisited = false;
+
 function initBody() {
   //document.getElementById('dataButtons').style.display = 'none';
   document.getElementById('projectID').value = accessDataflowAPI.projectID;
@@ -88,8 +90,9 @@ function setUpGraphs() {
   }
   var jobs = fetchAggregatedJobsBy(option);
   jobs.then(jobData => {
-    if (isSDKSelected) {
+    if (isSDKSelected && !sdkVisited) {
       getOutdatedSDK(jobData);
+      sdkVisited = true;
     }
     google.charts.setOnLoadCallback(getTotalCosts(jobData));
     google.charts.setOnLoadCallback(getAverageCosts(jobData));
@@ -431,7 +434,8 @@ function getOutdatedSDK(aggregated) {
   var container = document.getElementById('sdkAnalysis');
   container.innerHTML += '<h3>The following jobs are using outdated SDKs.</h3>';
   for (outdatedJob in aggregated['STALE']) {
-    container.innerHTML += '<p>'+JSON.stringify(aggregated['STALE'][outdatedJob].name)+'</p>';
+    container.innerHTML += '<p>'+JSON.stringify(aggregated['STALE'][outdatedJob].name).replace(/\"/g, "")+'</p>';
+    container.innerHTML += '<p class="sdkDetails">'+JSON.stringify(aggregated['STALE'][outdatedJob].sdkName).replace(/\"/g, "")+' ('+JSON.stringify(aggregated['STALE'][outdatedJob].sdk).replace(/\"/g, "")+')<p>';
   }
 }
 
