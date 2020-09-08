@@ -372,3 +372,8 @@ h2 {
   display: flex;
   position: relative;
 }
+
+#chartDiv {
+  grid-row: 2 / 6;
+  grid-column: 1 / 3;
+}
