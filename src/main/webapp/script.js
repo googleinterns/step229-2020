@@ -127,7 +127,6 @@ function getJobsFromProject(projectID) {
   fetch('/jobs?projectID=' + projectID)
   .then(response => response.json())
   .then(jobs => {
-      console.log(jobs);
       const table = document.getElementById('jobs');
       for (let i = 0; i < jobs.length; i++) {
           addJobToTable(jobs[i], table);
@@ -354,7 +353,7 @@ function getDailyView(aggregated) {
   
   var today = new Date();
   var thirtyDaysFromNow = new Date(today);
-  thirtyDaysFromNow.setDate( thirtyDaysFromNow.getDate() - 30);
+  thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() - 30);
 
   var dateList = getDatesBetweenDates(today, thirtyDaysFromNow);
 
@@ -387,8 +386,6 @@ function getDailyView(aggregated) {
     data[1].push(totalCost);
   }
 
-  console.log(data);
-
   data = transpose(data);
   drawLineGraph(data, 'Cost Prediction On Daily Scale', 'costPrediction-container');  
 }
@@ -402,12 +399,17 @@ function getWeeklyView(aggregated) {
   thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() - 30);
 
   var firstDayOfWeek = new Date(thirtyDaysFromNow);
-  firstDayOfWeek.setDate(firstDayOfWeek.getDate() - (today.getDay() - 1));
+  if (firstDayOfWeek.getDay() === 0) {
+    firstDayOfWeek.setDate(firstDayOfWeek.getDate() - 6);
+  } else {
+    firstDayOfWeek.setDate(firstDayOfWeek.getDate() - (firstDayOfWeek.getDay() - 1));
+  }
+  
 
   var weekStarts = [];
   weekStarts.push(firstDayOfWeek.toLocaleDateString("en-US"));
 
-  for (var i = 0; i < 3; i++) {
+  for (var i = 0; i < 4; i++) {
     weekStarts.push(new Date(firstDayOfWeek.setDate(firstDayOfWeek.getDate() + 7)).toLocaleDateString("en-US"));
   }
 
@@ -578,7 +580,10 @@ function drawColumnChart(data, title, containerName, isStacked) {
   var chartData = google.visualization.arrayToDataTable(data);
   var options = {
     title: title,
-    isStacked: isStacked
+    isStacked: isStacked,
+    legend: {
+      position: 'bottom'
+    },
   };
   var chart = new google.visualization.ColumnChart(document.getElementById(containerName));
   chart.draw(chartData, options);
