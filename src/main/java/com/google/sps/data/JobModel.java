@@ -21,8 +21,7 @@ import java.io.IOException;
 import java.lang.IllegalArgumentException;
 import java.math.BigDecimal;
 import java.util.Map;
-
-
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 
 // Class used to represent a Job in memory, extracting just the 
 // information required by the analysis
@@ -54,11 +53,27 @@ public abstract class JobModel {
     public Double totalStreamingData = null; //GB - multiply by 1024 for MB
     public Boolean enableStreamingEngine = false;
     public String metricTime = null;
+    public Double currentMemoryUsage = null; //MB - divide by 1024 for GB
+    public Double currentPdUsage = null; // GB
+    public Double currentSsdUsage = null; // GB
+    public Boolean updated = false;
 
     // Possible states can be found at 
     // https://cloud.google.com/dataflow/docs/reference/rest/v1b3/projects.jobs#jobstate
     public String state;
     public String stateTime;
+
+    public JobModel(String projectId, String id, String region) {
+      this.projectId = projectId;
+      this.id = id;
+
+      name = null;
+      type = null;
+      sdkName = null;
+      this.region = region;
+      startTime = null;
+      enableStreamingEngine = null;
+    }
 
     public JobModel(String projectId, Job job, Dataflow dataflowService) throws IOException, IllegalArgumentException {
       this.projectId = projectId;
@@ -90,15 +105,22 @@ public abstract class JobModel {
 
       startTime = job.getStartTime();
 
-      getMetrics(dataflowService);
+      getMetrics(dataflowService, null);
     }
 
-    private void getMetrics(Dataflow dataflowService) throws IOException, IllegalArgumentException {
+    private void getMetrics(Dataflow dataflowService, String startTime) throws IOException, IllegalArgumentException {
       Dataflow.Projects.Locations.Jobs.GetMetrics request2 = dataflowService.projects()
       .locations()
       .jobs()
       .getMetrics(projectId, region, id);
-      JobMetrics jobMetric = request2.execute();
+      request2.setStartTime(startTime);
+      JobMetrics jobMetric;
+      try {
+        jobMetric = request2.execute();
+      } catch (GoogleJsonResponseException e) {
+          // The job is no longer saved in the system, so we can fetch any metrics
+          return;
+      }
 
       metricTime = jobMetric.getMetricTime();
 
@@ -111,17 +133,32 @@ public abstract class JobModel {
           String metricName = metric.getName().getName();
           if (metricName.compareTo("TotalVcpuTime") == 0) {
             totalVCPUTime = ((BigDecimal) metric.getScalar()).doubleValue();
+            updated = true;
           } else if (metricName.compareTo("TotalMemoryUsage") == 0) {
             totalMemoryTime = ((BigDecimal) metric.getScalar()).doubleValue();
+            updated = true;
           } else if (metricName.compareTo("TotalPdUsage") == 0 ) {
             totalDiskTimeHDD = ((BigDecimal) metric.getScalar()).doubleValue();
+            updated = true;
           } else if (metricName.compareTo("TotalSsdUsage") == 0 ) {
             totalDiskTimeSSD = ((BigDecimal) metric.getScalar()).doubleValue();
+            updated = true;
           } else if (metricName.compareTo("CurrentVcpuCount") == 0) {
             currentVcpuCount = ((BigDecimal) metric.getScalar()).intValue();
+            updated = true;
           } else if (metricName.compareTo("TotalStreamingDataProcessed") == 0) {
             totalStreamingData = ((BigDecimal) metric.getScalar()).doubleValue();
             enableStreamingEngine = true;
+            updated = true;
+          } else if (metricName.compareTo("CurrentMemoryUsage") == 0) {
+            currentMemoryUsage = ((BigDecimal) metric.getScalar()).doubleValue();
+            updated = true;
+          } else if (metricName.compareTo("CurrentPdUsage") == 0) {
+            currentPdUsage = ((BigDecimal) metric.getScalar()).doubleValue();
+            updated = true;
+          } else if (metricName.compareTo("CurrentSsdUsage") == 0) {
+            currentSsdUsage = ((BigDecimal) metric.getScalar()).doubleValue();
+            updated = true;
           }
         }
       }    
@@ -129,17 +166,38 @@ public abstract class JobModel {
 
     public static JobModel createJob(String projectId, Job job, Dataflow dataflowService)
         throws IOException, IllegalArgumentException {
-            String state = job.getCurrentState();
-            if (state.compareTo("JOB_STATE_UNKNOWN") == 0 
-                   || state.compareTo("JOB_STATE_STOPPED") == 0
-                   || state.compareTo("JOB_STATE_RUNNING") == 0
-                   || state.compareTo("JOB_STATE_DRAINING") == 0
-                   || state.compareTo("JOB_STATE_PENDING") == 0
-                   || state.compareTo("JOB_STATE_CANCELLING") == 0
-                   || state.compareTo("JOB_STATE_QUEUED") == 0) {
-              return new RunningJob(projectId, job, dataflowService);
-            } else {
-                return new FinalisedJob(projectId, job, dataflowService);
-            }
-        }
+      String state = job.getCurrentState();
+      if (state.compareTo("JOB_STATE_UNKNOWN") == 0 
+             || state.compareTo("JOB_STATE_STOPPED") == 0
+             || state.compareTo("JOB_STATE_RUNNING") == 0
+             || state.compareTo("JOB_STATE_DRAINING") == 0
+             || state.compareTo("JOB_STATE_PENDING") == 0
+             || state.compareTo("JOB_STATE_CANCELLING") == 0
+             || state.compareTo("JOB_STATE_QUEUED") == 0) {
+        return new RunningJob(projectId, job, dataflowService);
+      } else {
+        return new FinalisedJob(projectId, job, dataflowService);
+      }
+    }
+
+    public static JobModel updateJob(String projectId, Job job, Dataflow dataflowService, String lastModified) 
+        throws IOException, IllegalArgumentException {
+      JobModel updatedJob;
+      String state = job.getCurrentState();
+      if (state.compareTo("JOB_STATE_UNKNOWN") == 0 
+             || state.compareTo("JOB_STATE_STOPPED") == 0
+             || state.compareTo("JOB_STATE_RUNNING") == 0
+             || state.compareTo("JOB_STATE_DRAINING") == 0
+             || state.compareTo("JOB_STATE_PENDING") == 0
+             || state.compareTo("JOB_STATE_CANCELLING") == 0
+             || state.compareTo("JOB_STATE_QUEUED") == 0) {
+        updatedJob =  new RunningJob(projectId, job.getId(), job.getCurrentState(), job.getCurrentStateTime(), job.getLocation());
+      } else {
+        updatedJob = new FinalisedJob(projectId, job.getId(), job.getCurrentState(), job.getCurrentStateTime(), job.getLocation());
+      }
+
+      updatedJob.getMetrics(dataflowService, lastModified);
+
+      return updatedJob;
+    }
 }

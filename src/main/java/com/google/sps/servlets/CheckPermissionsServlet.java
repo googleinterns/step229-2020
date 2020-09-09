@@ -46,9 +46,6 @@ public class CheckPermissionsServlet extends HttpServlet {
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     String projectId = request.getParameter("projID");
 
-    //File pomFile = new File("pom.xml");
-    //String outputPath = pomFile.getAbsoluteFile().getParent()+"/"+projectId+".json";
-
     File file = new File(projectId + ".json");
     String jsonPath = file.getAbsolutePath();
 

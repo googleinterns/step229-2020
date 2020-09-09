@@ -7,6 +7,7 @@
 package com.google.sps;
 
 import com.google.sps.data.JobModel;
+import com.google.sps.data.JobJSON;
 
 // Calculates the price for a job   
 public final class PriceCenter {
@@ -23,36 +24,69 @@ public final class PriceCenter {
   private double streamingProcessedGB = 0.018;
 
   public double calculatePrice(JobModel job) {
-      double price = 0;
-      if (job.type.compareTo("JOB_TYPE_STREAMING") == 0) {
-        if (job.totalVCPUTime != null)
-          price += (job.totalVCPUTime / 3600) * streamingCPUhour;
-        if (job.totalMemoryTime != null)
-          price += (job.totalMemoryTime / (3600 * 1024)) * streamingMemoryGBHour;
-        if (job.totalDiskTimeHDD != null)
-          price += (job.totalDiskTimeHDD / 3600) * streamingHDDGBHour;
-        if (job.totalDiskTimeSSD != null)
-          price += (job.totalDiskTimeSSD / 3600) * streamingSSDGBHour;
-        if (job.enableStreamingEngine) {
-            price += job.totalStreamingData * streamingProcessedGB;
-        }
+    double price = 0;
+    if (job.type.compareTo("JOB_TYPE_STREAMING") == 0) {
+      if (job.totalVCPUTime != null)
+        price += (job.totalVCPUTime / 3600) * streamingCPUhour;
+      if (job.totalMemoryTime != null)
+        price += (job.totalMemoryTime / (3600 * 1024)) * streamingMemoryGBHour;
+      if (job.totalDiskTimeHDD != null)
+        price += (job.totalDiskTimeHDD / 3600) * streamingHDDGBHour;
+      if (job.totalDiskTimeSSD != null)
+        price += (job.totalDiskTimeSSD / 3600) * streamingSSDGBHour;
+      if (job.enableStreamingEngine) {
+        price += job.totalStreamingData * streamingProcessedGB;
       }
+    }
 
-      if (job.type.compareTo("JOB_TYPE_BATCH") == 0) {
-        if (job.totalVCPUTime != null)
-          price += (job.totalVCPUTime / 3600) * batchCPUhour;
-        if (job.totalMemoryTime != null)
-          price += (job.totalMemoryTime / (3600 * 1024)) * batchMemoryGBHour;
-        if (job.totalDiskTimeHDD != null)
-          price += (job.totalDiskTimeHDD / 3600) * batchHDDGBHour;
-        if (job.totalDiskTimeSSD != null)
-          price += (job.totalDiskTimeSSD / 3600) * batchSSDGBHour;
-        if (job.enableStreamingEngine) {
-            price += job.totalStreamingData * batchProcessedGB;
-        }
+    if (job.type.compareTo("JOB_TYPE_BATCH") == 0) {
+      if (job.totalVCPUTime != null)
+        price += (job.totalVCPUTime / 3600) * batchCPUhour;
+      if (job.totalMemoryTime != null)
+        price += (job.totalMemoryTime / (3600 * 1024)) * batchMemoryGBHour;
+      if (job.totalDiskTimeHDD != null)
+        price += (job.totalDiskTimeHDD / 3600) * batchHDDGBHour;
+      if (job.totalDiskTimeSSD != null)
+        price += (job.totalDiskTimeSSD / 3600) * batchSSDGBHour;
+      if (job.enableStreamingEngine) {
+        price += job.totalStreamingData * batchProcessedGB;
       }
+    }
 
-      return price;
+    return price;
+  }
+
+  public double calculatePrice(JobJSON job) {
+    double price = 0;
+    if (job.type.compareTo("JOB_TYPE_STREAMING") == 0) {
+      if (job.totalVCPUTime != null)
+        price += (job.totalVCPUTime / 3600) * streamingCPUhour;
+      if (job.totalMemoryTime != null)
+        price += (job.totalMemoryTime / (3600 * 1024)) * streamingMemoryGBHour;
+      if (job.totalDiskTimeHDD != null)
+        price += (job.totalDiskTimeHDD / 3600) * streamingHDDGBHour;
+      if (job.totalDiskTimeSSD != null)
+        price += (job.totalDiskTimeSSD / 3600) * streamingSSDGBHour;
+      if (job.enableStreamingEngine) {
+        price += job.totalStreamingData * streamingProcessedGB;
+      }
+    }
+
+    if (job.type.compareTo("JOB_TYPE_BATCH") == 0) {
+      if (job.totalVCPUTime != null)
+        price += (job.totalVCPUTime / 3600) * batchCPUhour;
+      if (job.totalMemoryTime != null)
+        price += (job.totalMemoryTime / (3600 * 1024)) * batchMemoryGBHour;
+      if (job.totalDiskTimeHDD != null)
+        price += (job.totalDiskTimeHDD / 3600) * batchHDDGBHour;
+      if (job.totalDiskTimeSSD != null)
+        price += (job.totalDiskTimeSSD / 3600) * batchSSDGBHour;
+      if (job.enableStreamingEngine) {
+        price += job.totalStreamingData * batchProcessedGB;
+      }
+    }
+
+    return price;
   }
 
 

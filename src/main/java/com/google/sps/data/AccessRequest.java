@@ -19,5 +19,4 @@ public final class AccessRequest {
   /////////////////////////////////////////////
 
     public String projectID;
-    public String pathToJsonFile;
 }

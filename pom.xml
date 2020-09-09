@@ -110,7 +110,6 @@
           <deploy.version>1</deploy.version>
         </configuration>
       </plugin>
-      <!--So that tests can find the JSON file.-->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>

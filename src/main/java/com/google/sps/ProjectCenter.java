@@ -126,4 +126,21 @@ public final class ProjectCenter {
 
       return null;
     }
+
+    public List<JobModel> fetchJobsforUpdate(String lastUpdate) throws IOException {
+      Dataflow.Projects.Jobs.Aggregated request = dataflowService.projects().jobs().aggregated(projectId);
+      ListJobsResponse response;
+      ArrayList<JobModel> jobs = new ArrayList<>();
+      do {
+        response = request.execute();
+        
+        for (Job job : response.getJobs()) {
+          jobs.add(JobModel.updateJob(projectId, job, dataflowService, lastUpdate));
+        }
+        
+        request.setPageToken(response.getNextPageToken());
+      } while (response.getNextPageToken() != null);
+
+      return jobs; 
+    }
 }

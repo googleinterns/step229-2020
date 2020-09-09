@@ -9,9 +9,13 @@ var sdkVisited = false;
 
 function initBody() {
   //document.getElementById('dataButtons').style.display = 'none';
-  document.getElementById('projectID').value = accessDataflowAPI.projectID;
+  document.getElementById('projectID').value = config.projectID;
   setCredentialsServlet();
   google.charts.load('current', {'packages':['corechart']});
+  google.charts.load('current', {
+        'packages':['geochart'],
+        'mapsApiKey': mapApiKey,
+      });
 }
 
 function setCredentialsServlet() {
@@ -57,12 +61,16 @@ function checkPermissions() {
 }
 
 function updateProjectDatabase() {
+  const accessObject = {
+      projectID : config.projectID, 
+  };
+
   fetch('/jobs', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(accessDataflowAPI),
+    body: JSON.stringify(accessObject),
   }); 
 }
 
@@ -101,6 +109,15 @@ function setUpGraphs() {
     google.charts.setOnLoadCallback(getFailedJobsCost(jobData));
     google.charts.setOnLoadCallback(getAveragevCPUCount(jobData));
     google.charts.setOnLoadCallback(SSDVsHDDTimeComparison(jobData));
+    if (option === 'region') {
+      transformAgregatedDataforGeoChart(jobData);
+      document.getElementById('hiddenLink').hidden = false;
+      document.getElementById('regionDiv').style.display = 'inherit';
+    } else {
+      document.getElementById('hiddenLink').hidden = true;
+      document.getElementById('regionDiv').style.display = 'none';
+    }
+
     google.charts.setOnLoadCallback(SSDVsHDDComparison(jobData));
     document.getElementById('container').style.visibility = 'visible';    
   });
@@ -333,7 +350,7 @@ function transpose(array) {
 function getDailyView(aggregated) {
   //find the moving average for 30 days worth of data
   //need to aggregate aggregated data to get groups of jobs run on the same day
-
+  
   var today = new Date();
   var thirtyDaysFromNow = new Date(today);
   thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() - 30);
@@ -370,7 +387,6 @@ function getDailyView(aggregated) {
   }
 
   data = transpose(data);
-
   drawLineGraph(data, 'Cost Prediction On Daily Scale', 'costPrediction-container');  
 }
 
@@ -571,4 +587,82 @@ function drawColumnChart(data, title, containerName, isStacked) {
   };
   var chart = new google.visualization.ColumnChart(document.getElementById(containerName));
   chart.draw(chartData, options);
+}
+
+
+function drawRegionsMap(array, aggregatedData) {
+  var data = google.visualization.arrayToDataTable(array);
+
+  var options = {
+      displayMode: 'markers',
+      'width':1300,
+      'height':500,
+      colorAxis: {colors: ['pink', 'darkRed']},
+      chartArea: {width: '90%'}
+  };
+
+  var view = new google.visualization.DataView(data);
+  view.setColumns([0, 
+      {
+          type: 'number',
+          label: 'Area',
+          calc: function (dt, row) {
+              return {
+                v: dt.getValue(row, 1),
+                f: '' + dt.getValue(row, 2)
+                }
+          }
+      }, 
+      {
+          type: 'number',
+          label: 'Total Jobs:',
+          calc: function (dt, row) {
+              return {
+                v: dt.getValue(row, 1),
+                f: '' + dt.getValue(row, 1)
+              }
+      }}]);
+
+  var chart = new google.visualization.GeoChart(document.getElementById('chartDiv'));
+
+  google.visualization.events.addListener(chart, 'select', function () {
+      var selection = chart.getSelection();
+      if (selection.length > 0) {
+        key = data.getValue(selection[0].row, 2);
+        let allJobs = '';
+
+        if (aggregatedData[key] !== undefined) {
+          for (let i = 0; i < aggregatedData[key].length; i++) {
+            allJobs = allJobs + aggregatedData[key][i].name + '\n';
+          }
+        }
+
+        const additionalData = document.getElementById('additionalData');
+        additionalData.innerText = allJobs; 
+      }
+    });
+
+  chart.draw(view,  options);
+}
+
+function transformAgregatedDataforGeoChart(aggregatedData) {
+  fetch('/regionToCity').then(response => response.json()).then(myMap => {
+      console.log(aggregatedData);
+    let array = [['City',   'NumberOfJobs', 'Area']];
+    Object.keys(myMap).forEach((key) => {
+      let size = 0;
+
+      if (aggregatedData[key] !== undefined) {
+        size = aggregatedData[key].length;
+      }
+      
+      let auxArray = [];
+      auxArray.push(myMap[key]);
+      auxArray.push(size);
+      auxArray.push(key);
+      array.push(auxArray);
+    });
+
+    google.charts.setOnLoadCallback(drawRegionsMap(array, aggregatedData)); 
+  });
 }
