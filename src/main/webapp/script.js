@@ -110,7 +110,6 @@ function getJobsFromProject(projectID) {
   fetch('/jobs?projectID=' + projectID)
   .then(response => response.json())
   .then(jobs => {
-      console.log(jobs);
       const table = document.getElementById('jobs');
       for (let i = 0; i < jobs.length; i++) {
           addJobToTable(jobs[i], table);
@@ -229,7 +228,6 @@ function getTotalCosts(aggregated){
 }
 
 function getAverageCosts(aggregated) {
-  console.log(aggregated);
   //takes each of the jobs and finds the total cost of each aggregated group of jobs
   var data = [];
   data.push(['Category','Average Cost']);
@@ -256,7 +254,6 @@ function getFailedJobs(aggregated){
     var jobData = [];
     jobData.push(category);
     for (costs in aggregated[category]) {
-      console.log(aggregated[category][costs]);
       if (aggregated[category][costs].state == 'JOB_STATE_FAILED') {
         count ++;
       }
@@ -372,8 +369,6 @@ function getDailyView(aggregated) {
     data[1].push(totalCost);
   }
 
-  console.log(data);
-
   data = transpose(data);
 
   drawLineGraph(data, 'Cost Prediction On Daily Scale', 'costPrediction-container');  
@@ -388,9 +383,7 @@ function getWeeklyView(aggregated) {
   thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() - 30);
 
   var firstDayOfWeek = new Date(thirtyDaysFromNow);
-  console.log(firstDayOfWeek);
-  console.log(firstDayOfWeek.getDay());
-  if (firstDayOfWeek.getDay() == 0) {
+  if (firstDayOfWeek.getDay() === 0) {
     firstDayOfWeek.setDate(firstDayOfWeek.getDate() - 6);
   } else {
     firstDayOfWeek.setDate(firstDayOfWeek.getDate() - (firstDayOfWeek.getDay() - 1));
