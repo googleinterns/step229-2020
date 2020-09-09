@@ -53,6 +53,9 @@ public abstract class JobModel {
     public Double totalStreamingData = null; //GB - multiply by 1024 for MB
     public Boolean enableStreamingEngine = false;
     public String metricTime = null;
+    public Double currentMemoryUsage = null; //MB - divide by 1024 for GB
+    public Double currentPdUsage = null; // GB
+    public Double currentSsdUsage = null; // GB
     public Boolean updated = false;
 
     // Possible states can be found at 
@@ -146,6 +149,15 @@ public abstract class JobModel {
           } else if (metricName.compareTo("TotalStreamingDataProcessed") == 0) {
             totalStreamingData = ((BigDecimal) metric.getScalar()).doubleValue();
             enableStreamingEngine = true;
+            updated = true;
+          } else if (metricName.compareTo("CurrentMemoryUsage") == 0) {
+            currentMemoryUsage = ((BigDecimal) metric.getScalar()).doubleValue();
+            updated = true;
+          } else if (metricName.compareTo("CurrentPdUsage") == 0) {
+            currentPdUsage = ((BigDecimal) metric.getScalar()).doubleValue();
+            updated = true;
+          } else if (metricName.compareTo("CurrentSsdUsage") == 0) {
+            currentSsdUsage = ((BigDecimal) metric.getScalar()).doubleValue();
             updated = true;
           }
         }

@@ -76,6 +76,9 @@ public final class JobStoreCenter {
     jobEntity.setProperty("currentVcpuCount", job.currentVcpuCount);
     jobEntity.setProperty("totalStreamingData", job.totalStreamingData);
     jobEntity.setProperty("enableStreamingEngine", job.enableStreamingEngine);
+    jobEntity.setProperty("currentMemoryUsage", job.currentMemoryUsage);
+    jobEntity.setProperty("currentPdUsage", job.currentPdUsage);
+    jobEntity.setProperty("currentSsdUsage", job.currentSsdUsage);
     jobEntity.setProperty("metricTime", job.metricTime);
     jobEntity.setProperty("state", job.state);
     jobEntity.setProperty("stateTime", job.stateTime);
@@ -138,6 +141,9 @@ public final class JobStoreCenter {
     Integer currentVcpuCount = longCurrentVcpuCount == null? null : longCurrentVcpuCount.intValue();
     Double totalStreamingData = (Double) entity.getProperty("totalStreamingData"); 
     Boolean enableStreamingEngine = (Boolean) entity.getProperty("enableStreamingEngine");
+    Double currentMemoryUsage = (Double) entity.getProperty("currentMemoryUsage");
+    Double currentPdUsage = (Double) entity.getProperty("currentPdUsage");
+    Double currentSsdUsage = (Double) entity.getProperty("currentSsdUsage");
     String metricTime = (String) entity.getProperty("metricTime");
     String state = (String) entity.getProperty("state");
     String stateTime = (String) entity.getProperty("stateTime");
@@ -148,7 +154,8 @@ public final class JobStoreCenter {
                                   currentWorkers, startTime, totalVCPUTime, totalMemoryTime,
                                       totalDiskTimeHDD, totalDiskTimeSSD, currentVcpuCount,
                                           totalStreamingData, enableStreamingEngine, metricTime,
-                                              state, stateTime, price, sdkName);
+                                              state, stateTime, price, sdkName, currentMemoryUsage,
+                                                  currentPdUsage, currentSsdUsage);
     return job;
   }
 
@@ -238,6 +245,15 @@ public final class JobStoreCenter {
       }
       if (updatedJob.enableStreamingEngine != null) {
         jobEntity.setProperty("enableStreamingEngine", updatedJob.enableStreamingEngine);
+      }
+      if (updatedJob.currentMemoryUsage != null) {
+        jobEntity.setProperty("currentMemoryUsage", updatedJob.currentMemoryUsage);
+      }
+      if (updatedJob.currentPdUsage != null) {
+        jobEntity.setProperty("currentPdUsage", updatedJob.currentPdUsage);
+      }
+      if (updatedJob.currentSsdUsage != null) {
+        jobEntity.setProperty("currentSsdUsage", updatedJob.currentSsdUsage);
       }
 
       PriceCenter priceCenter = new PriceCenter();

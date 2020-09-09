@@ -37,6 +37,9 @@ public final class JobJSON {
   public Double totalStreamingData = null; //GB - multiply by 1024 for MB
   public Boolean enableStreamingEngine = false;
   public String metricTime = null;
+  public Double currentMemoryUsage = null; //MB - divide by 1024 for GB
+  public Double currentPdUsage = null; // GB
+  public Double currentSsdUsage = null; // GB
 
   public String state;
   public String stateTime;
@@ -47,7 +50,8 @@ public final class JobJSON {
                     String region, int currentWorkers, String startTime, Double totalVCPUTime, Double totalMemoryTime,
                         Double totalDiskTimeHDD, Double totalDiskTimeSSD, Integer currentVcpuCount,
                             Double totalStreamingData, Boolean enableStreamingEngine, String metricTime, 
-                                String state, String stateTime, Double price, String sdkName) {
+                                String state, String stateTime, Double price, String sdkName, 
+                                    Double currentMemoryUsage, Double currentPdUsage, Double currentSsdUsage) {
     this.projectId = projectId;
     this.name = name;
     this.id = id;
@@ -64,6 +68,10 @@ public final class JobJSON {
     this.currentVcpuCount = currentVcpuCount;
     this.totalStreamingData = totalStreamingData;
     this.enableStreamingEngine = enableStreamingEngine;
+    this.currentMemoryUsage = currentMemoryUsage;
+    this.currentPdUsage = currentPdUsage;
+    this.currentSsdUsage = currentSsdUsage;
+
     this.metricTime = metricTime;
     this.state = state;
     this.stateTime = stateTime;
