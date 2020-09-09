@@ -14,7 +14,7 @@ function initBody() {
   google.charts.load('current', {'packages':['corechart']});
   google.charts.load('current', {
         'packages':['geochart'],
-        'mapsApiKey': mapApiKey,
+        'mapsApiKey': config.mapApiKey,
       });
 }
 
