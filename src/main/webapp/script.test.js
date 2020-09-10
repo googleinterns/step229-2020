@@ -31,3 +31,8 @@ test('Test getFailedJobsCost', () => {
   const result = [["Category", "Total Cost"],["testData", 0.02821144897886131]]
   expect(getFailedJobsCost(testAggregatedFailedInput)).toStrictEqual(result);
 });
+
+test('Test getFailedJobsCost', () => {
+  const result = [["Category", "Total Cost"],["testData", 0.02821144897886131]]
+  expect(getFailedJobsCost(testAggregatedFailedInput)).toStrictEqual(result);
+});

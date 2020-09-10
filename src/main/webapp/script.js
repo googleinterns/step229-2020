@@ -88,6 +88,22 @@ function fetchAggregatedJobsBy(option) {
   });
 }
 
+function setGraphOnLoad(data, title, containerName, graphType) {
+  if (graphType == 'pie') {
+    google.charts.setOnLoadCallback(
+      drawPieChart(data, title, containerName, graphType)
+    )
+  } else if (graphType == 'line') {
+    google.charts.setOnLoadCallback(
+      drawLineGraph(data, title, containerName, graphType)
+    )
+  } else if (graphType == 'column') {
+    google.charts.setOnLoadCallback(
+      drawColumnChart(data, title, containerName, graphType)
+    )
+  }
+}
+
 function setUpGraphs() {
   var option = document.querySelector('input[name = option]:checked').value;
   var isSDKSelected = (option == 'sdk');
@@ -102,19 +118,14 @@ function setUpGraphs() {
       getOutdatedSDK(jobData);
       sdkVisited = true;
     }
-    google.charts.setOnLoadCallback(
-      drawPieChart(getTotalCosts(jobData), 'Total Cost of Jobs Per Category', 'totalCost-container')
-    );
-    google.charts.setOnLoadCallback(
-      drawPieChart(getAverageCosts(jobData), 'Average Cost of Jobs Per Category', 'averageCost-container')
-    );
+    setGraphOnLoad(getTotalCosts(jobData), 'Total Cost of Jobs Per Category', 'totalCost-container', 'pie');
+    setGraphOnLoad(getAverageCosts(jobData), 'Average Cost of Jobs Per Category', 'averageCost-container', 'pie');
+
     google.charts.setOnLoadCallback(getDailyView(jobData));
-    google.charts.setOnLoadCallback(
-      drawPieChart(getFailedJobs(jobData), 'Total Number of Failed Jobs Per Category', 'failedJobs-container')
-    );
-    google.charts.setOnLoadCallback(
-      drawPieChart(getFailedJobsCost(jobData), 'Total Cost of Failed Jobs Per Category', 'failedJobsCost-container')
-    );
+    
+    setGraphOnLoad(getFailedJobs(jobData), 'Total Number of Failed Jobs Per Category', 'failedJobs-container', 'pie');
+    setGraphOnLoad(getFailedJobsCost(jobData), 'Total Cost of Failed Jobs Per Category', 'failedJobsCost-container', 'pie');
+
     google.charts.setOnLoadCallback(getAveragevCPUCount(jobData));
     google.charts.setOnLoadCallback(SSDVsHDDTimeComparison(jobData));
     if (option === 'region') {
@@ -236,7 +247,6 @@ function formatURLs(url, parameters) {
 }
 
 function getTotalCosts(aggregated){
-  console.log(aggregated)
   //takes each of the jobs and finds the total cost of each aggregated group of jobs
   var data = [];
   data.push(['Category','Total Cost']);
@@ -652,8 +662,7 @@ function drawRegionsMap(array, aggregatedData) {
 
 function transformAgregatedDataforGeoChart(aggregatedData) {
   fetch('/regionToCity').then(response => response.json()).then(myMap => {
-      console.log(aggregatedData);
-    let array = [['City',   'NumberOfJobs', 'Area']];
+    let array = [['City', 'NumberOfJobs', 'Area']];
     Object.keys(myMap).forEach((key) => {
       let size = 0;
 
