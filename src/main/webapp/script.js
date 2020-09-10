@@ -103,9 +103,11 @@ function setUpGraphs() {
       sdkVisited = true;
     }
     google.charts.setOnLoadCallback(
-      drawPieChart(getTotalCosts(data), 'Total Cost of Jobs Per Category', 'totalCost-container')
+      drawPieChart(getTotalCosts(jobData), 'Total Cost of Jobs Per Category', 'totalCost-container')
     );
-    google.charts.setOnLoadCallback(getAverageCosts(jobData));
+    google.charts.setOnLoadCallback(
+      drawPieChart(getAverageCosts(jobData), 'Average Cost of Jobs Per Category', 'averageCost-container')
+    );
     google.charts.setOnLoadCallback(getDailyView(jobData));
     google.charts.setOnLoadCallback(getFailedJobs(jobData));
     google.charts.setOnLoadCallback(getFailedJobsCost(jobData));
@@ -262,7 +264,7 @@ function getAverageCosts(aggregated) {
     jobData.push(totalCost);
     data.push(jobData);
   }
-  drawPieChart(data, 'Average Cost of Jobs Per Category', 'averageCost-container');  
+  return data;
 }
 
 function getFailedJobs(aggregated){
@@ -671,4 +673,4 @@ function transformAgregatedDataforGeoChart(aggregatedData) {
   });
 }
 
-module.exports = {getTotalCosts};
+module.exports = {getTotalCosts, getAverageCosts};
