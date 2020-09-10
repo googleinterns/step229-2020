@@ -112,7 +112,9 @@ function setUpGraphs() {
     google.charts.setOnLoadCallback(
       drawPieChart(getFailedJobs(jobData), 'Total Number of Failed Jobs Per Category', 'failedJobs-container')
     );
-    google.charts.setOnLoadCallback(getFailedJobsCost(jobData));
+    google.charts.setOnLoadCallback(
+      drawPieChart(getFailedJobsCost(jobData), 'Total Cost of Failed Jobs Per Category', 'failedJobsCost-container')
+    );
     google.charts.setOnLoadCallback(getAveragevCPUCount(jobData));
     google.charts.setOnLoadCallback(SSDVsHDDTimeComparison(jobData));
     if (option === 'region') {
@@ -298,17 +300,14 @@ function getFailedJobsCost(aggregated) {
   data.push(['Category','Total Cost']);
   var isAllZero = true;
   for (category in aggregated) {
-    var count = 0;
     var failedCost = 0;
     var jobData = [];
     jobData.push(category);
     for (costs in aggregated[category]) {
       if (aggregated[category][costs].state == 'JOB_STATE_FAILED') {
-        count ++;
         failedCost += aggregated[category][costs].price;
       }
     }
-    failedCost /= count;
     jobData.push(failedCost);
     data.push(jobData);
     isAllZero = isAllZero && ((failedCost == 0) || isNaN(failedCost));
@@ -316,9 +315,8 @@ function getFailedJobsCost(aggregated) {
   if (isAllZero) {
     var container = document.getElementById('failedJobsCost-container');
     container.innerHTML = '<p id="noMoneyMessage">No money has been spent on failed jobs.</p>';
-  } else {
-    drawPieChart(data, 'Total Cost of Failed Jobs Per Category', 'failedJobsCost-container');
   }
+  return data;
 }
 
 function dailyViewHandler() {
@@ -674,4 +672,4 @@ function transformAgregatedDataforGeoChart(aggregatedData) {
   });
 }
 
-module.exports = {getTotalCosts, getAverageCosts, getFailedJobs};
+module.exports = {getTotalCosts, getAverageCosts, getFailedJobs, getFailedJobsCost};
