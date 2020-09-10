@@ -102,7 +102,9 @@ function setUpGraphs() {
       getOutdatedSDK(jobData);
       sdkVisited = true;
     }
-    google.charts.setOnLoadCallback(getTotalCosts(jobData));
+    google.charts.setOnLoadCallback(
+      drawPieChart(getTotalCosts(data), 'Total Cost of Jobs Per Category', 'totalCost-container')
+    );
     google.charts.setOnLoadCallback(getAverageCosts(jobData));
     google.charts.setOnLoadCallback(getDailyView(jobData));
     google.charts.setOnLoadCallback(getFailedJobs(jobData));
@@ -228,6 +230,7 @@ function formatURLs(url, parameters) {
 }
 
 function getTotalCosts(aggregated){
+  console.log(aggregated)
   //takes each of the jobs and finds the total cost of each aggregated group of jobs
   var data = [];
   data.push(['Category','Total Cost']);
@@ -241,7 +244,7 @@ function getTotalCosts(aggregated){
     jobData.push(totalCost);
     data.push(jobData);
   }
-  drawPieChart(data, 'Total Cost of Jobs Per Category', 'totalCost-container');
+  return data;
 }
 
 function getAverageCosts(aggregated) {
@@ -508,6 +511,7 @@ function SSDVsHDDTimeComparison(aggregated) {
   }
 
   drawColumnChart(data, 'Comparison of SSDTime VS HDDTime', 'SSDVsHDDTime-container', true);
+  return data;
 }
 
 function SSDVsHDDComparison(aggregated) {
@@ -519,15 +523,15 @@ function SSDVsHDDComparison(aggregated) {
     var hdd = 0;
     jobData.push(category);
     for (costs in aggregated[category]) {
-      if (aggregated[category][costs].totalDiskTimeHDD == undefined) {
+      if (aggregated[category][costs].currentPDUsage == undefined) {
         hdd += 0;
       } else {
-        hdd += ((aggregated[category][costs].totalDiskTimeHDD / 3600) / (aggregated[category][costs].totalElapsedTime));
+        hdd += aggregated[category][costs].currentPDUsage;
       }
-      if (aggregated[category][costs].totalDiskTimeSSD == undefined) {
+      if (aggregated[category][costs].currentSSDUsage == undefined) {
         ssd += 0;
       } else {
-        ssd += ((aggregated[category][costs].totalDiskTimeSSD / 3600)  / (aggregated[category][costs].totalElapsedTime));
+        ssd += aggregated[category][costs].currentSSDUsage;
       }
     }
     ssd /= aggregated[category].length;
@@ -666,3 +670,5 @@ function transformAgregatedDataforGeoChart(aggregatedData) {
     google.charts.setOnLoadCallback(drawRegionsMap(array, aggregatedData)); 
   });
 }
+
+module.exports = {getTotalCosts};
