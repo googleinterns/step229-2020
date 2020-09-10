@@ -126,8 +126,7 @@ function setUpGraphs() {
     setGraphOnLoad(getFailedJobs(jobData), 'Total Number of Failed Jobs Per Category', 'failedJobs-container', 'pie');
     setGraphOnLoad(getFailedJobsCost(jobData), 'Total Cost of Failed Jobs Per Category', 'failedJobsCost-container', 'pie');
     setGraphOnLoad(getAveragevCPUCount(jobData), 'Average vCPU Usage', 'vCPU-container', 'pie');
-
-    google.charts.setOnLoadCallback(SSDVsHDDTimeComparison(jobData));
+    setGraphOnLoad(SSDVsHDDTimeComparison(jobData), 'Comparison of SSDTime VS HDDTime', 'SSDVsHDDTime-container', 'column');
     if (option === 'region') {
       transformAgregatedDataforGeoChart(jobData);
       document.getElementById('hiddenLink').hidden = false;
@@ -520,8 +519,6 @@ function SSDVsHDDTimeComparison(aggregated) {
     jobData.push(hddTime);
     data.push(jobData);
   }
-
-  drawColumnChart(data, 'Comparison of SSDTime VS HDDTime', 'SSDVsHDDTime-container', true);
   return data;
 }
 
@@ -591,11 +588,11 @@ function drawPieChart(data, title, containerName) {
   chart.draw(chartData, options);
 }
 
-function drawColumnChart(data, title, containerName, isStacked) {
+function drawColumnChart(data, title, containerName) {
   var chartData = google.visualization.arrayToDataTable(data);
   var options = {
     title: title,
-    isStacked: isStacked,
+    isStacked: true,
     legend: {
       position: 'bottom'
     },
@@ -681,4 +678,5 @@ function transformAgregatedDataforGeoChart(aggregatedData) {
   });
 }
 
-module.exports = {getTotalCosts, getAverageCosts, getFailedJobs, getFailedJobsCost, getAveragevCPUCount};
+module.exports = {getTotalCosts, getAverageCosts, getFailedJobs, getFailedJobsCost,
+  getAveragevCPUCount, SSDVsHDDTimeComparison};
