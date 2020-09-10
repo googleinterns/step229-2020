@@ -125,8 +125,8 @@ function setUpGraphs() {
     
     setGraphOnLoad(getFailedJobs(jobData), 'Total Number of Failed Jobs Per Category', 'failedJobs-container', 'pie');
     setGraphOnLoad(getFailedJobsCost(jobData), 'Total Cost of Failed Jobs Per Category', 'failedJobsCost-container', 'pie');
+    setGraphOnLoad(getAveragevCPUCount(jobData), 'Average vCPU Usage', 'vCPU-container', 'pie');
 
-    google.charts.setOnLoadCallback(getAveragevCPUCount(jobData));
     google.charts.setOnLoadCallback(SSDVsHDDTimeComparison(jobData));
     if (option === 'region') {
       transformAgregatedDataforGeoChart(jobData);
@@ -489,7 +489,7 @@ function getAveragevCPUCount(aggregated) {
     jobData.push(totalCount);
     data.push(jobData);
   }
-  drawPieChart(data, 'Average vCPU Usage', 'vCPU-container');
+  return data;
 }
 
 function SSDVsHDDTimeComparison(aggregated) {
@@ -681,4 +681,4 @@ function transformAgregatedDataforGeoChart(aggregatedData) {
   });
 }
 
-module.exports = {getTotalCosts, getAverageCosts, getFailedJobs, getFailedJobsCost};
+module.exports = {getTotalCosts, getAverageCosts, getFailedJobs, getFailedJobsCost, getAveragevCPUCount};
