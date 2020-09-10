@@ -24,11 +24,11 @@ import java.lang.IllegalArgumentException;
 // - JOB_STATE_CANCELLING
 // - JOB_STATE_QUEUED
 public final class RunningJob extends JobModel {
-    public RunningJob(String projectId, Job job, Dataflow dataflowService) throws IOException, IllegalArgumentException {
-        super(projectId, job, dataflowService);
+    public RunningJob(String projectId, FetchJobInfo fetchJobInfo) throws IOException, IllegalArgumentException {
+        super(projectId, fetchJobInfo);
 
-        state = job.getCurrentState();
-        stateTime = job.getCurrentStateTime();
+        state = fetchJobInfo.getState();
+        stateTime = fetchJobInfo.getStateTime();
     }
 
     public RunningJob(String projectId, String id, String state, String stateTime, String region) throws IOException, IllegalArgumentException {
