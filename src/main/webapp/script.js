@@ -109,7 +109,9 @@ function setUpGraphs() {
       drawPieChart(getAverageCosts(jobData), 'Average Cost of Jobs Per Category', 'averageCost-container')
     );
     google.charts.setOnLoadCallback(getDailyView(jobData));
-    google.charts.setOnLoadCallback(getFailedJobs(jobData));
+    google.charts.setOnLoadCallback(
+      drawPieChart(getFailedJobs(jobData), 'Total Number of Failed Jobs Per Category', 'failedJobs-container')
+    );
     google.charts.setOnLoadCallback(getFailedJobsCost(jobData));
     google.charts.setOnLoadCallback(getAveragevCPUCount(jobData));
     google.charts.setOnLoadCallback(SSDVsHDDTimeComparison(jobData));
@@ -286,9 +288,8 @@ function getFailedJobs(aggregated){
   if (data[1][1] == 0 && data.length == 2) {
     var container = document.getElementById('failedJobsCost-container');
     container.innerText = "There are no failed jobs.";
-  } else {
-    drawPieChart(data, 'Total Number of Failed Jobs Per Category', 'failedJobs-container');
   }
+  return data;
 }
 
 function getFailedJobsCost(aggregated) {
@@ -673,4 +674,4 @@ function transformAgregatedDataforGeoChart(aggregatedData) {
   });
 }
 
-module.exports = {getTotalCosts, getAverageCosts};
+module.exports = {getTotalCosts, getAverageCosts, getFailedJobs};
