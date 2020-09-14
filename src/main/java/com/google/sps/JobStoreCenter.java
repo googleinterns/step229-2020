@@ -12,11 +12,15 @@ import com.google.sps.data.RunningJob;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.SortDirection;
+import com.google.appengine.api.datastore.Query.Filter;
+import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.time.Instant;
 import java.time.Clock;
 import java.util.List;
@@ -28,25 +32,27 @@ import com.google.api.services.dataflow.model.Job;
 
 // Class that deals with the interaction with Datastore 
 public final class JobStoreCenter {
-  DatabaseInteraction database;
+  DatastoreService datastore;
+  MyClock clock;
 
-  public JobStoreCenter(DatabaseInteraction database) {
-    this.database = database;
+  public JobStoreCenter(MyClock clock) {
+    datastore = DatastoreServiceFactory.getDatastoreService();
+    this.clock = clock;
   }
 
-  public void addNewProject(String projectId, ProjectLoader projectLoader) throws IOException , GeneralSecurityException {
+  private void addNewProject(String projectId, ProjectLoader projectLoader) throws IOException {
     Entity project = new Entity("Project", projectId);
     project.setProperty("projectId", projectId);
-    project.setProperty("lastAccessed", java.time.Clock.systemUTC().instant().toString());
-    database.put(project);
+    project.setProperty("lastAccessed", clock.getCurrentTime());
+    datastore.put(project);
 
     List<JobModel> allJobs = projectLoader.fetchJobs();
     for (JobModel job : allJobs) {
-        if (job instanceof RunningJob) {
-          addJobToDatastore((RunningJob)job, project);
-        } else {
-          addJobToDatastore((FinalisedJob)job, project);
-        }
+      if (job instanceof RunningJob) {
+        addJobToDatastore((RunningJob)job, project);
+      } else {
+        addJobToDatastore((FinalisedJob)job, project);
+      }
     }    
   }
 
@@ -80,7 +86,7 @@ public final class JobStoreCenter {
     PriceCenter priceCenter = new PriceCenter();
     jobEntity.setProperty("price", priceCenter.calculatePrice(job));
 
-    database.put(jobEntity);
+    datastore.put(jobEntity);
   }
 
   private void addJobToDatastore(FinalisedJob job, Entity project) {
@@ -96,8 +102,18 @@ public final class JobStoreCenter {
     List<JobJSON> jobs = new ArrayList<>();
 
     Key projectKey = KeyFactory.createKey("Project", projectId);
+    // By default, ancestor queries include the specified ancestor itself.
+    // The following filter excludes the ancestor from the query results.
+    Filter keyFilter =
+        new FilterPredicate(Entity.KEY_RESERVED_PROPERTY, FilterOperator.GREATER_THAN, projectKey);
+      
+    // If I want to query for specific type of Jobs (Running, Finalised), 
+    // give Query constructor the name of the class
+    Query queryJobs = new Query().setAncestor(projectKey).setFilter(keyFilter);
 
-    for (Entity entity : database.getJobsFromProject(projectKey)) {
+    PreparedQuery resultsJobs = datastore.prepare(queryJobs);
+
+    for (Entity entity : resultsJobs.asIterable()) {
       JobJSON job = convertEntityToJobJSON(entity);
       jobs.add(job);
     }
@@ -145,7 +161,7 @@ public final class JobStoreCenter {
       Entity project = null;
       Key projectKey = KeyFactory.createKey("Project", projectId);
       try{
-        project = database.get(projectKey);
+        project = datastore.get(projectKey);
       } catch (EntityNotFoundException e) {
         System.out.println("JobNotFound");
         return null;
@@ -155,12 +171,12 @@ public final class JobStoreCenter {
   }
   
   // Updates a project. The project must already exist 
-  public void updateProject(String projectId, ProjectLoader projectLoader, Entity project) throws IOException , GeneralSecurityException {
+  private void updateProject(String projectId, ProjectLoader projectLoader, Entity project) throws IOException {
     String lastTimeAccessedString = (String) project.getProperty("lastAccessed");
     Instant lastTimeAccessed = Instant.parse(lastTimeAccessedString);
 
-    project.setProperty("lastAccessed", java.time.Clock.systemUTC().instant().toString());
-    database.put(project);
+    project.setProperty("lastAccessed", clock.getCurrentTime());
+    datastore.put(project);
 
     List<JobModel> allJobs = projectLoader.fetchJobsforUpdate(lastTimeAccessedString);
     for (JobModel job : allJobs) {
@@ -177,7 +193,7 @@ public final class JobStoreCenter {
             new KeyFactory.Builder("Project", projectId)
               .addChild("RunningJob", job.id)
               .getKey();
-        database.delete(k);
+        datastore.delete(k);
 
         // Add the new Job
         JobModel updatedJob = projectLoader.fetch(job.id, job.region);
@@ -204,7 +220,7 @@ public final class JobStoreCenter {
             .getKey();
     Entity jobEntity;
     try{
-      jobEntity = database.get(k);  
+      jobEntity = datastore.get(k);  
       if (updatedJob.totalVCPUTime != null) {
         jobEntity.setProperty("totalVCPUTime", updatedJob.totalVCPUTime);
       }
@@ -239,7 +255,7 @@ public final class JobStoreCenter {
       PriceCenter priceCenter = new PriceCenter();
       jobEntity.setProperty("price", priceCenter.calculatePrice(convertEntityToJobJSON(jobEntity)));
 
-      database.put(jobEntity);
+      datastore.put(jobEntity);
 
       } catch (EntityNotFoundException e) {
         // The Job doesn't exist
@@ -254,7 +270,7 @@ public final class JobStoreCenter {
   
   // Function that creates the new project in Datastore if the project doesn t already
   // exist or updates the existing project
-  public void dealWithProject(String projectId, ProjectLoader projectLoader) throws IOException , GeneralSecurityException {
+  public void dealWithProject(String projectId, ProjectLoader projectLoader) throws IOException {
     Entity project = fetchProject(projectId);
 
     if (project == null) {

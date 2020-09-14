@@ -20,16 +20,17 @@ import java.security.GeneralSecurityException;
 import java.io.File;
 import com.google.sps.data.AccessRequest;
 import com.google.sps.data.JobJSON;
-import com.google.sps.DatastoreInteraction;
 import com.google.sps.ProjectLoaderFromServer;
+import com.google.sps.MyClock;
+import com.google.sps.ClockServer;
 
 @WebServlet("/jobs")
 public class JobsServlet extends HttpServlet {
   
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    DatastoreInteraction datastore = new DatastoreInteraction();
-    JobStoreCenter jobCenter = new JobStoreCenter(datastore);
+    MyClock clock = new ClockServer();
+    JobStoreCenter jobCenter = new JobStoreCenter(clock);
 
     String projectID = request.getParameter("projectID");
     List<JobJSON> jobs = jobCenter.getJobsFromDatastore(projectID);
@@ -53,8 +54,8 @@ public class JobsServlet extends HttpServlet {
       File file = new File(projectId + ".json");
       String pathToJsonFile = file.getAbsolutePath();
       
-      DatastoreInteraction datastore = new DatastoreInteraction();
-      JobStoreCenter jobCenter = new JobStoreCenter(datastore);
+      MyClock clock = new ClockServer();
+      JobStoreCenter jobCenter = new JobStoreCenter(clock);
 
       try{
         ProjectLoaderFromServer projectLoader = new ProjectLoaderFromServer(projectId, pathToJsonFile);
