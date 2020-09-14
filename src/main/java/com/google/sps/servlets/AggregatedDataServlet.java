@@ -21,7 +21,8 @@ import java.util.List;
 import java.util.Map;
 import com.google.sps.AggregationCenter;
 import com.google.sps.JobStoreCenter;
-import com.google.sps.DatastoreInteraction;
+import com.google.sps.MyClock;
+import com.google.sps.ClockServer;
 
 // Returns jobs aggregated into a map based on the criteria
 // specified by the user
@@ -33,8 +34,8 @@ public class AggregatedDataServlet extends HttpServlet {
     String projectID = request.getParameter("projectID");
     String option = request.getParameter("option");
     
-    DatastoreInteraction datastore = new DatastoreInteraction();
-    JobStoreCenter jobCenter = new JobStoreCenter(datastore);
+    MyClock clock = new ClockServer();
+    JobStoreCenter jobCenter = new JobStoreCenter(clock);
 
     List<JobJSON> allJobs = jobCenter.getJobsFromDatastore(projectID);
     
