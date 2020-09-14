@@ -20,13 +20,16 @@ import java.security.GeneralSecurityException;
 import java.io.File;
 import com.google.sps.data.AccessRequest;
 import com.google.sps.data.JobJSON;
+import com.google.sps.DatastoreInteraction;
+import com.google.sps.ProjectLoaderFromServer;
 
 @WebServlet("/jobs")
 public class JobsServlet extends HttpServlet {
   
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    JobStoreCenter jobCenter = new JobStoreCenter();
+    DatastoreInteraction datastore = new DatastoreInteraction();
+    JobStoreCenter jobCenter = new JobStoreCenter(datastore);
 
     String projectID = request.getParameter("projectID");
     List<JobJSON> jobs = jobCenter.getJobsFromDatastore(projectID);
@@ -42,7 +45,7 @@ public class JobsServlet extends HttpServlet {
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
       Gson gson = new Gson();
 
-      // Convert the JSON to an instance of MeetingRequest.
+      // Convert the JSON to an instance of AccessRequest.
       AccessRequest accessRequest = gson.fromJson(request.getReader(), AccessRequest.class);
 
       String projectId = accessRequest.projectID;
@@ -50,10 +53,12 @@ public class JobsServlet extends HttpServlet {
       File file = new File(projectId + ".json");
       String pathToJsonFile = file.getAbsolutePath();
       
-      JobStoreCenter jobCenter = new JobStoreCenter();
+      DatastoreInteraction datastore = new DatastoreInteraction();
+      JobStoreCenter jobCenter = new JobStoreCenter(datastore);
 
       try{
-        jobCenter.dealWithProject(projectId, pathToJsonFile);
+        ProjectLoaderFromServer projectLoader = new ProjectLoaderFromServer(projectId, pathToJsonFile);
+        jobCenter.dealWithProject(projectId, projectLoader);
       } catch (GeneralSecurityException e) {
         System.out.println("Unable to initialize service: \n" + e.toString());
         return;
