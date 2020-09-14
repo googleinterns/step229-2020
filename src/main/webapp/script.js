@@ -88,6 +88,22 @@ function fetchAggregatedJobsBy(option) {
   });
 }
 
+function setGraphOnLoad(data, title, containerName, graphType) {
+  if (graphType == 'pie') {
+    google.charts.setOnLoadCallback(
+      drawPieChart(data, title, containerName, graphType)
+    )
+  } else if (graphType == 'line') {
+    google.charts.setOnLoadCallback(
+      drawLineGraph(data, title, containerName, graphType)
+    )
+  } else if (graphType == 'column') {
+    google.charts.setOnLoadCallback(
+      drawColumnChart(data, title, containerName, graphType)
+    )
+  }
+}
+
 function setUpGraphs() {
   var option = document.querySelector('input[name = option]:checked').value;
   var isSDKSelected = (option == 'sdk');
@@ -102,13 +118,15 @@ function setUpGraphs() {
       getOutdatedSDK(jobData);
       sdkVisited = true;
     }
-    google.charts.setOnLoadCallback(getTotalCosts(jobData));
-    google.charts.setOnLoadCallback(getAverageCosts(jobData));
+    setGraphOnLoad(getTotalCosts(jobData), 'Total Cost of Jobs Per Category', 'totalCost-container', 'pie');
+    setGraphOnLoad(getAverageCosts(jobData), 'Average Cost of Jobs Per Category', 'averageCost-container', 'pie');
+
     google.charts.setOnLoadCallback(getDailyView(jobData));
-    google.charts.setOnLoadCallback(getFailedJobs(jobData));
-    google.charts.setOnLoadCallback(getFailedJobsCost(jobData));
-    google.charts.setOnLoadCallback(getAveragevCPUCount(jobData));
-    google.charts.setOnLoadCallback(SSDVsHDDTimeComparison(jobData));
+    
+    setGraphOnLoad(getFailedJobs(jobData), 'Total Number of Failed Jobs Per Category', 'failedJobs-container', 'pie');
+    setGraphOnLoad(getFailedJobsCost(jobData), 'Total Cost of Failed Jobs Per Category', 'failedJobsCost-container', 'pie');
+    setGraphOnLoad(getAveragevCPUCount(jobData), 'Average vCPU Usage', 'vCPU-container', 'pie');
+    setGraphOnLoad(SSDVsHDDTimeComparison(jobData), 'Comparison of SSDTime VS HDDTime', 'SSDVsHDDTime-container', 'column');
     if (option === 'region') {
       transformAgregatedDataforGeoChart(jobData);
       document.getElementById('hiddenLink').hidden = false;
@@ -241,7 +259,7 @@ function getTotalCosts(aggregated){
     jobData.push(totalCost);
     data.push(jobData);
   }
-  drawPieChart(data, 'Total Cost of Jobs Per Category', 'totalCost-container');
+  return data;
 }
 
 function getAverageCosts(aggregated) {
@@ -259,7 +277,7 @@ function getAverageCosts(aggregated) {
     jobData.push(totalCost);
     data.push(jobData);
   }
-  drawPieChart(data, 'Average Cost of Jobs Per Category', 'averageCost-container');  
+  return data;
 }
 
 function getFailedJobs(aggregated){
@@ -281,9 +299,8 @@ function getFailedJobs(aggregated){
   if (data[1][1] == 0 && data.length == 2) {
     var container = document.getElementById('failedJobsCost-container');
     container.innerText = "There are no failed jobs.";
-  } else {
-    drawPieChart(data, 'Total Number of Failed Jobs Per Category', 'failedJobs-container');
   }
+  return data;
 }
 
 function getFailedJobsCost(aggregated) {
@@ -292,17 +309,14 @@ function getFailedJobsCost(aggregated) {
   data.push(['Category','Total Cost']);
   var isAllZero = true;
   for (category in aggregated) {
-    var count = 0;
     var failedCost = 0;
     var jobData = [];
     jobData.push(category);
     for (costs in aggregated[category]) {
       if (aggregated[category][costs].state == 'JOB_STATE_FAILED') {
-        count ++;
         failedCost += aggregated[category][costs].price;
       }
     }
-    failedCost /= count;
     jobData.push(failedCost);
     data.push(jobData);
     isAllZero = isAllZero && ((failedCost == 0) || isNaN(failedCost));
@@ -310,9 +324,8 @@ function getFailedJobsCost(aggregated) {
   if (isAllZero) {
     var container = document.getElementById('failedJobsCost-container');
     container.innerHTML = '<p id="noMoneyMessage">No money has been spent on failed jobs.</p>';
-  } else {
-    drawPieChart(data, 'Total Cost of Failed Jobs Per Category', 'failedJobsCost-container');
   }
+  return data;
 }
 
 function dailyViewHandler() {
@@ -475,7 +488,7 @@ function getAveragevCPUCount(aggregated) {
     jobData.push(totalCount);
     data.push(jobData);
   }
-  drawPieChart(data, 'Average vCPU Usage', 'vCPU-container');
+  return data;
 }
 
 function SSDVsHDDTimeComparison(aggregated) {
@@ -506,8 +519,7 @@ function SSDVsHDDTimeComparison(aggregated) {
     jobData.push(hddTime);
     data.push(jobData);
   }
-
-  drawColumnChart(data, 'Comparison of SSDTime VS HDDTime', 'SSDVsHDDTime-container', true);
+  return data;
 }
 
 function SSDVsHDDComparison(aggregated) {
@@ -519,15 +531,15 @@ function SSDVsHDDComparison(aggregated) {
     var hdd = 0;
     jobData.push(category);
     for (costs in aggregated[category]) {
-      if (aggregated[category][costs].totalDiskTimeHDD == undefined) {
+      if (aggregated[category][costs].currentPDUsage == undefined) {
         hdd += 0;
       } else {
-        hdd += ((aggregated[category][costs].totalDiskTimeHDD / 3600) / (aggregated[category][costs].totalElapsedTime));
+        hdd += aggregated[category][costs].currentPDUsage;
       }
-      if (aggregated[category][costs].totalDiskTimeSSD == undefined) {
+      if (aggregated[category][costs].currentSSDUsage == undefined) {
         ssd += 0;
       } else {
-        ssd += ((aggregated[category][costs].totalDiskTimeSSD / 3600)  / (aggregated[category][costs].totalElapsedTime));
+        ssd += aggregated[category][costs].currentSSDUsage;
       }
     }
     ssd /= aggregated[category].length;
@@ -576,11 +588,11 @@ function drawPieChart(data, title, containerName) {
   chart.draw(chartData, options);
 }
 
-function drawColumnChart(data, title, containerName, isStacked) {
+function drawColumnChart(data, title, containerName) {
   var chartData = google.visualization.arrayToDataTable(data);
   var options = {
     title: title,
-    isStacked: isStacked,
+    isStacked: true,
     legend: {
       position: 'bottom'
     },
@@ -647,8 +659,7 @@ function drawRegionsMap(array, aggregatedData) {
 
 function transformAgregatedDataforGeoChart(aggregatedData) {
   fetch('/regionToCity').then(response => response.json()).then(myMap => {
-      console.log(aggregatedData);
-    let array = [['City',   'NumberOfJobs', 'Area']];
+    let array = [['City', 'NumberOfJobs', 'Area']];
     Object.keys(myMap).forEach((key) => {
       let size = 0;
 
@@ -666,3 +677,6 @@ function transformAgregatedDataforGeoChart(aggregatedData) {
     google.charts.setOnLoadCallback(drawRegionsMap(array, aggregatedData)); 
   });
 }
+
+module.exports = {getTotalCosts, getAverageCosts, getFailedJobs, getFailedJobsCost,
+  getAveragevCPUCount, SSDVsHDDTimeComparison};
