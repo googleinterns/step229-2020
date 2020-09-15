@@ -383,11 +383,8 @@ function getDailyView(aggregated) {
   
   for (category in aggregated) {
     counter++;
-    console.log(category)
     var totalCosts = {...dateDict};
     for (jobs in aggregated[category]) {
-      console.log(new Date(aggregated[category][jobs].startTime).toLocaleDateString("en-US"))
-      console.log(aggregated[category][jobs].price)
       totalCosts[new Date(aggregated[category][jobs].startTime).toLocaleDateString("en-US")] += aggregated[category][jobs].price;
     }
     var totalCostsOrdered = [];
@@ -395,16 +392,11 @@ function getDailyView(aggregated) {
     for (date in dateList) {
       totalCostsOrdered.push(totalCosts[dateList[date]]);
     }
-    console.log(totalCostsOrdered);
     data.push(totalCostsOrdered);
 
     for (var i = 1; i < 4; i++) {
-      console.log(data);
       var totalCost = totalCostsOrdered.slice(i, data[1].length).reduce((a, b) => a + b, 0);
-      console.log(totalCost);
-      totalCost /= 30;
-      console.log(data);
-      data[counter].push(totalCost);
+      data[counter].push(totalCost / 30);
     }
   }
 
@@ -455,19 +447,14 @@ function getWeeklyView(aggregated) {
     var totalCosts = {...dateDict};
     for (jobs in aggregated[category]) {
       var jobDate = new Date(aggregated[category][jobs].startTime);
-      console.log(jobDate.toLocaleDateString("en-US"));
       var firstDayOfWeek = jobDate;
-      console.log(firstDayOfWeek);
       if (jobDate.getDay() === 0) {
         firstDayOfWeek.setDate(firstDayOfWeek.getDate() - 6); 
       } else {
         firstDayOfWeek.setDate(firstDayOfWeek.getDate() - (firstDayOfWeek.getDay() - 1));
       }
       totalCosts[firstDayOfWeek.toLocaleDateString("en-US")] += aggregated[category][jobs].price;
-      console.log(firstDayOfWeek.toLocaleDateString("en-US"));
     }
-    console.log(category)
-    console.log(totalCosts)
     var totalCostsOrdered = [];
     totalCostsOrdered.push(category);
     for (date in weekStarts) {
