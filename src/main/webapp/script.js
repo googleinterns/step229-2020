@@ -378,10 +378,16 @@ function getDailyView(aggregated) {
   var data = [];
   var titles = ['Category', ...dateList];
   data.push(titles);
+
+  counter = 0;
   
   for (category in aggregated) {
+    counter++;
+    console.log(category)
     var totalCosts = {...dateDict};
     for (jobs in aggregated[category]) {
+      console.log(new Date(aggregated[category][jobs].startTime).toLocaleDateString("en-US"))
+      console.log(aggregated[category][jobs].price)
       totalCosts[new Date(aggregated[category][jobs].startTime).toLocaleDateString("en-US")] += aggregated[category][jobs].price;
     }
     var totalCostsOrdered = [];
@@ -389,14 +395,21 @@ function getDailyView(aggregated) {
     for (date in dateList) {
       totalCostsOrdered.push(totalCosts[dateList[date]]);
     }
+    console.log(totalCostsOrdered);
     data.push(totalCostsOrdered);
+
+    for (var i = 1; i < 4; i++) {
+      console.log(data);
+      var totalCost = totalCostsOrdered.slice(i, data[1].length).reduce((a, b) => a + b, 0);
+      console.log(totalCost);
+      totalCost /= 30;
+      console.log(data);
+      data[counter].push(totalCost);
+    }
   }
 
   for (var i = 1; i < 4; i++) {
-    var totalCost = data[1].slice(i, data[1].length).reduce((a, b) => a + b, 0);
-    totalCost /= 30;
-    data[0].push("Pred " + i);
-    data[1].push(totalCost);
+    data[0].push("Pred "+i);
   }
 
   data = transpose(data);
@@ -435,25 +448,37 @@ function getWeeklyView(aggregated) {
     dateDict[weekStarts[weekDate]] = 0;
   }
 
+  var counter = 0;
+
   for (category in aggregated) {
+    counter++;
     var totalCosts = {...dateDict};
     for (jobs in aggregated[category]) {
       var jobDate = new Date(aggregated[category][jobs].startTime);
-      var weekStart = new Date(jobDate.getDate() - (jobDate.getDay() - 1));
-      totalCosts[weekStart.toLocaleDateString("en-US")] += aggregated[category][jobs].price;
+      console.log(jobDate.toLocaleDateString("en-US"));
+      var firstDayOfWeek = jobDate;
+      console.log(firstDayOfWeek);
+      if (jobDate.getDay() === 0) {
+        firstDayOfWeek.setDate(firstDayOfWeek.getDate() - 6); 
+      } else {
+        firstDayOfWeek.setDate(firstDayOfWeek.getDate() - (firstDayOfWeek.getDay() - 1));
+      }
+      totalCosts[firstDayOfWeek.toLocaleDateString("en-US")] += aggregated[category][jobs].price;
+      console.log(firstDayOfWeek.toLocaleDateString("en-US"));
     }
+    console.log(category)
+    console.log(totalCosts)
     var totalCostsOrdered = [];
     totalCostsOrdered.push(category);
     for (date in weekStarts) {
       totalCostsOrdered.push(totalCosts[weekStarts[date]]);
     }
     data.push(totalCostsOrdered);
+    var totalCost = data[counter].slice(1, data[counter].length).reduce((a, b) => a + b, 0);
+    data[counter].push(totalCost/4);
   } 
 
-  var totalCost = data[1].slice(1, data[1].length).reduce((a, b) => a + b, 0);
-  totalCost /= 4;
   data[0].push("Pred 1");
-  data[1].push(totalCost);
 
   data = transpose(data);
 
