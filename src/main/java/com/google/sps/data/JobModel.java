@@ -66,11 +66,11 @@ public abstract class JobModel {
     public JobModel(String projectId, String id, String region) {
       this.projectId = projectId;
       this.id = id;
+      this.region = region;
 
       name = null;
       type = null;
       sdkName = null;
-      this.region = region;
       startTime = null;
       enableStreamingEngine = null;
     }
