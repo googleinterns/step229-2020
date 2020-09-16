@@ -119,9 +119,9 @@ public class FetchJobFromServer implements FetchJobInfo {
       return;
     }
 
-    jobModel.metricTime = jobMetric.getMetricTime();
-
     if (jobMetric != null) {
+      jobModel.metricTime = jobMetric.getMetricTime();
+
       // The job has failed, so it has no metrics
       if (jobMetric.getMetrics() == null) {
         return;

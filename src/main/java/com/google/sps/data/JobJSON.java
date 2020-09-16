@@ -6,6 +6,8 @@
 
 package com.google.sps.data;
 
+import java.lang.ClassCastException;
+
 
 // Class used to model the Information sent back
 // to the web application as a JSON object
@@ -78,5 +80,129 @@ public final class JobJSON {
 
     this.price = price;
     this.sdkName = sdkName;
+  }
+  
+  // Helper function for the equals method
+  // Returns true if the 2 fields are different
+  private boolean notEqualsField(Double f1, Double f2) {
+    if ((f1 == null && f2 != null) ||
+        (f1 != null && f2 == null) ||
+        (f1 != null && f2 != null && f1.compareTo(f2) != 0)) {
+      return true;
+    }
+
+    return false;
+  }
+  
+  // Helper function for the equals method
+  // Returns true if the 2 fields are different
+  private boolean notEqualsField(Integer f1, Integer f2) {
+    if ((f1 == null && f2 != null) ||
+        (f1 != null && f2 == null) ||
+        (f1 != null && f2 != null && f1.compareTo(f2) != 0)) {
+      return true;
+    }
+
+    return false;
+  }
+  
+  // Helper function for the equals method
+  // Returns true if the 2 fields are different
+  private boolean notEqualsField(String f1, String f2) {
+    if ((f1 == null && f2 != null) ||
+        (f1 != null && f2 == null) ||
+        (f1 != null && f2 != null && f1.compareTo(f2) != 0)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (!(obj instanceof JobJSON)) {
+      return false;
+    }
+    JobJSON job2 = (JobJSON) obj;
+
+    if (notEqualsField(this.id, job2.id)) {
+      return false;
+    }
+    if (notEqualsField(this.projectId, job2.projectId)) {
+      return false;
+    }
+    if (notEqualsField(this.name, job2.name )) {
+      return false;
+    }
+    if (notEqualsField(this.type , job2.type)) {
+      return false;
+    }
+    if (notEqualsField(this.sdk, job2.sdk)) {
+      return false;
+    }
+    if (notEqualsField(this.sdkSupportStatus, job2.sdkSupportStatus)) {
+      return false;
+    }
+    if (notEqualsField(this.region, job2.region)) {
+      return false;
+    }
+    if (this.currentWorkers != job2.currentWorkers) {
+      return false;
+    }
+    if (notEqualsField(this.startTime, job2.startTime)) {
+      return false;
+    }
+    if (notEqualsField(this.totalVCPUTime, job2.totalVCPUTime)) {
+      return false;
+    }
+    if (notEqualsField(this.totalMemoryTime, job2.totalMemoryTime)) {
+      return false;
+    }
+    if (notEqualsField(this.totalDiskTimeHDD, job2.totalDiskTimeHDD)) {
+      return false;
+    }
+    if (notEqualsField(this.totalDiskTimeSSD, job2.totalDiskTimeSSD)) {
+      return false;
+    }
+    if (notEqualsField(this.currentVcpuCount, job2.currentVcpuCount)) {
+      return false;
+    }
+    if (this.enableStreamingEngine != job2.enableStreamingEngine) {
+      return false;
+    }
+    if (notEqualsField(this.totalStreamingData, job2.totalStreamingData)) {
+      return false;
+    }
+    if (notEqualsField(this.currentMemoryUsage, job2.currentMemoryUsage)) {
+      return false;
+    }
+    if (notEqualsField(this.currentPdUsage, job2.currentPdUsage)) {
+      return false;
+    }
+    if (notEqualsField(this.currentSsdUsage, job2.currentSsdUsage)) {
+      return false;
+    }
+    if (notEqualsField(this.metricTime, job2.metricTime)) {
+      return false;
+    }
+    if (notEqualsField(this.state, job2.state)) {
+      return false;
+    }
+    if (notEqualsField(this.stateTime, job2.stateTime)) {
+      return false;
+    }
+    if (notEqualsField(this.sdkName, job2.sdkName)) {
+      return false;
+    }
+    if (notEqualsField(this.price, job2.price)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  @Override
+  public String toString() {
+    return "JOb: " + name + " from Project: " + projectId;
   }
 }
