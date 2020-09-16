@@ -197,7 +197,6 @@ public final class JobStoreCenterTest {
     clock.setTime(TIME2);
     jobStoreCenter.dealWithProject(PROJECT1, projectLoader);
     
-    // Datastore should contain only 2 elements
     int expectedNumberOfObjects = 3;
     int actualNumberOfObjects = datastore.prepare(new Query()).countEntities();
     Assert.assertEquals(expectedNumberOfObjects, actualNumberOfObjects);
