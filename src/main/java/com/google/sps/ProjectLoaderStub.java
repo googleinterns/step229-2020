@@ -22,7 +22,7 @@ public class ProjectLoaderStub implements ProjectLoader {
 
   // Jobs that are used to tell which fields have been modified or not
   // They shoud be jobs with the same jobId as the jobs found in updatedJobs
-  private List<JobJSON> updateHelpersJobs = null;
+  private Map<JobJSON, Boolean> updateHelpersJobs = null;
   // Updated Jobs. All jobs included in this list should have one associated helper
   // found in updateHelpersJobs
   private List<JobJSON> updatedJobs = null;
@@ -88,7 +88,7 @@ public class ProjectLoaderStub implements ProjectLoader {
     return null; 
   }
 
-  public void setUpdate(List<JobJSON> updateHelpersJobs, List<JobJSON> updatedJobs) {
+  public void setUpdate(Map<JobJSON, Boolean> updateHelpersJobs, List<JobJSON> updatedJobs) {
     this.updateHelpersJobs = updateHelpersJobs;
     this.updatedJobs = updatedJobs;
 
@@ -105,9 +105,9 @@ public class ProjectLoaderStub implements ProjectLoader {
     }
 
     List<JobModel> jobs = new ArrayList<>();
-    fetchJobs.setIfUpdated(true);
 
-    for (JobJSON job : updateHelpersJobs) {
+    for (JobJSON job : updateHelpersJobs.keySet()) {
+      fetchJobs.setIfUpdated(updateHelpersJobs.get(job));
       fetchJobs.setJob(job);
       jobs.add(JobModel.createJob(projectId, fetchJobs));  
     }

@@ -73,6 +73,10 @@ public final class JobStoreCenterTest {
                                                      "europe-west2", 0, null, 100.0, 101.0, 102.0, 
                                                             103.0, 4, 105.0, true, TIME1, "JOB_STATE_CANCELLED", TIME1, null, "Apache Beam SDK for Java",
                                                                 201.0, 202.0, 203.0);
+  private static final JobJSON JOB2_NO_UPDATE = new JobJSON(PROJECT1, null, "job2", null, null, null,
+                                                     "europe-west2", 0, null, null, null, null, 
+                                                            null, null, null, null, null, "JOB_STATE_CANCELLED", TIME1, null, null,
+                                                                null, null, null);
 
   @BeforeClass
   public static void initialiseVariables() {
@@ -222,7 +226,9 @@ public final class JobStoreCenterTest {
     jobStoreCenter.dealWithProject(PROJECT1, projectLoader);
     
     // Update the project in the server
-    projectLoader.setUpdate(Arrays.asList(JOB1_UPDATED_RUNNING), Arrays.asList(JOB1_RUNNING_AFTER_UPDATE));
+    Map<JobJSON, Boolean> updateHelpersJobs = new HashMap<>();
+    updateHelpersJobs.put(JOB1_UPDATED_RUNNING, true);
+    projectLoader.setUpdate(updateHelpersJobs, Arrays.asList(JOB1_RUNNING_AFTER_UPDATE));
 
     clock.setTime(TIME4);
     jobStoreCenter.dealWithProject(PROJECT1, projectLoader);
@@ -256,7 +262,9 @@ public final class JobStoreCenterTest {
     jobStoreCenter.dealWithProject(PROJECT1, projectLoader);
     
     // Make the update at the server
-    projectLoader.setUpdate(Arrays.asList(JOB1_UPDATED_FINALISED), Arrays.asList(JOB1_FINALISED_AFTER_UPDATE));
+    Map<JobJSON, Boolean> updateHelpersJobs = new HashMap<>();
+    updateHelpersJobs.put(JOB1_UPDATED_FINALISED, true);
+    projectLoader.setUpdate(updateHelpersJobs, Arrays.asList(JOB1_FINALISED_AFTER_UPDATE));
 
     clock.setTime(TIME4);
     jobStoreCenter.dealWithProject(PROJECT1, projectLoader);
@@ -292,7 +300,10 @@ public final class JobStoreCenterTest {
     jobStoreCenter.dealWithProject(PROJECT1, projectLoader);
     
     // Update the project in the server
-    projectLoader.setUpdate(Arrays.asList(JOB1_UPDATED_RUNNING), Arrays.asList(JOB1_RUNNING_AFTER_UPDATE));
+    Map<JobJSON, Boolean> updateHelpersJobs = new HashMap<>();
+    updateHelpersJobs.put(JOB1_UPDATED_RUNNING, true);
+    updateHelpersJobs.put(JOB2_NO_UPDATE, false);
+    projectLoader.setUpdate(updateHelpersJobs, Arrays.asList(JOB1_RUNNING_AFTER_UPDATE));
 
     clock.setTime(TIME4);
     jobStoreCenter.dealWithProject(PROJECT1, projectLoader);
