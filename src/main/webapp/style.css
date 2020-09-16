@@ -367,3 +367,17 @@ h2 {
   grid-row: 2 / 6;
   grid-column: 1 / 3;
 }
+
+.footer {
+  background-color: black;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  color: white;
+  text-align: center;
+}
+
+.footerLink {
+  color: #e88304;
+}
