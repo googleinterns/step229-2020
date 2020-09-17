@@ -18,30 +18,46 @@ import java.util.HashMap;
 
 public class ProjectLoaderStub implements ProjectLoader {
   private Map<String, List<JobJSON>> mapOfJobs;
-  private List<JobJSON> allJobs;
-  private List<JobJSON> allUpdatedJobs;
+  private Map<String, JobJSON> allJobs;
+
+  // Jobs that are used to tell which fields have been modified or not
+  // They shoud be jobs with the same jobId as the jobs found in updatedJobs
+  private Map<JobJSON, Boolean> updateHelpersJobs = null;
+  // Updated Jobs. All jobs included in this list should have one associated helper
+  // found in updateHelpersJobs
+  private List<JobJSON> updatedJobs = null;
+
   private String projectId;
   private FetchJobStub fetchJobs = new FetchJobStub();
 
-  public ProjectLoaderStub(Map<String, List<JobJSON>> mapOfJobs, String projectId, 
-                           List<JobJSON> allJobs, List<JobJSON> allUpdatedJobs) {
+  public ProjectLoaderStub(Map<String, List<JobJSON>> mapOfJobs, String projectId) {
+    this(projectId);
+
     this.mapOfJobs = mapOfJobs;
     this.projectId = projectId;
-    this.allJobs = allJobs;
-    this.allUpdatedJobs = allUpdatedJobs;
+
+    Iterator<String> it = this.mapOfJobs.keySet().iterator();
+
+    while (it.hasNext()) {
+      String region = it.next();
+      for (JobJSON job : mapOfJobs.get(region)) {
+        allJobs.put(job.id, job);
+      }
+    }
   }
 
   public ProjectLoaderStub(String projectId) {
-    mapOfJobs = new HashMap<>();
     this.projectId = projectId;
-    allJobs = new ArrayList<>();
-    allUpdatedJobs = new ArrayList<>();
+    allJobs = new HashMap<>();
+    mapOfJobs = new HashMap<>();
   }
 
   public List<JobModel> fetchJobs() throws IOException {
     List<JobModel> jobs = new ArrayList<>();
 
-    for (JobJSON job : allJobs) {
+    for (String id : allJobs.keySet()) {
+      JobJSON job = allJobs.get(id);
+      
       fetchJobs.setJob(job);
       jobs.add(JobModel.createJob(projectId, fetchJobs)); 
     }
@@ -50,17 +66,10 @@ public class ProjectLoaderStub implements ProjectLoader {
   }
   // Fetch a job from a project, based on the jobId
   public JobModel fetch(String jobId) throws IOException {
-    Iterator<String> it = mapOfJobs.keySet().iterator();
-
-    while (it.hasNext()) {
-      String region = it.next();
-
-      for (JobJSON job : mapOfJobs.get(region)) {
-        if (jobId.compareTo(job.id) == 0) {
-          fetchJobs.setJob(job);
-          return JobModel.createJob(projectId, fetchJobs); 
-        } 
-      }
+    if (allJobs.containsKey(jobId)) {
+      JobJSON job = allJobs.get(jobId);
+      fetchJobs.setJob(job);
+      return JobModel.createJob(projectId, fetchJobs);
     }
 
     return null;  
@@ -68,30 +77,42 @@ public class ProjectLoaderStub implements ProjectLoader {
 
   //Fetch a job from a project based on the job Id and its location
   public JobModel fetch(String jobId, String location) throws IOException {
-    if (mapOfJobs.containsKey(location)) {
-      for (JobJSON job : mapOfJobs.get(location)) {
-        if (jobId.compareTo(job.id) == 0) {
-          fetchJobs.setJob(job);
-          return JobModel.createJob(projectId, fetchJobs); 
-        } 
-      } 
+    if (allJobs.containsKey(jobId)) {
+      JobJSON job = allJobs.get(jobId);
+      if (job.region.compareTo(location) == 0) {
+        fetchJobs.setJob(job);
+        return JobModel.createJob(projectId, fetchJobs);
+      }
     }
 
     return null; 
   }
 
-  public void setUpdatedJobs(List<JobJSON> allUpdatedJobs) {
-    this.allUpdatedJobs = allUpdatedJobs;
+  public void setUpdate(Map<JobJSON, Boolean> updateHelpersJobs, List<JobJSON> updatedJobs) {
+    this.updateHelpersJobs = updateHelpersJobs;
+    this.updatedJobs = updatedJobs;
+
+    for (JobJSON job : updatedJobs) {
+      allJobs.replace(job.id, job);
+    }
   }
 
   // Jobs have the metrics that were modified since lastUpdate different from null
   public List<JobModel> fetchJobsforUpdate(String lastUpdate) throws IOException {
+
+    if (updateHelpersJobs == null) {
+      return new ArrayList<JobModel>();
+    }
+
     List<JobModel> jobs = new ArrayList<>();
 
-    for (JobJSON job : allUpdatedJobs) {
+    for (JobJSON job : updateHelpersJobs.keySet()) {
+      fetchJobs.setIfUpdated(updateHelpersJobs.get(job));
       fetchJobs.setJob(job);
       jobs.add(JobModel.createJob(projectId, fetchJobs));  
     }
+
+    fetchJobs.setIfUpdated(false);
 
     return jobs;
   }
