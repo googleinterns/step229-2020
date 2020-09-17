@@ -188,18 +188,18 @@ public final class JobStoreCenter {
         // A FinalisedJob can't have its state modified, so the job
         // must have Running the last time the Datastore was updated
 
-        // Delete the RunningJob job in DataStore
-        Key k =
-            new KeyFactory.Builder("Project", projectId)
-              .addChild("RunningJob", job.id)
-              .getKey();
-        datastore.delete(k);
-
-        // Add the new Job
-        JobModel updatedJob = projectLoader.fetch(job.id, job.region);
-        if (updatedJob instanceof RunningJob) {
-          addJobToDatastore((RunningJob)updatedJob, project);
+        if (job instanceof RunningJob) {
+          updateJobToDatastore(job, projectId, project, projectLoader);
         } else {
+          // Delete the RunningJob job in DataStore
+          Key k =
+              new KeyFactory.Builder("Project", projectId)
+                .addChild("RunningJob", job.id)
+                .getKey();
+          datastore.delete(k);
+
+          // Fetch the job once again
+          JobModel updatedJob = projectLoader.fetch(job.id, job.region);
           addJobToDatastore((FinalisedJob)updatedJob, project);
         }
       } else {
@@ -220,7 +220,11 @@ public final class JobStoreCenter {
             .getKey();
     Entity jobEntity;
     try{
-      jobEntity = datastore.get(k);  
+      jobEntity = datastore.get(k);
+
+      jobEntity.setProperty("state", updatedJob.state);
+      jobEntity.setProperty("stateTime", updatedJob.stateTime);
+
       if (updatedJob.totalVCPUTime != null) {
         jobEntity.setProperty("totalVCPUTime", updatedJob.totalVCPUTime);
       }
@@ -250,6 +254,9 @@ public final class JobStoreCenter {
       }
       if (updatedJob.currentSsdUsage != null) {
         jobEntity.setProperty("currentSsdUsage", updatedJob.currentSsdUsage);
+      }
+      if (updatedJob.metricTime != null) {
+        jobEntity.setProperty("metricTime", updatedJob.metricTime);
       }
 
       PriceCenter priceCenter = new PriceCenter();
