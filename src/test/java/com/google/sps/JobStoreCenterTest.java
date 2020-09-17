@@ -48,6 +48,8 @@ public final class JobStoreCenterTest {
   private static final String TIME4 = "2019-12-03T10:15:30.00Z";
 
   private static final String PROJECT1 = "project1";
+  private static final String PROJECT2 = "project2";
+
   private static final JobJSON JOB1 = new JobJSON(PROJECT1, "job1", "job1", "JOB_TYPE_STREAMING", "2.23.0", "SUPPORTED",
                                                      "europe-west1", 0, TIME1, 100.0, 101.0, 102.0, 
                                                             103.0, 4, 105.0, true, TIME1, "JOB_STATE_RUNNING", TIME1, null, "Apache Beam SDK for Java",
@@ -77,6 +79,23 @@ public final class JobStoreCenterTest {
                                                      "europe-west2", 0, null, null, null, null, 
                                                             null, null, null, null, null, "JOB_STATE_CANCELLED", TIME1, null, null,
                                                                 null, null, null);
+  private static final JobJSON JOB3 = new JobJSON(PROJECT1, "job3", "job3", "JOB_TYPE_STREAMING", "2.23.0", "SUPPORTED",
+                                                     "europe-west2", 0, null, 500.0, 501.0, 502.0, 
+                                                            503.0, 4, 505.0, true, TIME1, "JOB_STATE_QUEUED", TIME1, null, "Apache Beam SDK for Java",
+                                                                201.0, 202.0, 203.0);
+  private static final JobJSON JOB4 = new JobJSON(PROJECT1, "job4", "job4", "JOB_TYPE_STREAMING", "2.23.0", "SUPPORTED",
+                                                     "europe-west1", 0, null, 900.0, 501.0, 902.0, 
+                                                            503.0, 4, 905.0, true, TIME1, "JOB_STATE_FAILED", TIME1, null, "Apache Beam SDK for Java",
+                                                                201.0, 202.0, 203.0);
+
+  private static final JobJSON JOB5 = new JobJSON(PROJECT2, "job1", "job1", "JOB_TYPE_STREAMING", "2.23.0", "SUPPORTED",
+                                                     "europe-west1", 0, null, 900.0, 501.0, 902.0, 
+                                                            503.0, 4, 905.0, true, TIME1, "JOB_STATE_FAILED", TIME1, null, "Apache Beam SDK for Java",
+                                                                201.0, 202.0, 203.0);
+  private static final JobJSON JOB6 = new JobJSON(PROJECT2, "job2", "job2", "JOB_TYPE_STREAMING", "2.23.0", "SUPPORTED",
+                                                     "europe-west1", 0, TIME1, 100.0, 101.0, 102.0, 
+                                                            103.0, 4, 105.0, true, TIME1, "JOB_STATE_RUNNING", TIME1, null, "Apache Beam SDK for Java",
+                                                                201.0, 202.0, 203.0);
 
   @BeforeClass
   public static void initialiseVariables() {
@@ -85,7 +104,12 @@ public final class JobStoreCenterTest {
     PriceCenter priceCenter = new PriceCenter();
     JOB1_RUNNING_AFTER_UPDATE.price = priceCenter.calculatePrice(JOB1_RUNNING_AFTER_UPDATE);
     JOB1_FINALISED_AFTER_UPDATE.price = priceCenter.calculatePrice(JOB1_FINALISED_AFTER_UPDATE);
+    JOB1.price = priceCenter.calculatePrice(JOB1);
     JOB2.price = priceCenter.calculatePrice(JOB2);
+    JOB3.price = priceCenter.calculatePrice(JOB3);
+    JOB4.price = priceCenter.calculatePrice(JOB4);
+    JOB5.price = priceCenter.calculatePrice(JOB5);
+    JOB6.price = priceCenter.calculatePrice(JOB6);
   }
   
   @Before
@@ -327,5 +351,98 @@ public final class JobStoreCenterTest {
     List<JobJSON> actualList = jobStoreCenter.getJobsFromDatastore(PROJECT1);
     Assert.assertEquals(expectedList, actualList);
   }
+
+  @Test
+  public void updateProject2FinalisedJobs() throws IOException {
+    // Tha jobs has 1 RunningJob and one finalised one. The running job is 
+    // terminated, so just the running one should be updated into a FinalisedJob
+
+    Map<String, List<JobJSON>> mapOfJobs = new HashMap<>();
+    mapOfJobs.put("europe-west1", Arrays.asList(JOB1));
+    mapOfJobs.put("europe-west2", Arrays.asList(JOB2));
+
+    ProjectLoaderStub projectLoader = new ProjectLoaderStub(mapOfJobs, PROJECT1);
+    clock.setTime(TIME2);
+    jobStoreCenter.dealWithProject(PROJECT1, projectLoader);
+    
+    // Update the project in the server
+    Map<JobJSON, Boolean> updateHelpersJobs = new HashMap<>();
+    updateHelpersJobs.put(JOB1_UPDATED_FINALISED, true);
+    updateHelpersJobs.put(JOB2_NO_UPDATE, false);
+    projectLoader.setUpdate(updateHelpersJobs, Arrays.asList(JOB1_FINALISED_AFTER_UPDATE));
+
+    clock.setTime(TIME4);
+    jobStoreCenter.dealWithProject(PROJECT1, projectLoader);
+    
+    int expectedNumberOfObjects = 3;
+    int actualNumberOfObjects = datastore.prepare(new Query()).countEntities();
+    Assert.assertEquals(expectedNumberOfObjects, actualNumberOfObjects);
+
+    int expectedNumberOfProjects = 1;
+    int actualNumberOfProjects = datastore.prepare(new Query("Project")).countEntities();
+    Assert.assertEquals(expectedNumberOfProjects, actualNumberOfProjects);
+
+    int expectedNumberOfRunningJobs = 2;
+    int actualNumberOfRunningJobs = datastore.prepare(new Query("FinalisedJob")).countEntities();
+    Assert.assertEquals(expectedNumberOfRunningJobs, actualNumberOfRunningJobs);
+
+    List<JobJSON> expectedList =  Arrays.asList(JOB1_FINALISED_AFTER_UPDATE, JOB2);
+    List<JobJSON> actualList = jobStoreCenter.getJobsFromDatastore(PROJECT1);
+    Assert.assertEquals(expectedList, actualList);
+  }
+
+  @Test
+  public void getJobsFromEmtpyProject() throws IOException {
+    ProjectLoader projectLoader = new ProjectLoaderStub(PROJECT1); 
+    clock.setTime(TIME1);
+    jobStoreCenter.dealWithProject(PROJECT1, projectLoader);
+
+    List<JobJSON> expectedList = new ArrayList<>();
+    List<JobJSON> actualList = jobStoreCenter.getJobsFromDatastore(PROJECT1);
+
+    Assert.assertEquals(expectedList, actualList);
+  }
+
+  @Test
+  public void getJobsFromProject() throws IOException {
+    Map<String, List<JobJSON>> mapOfJobs = new HashMap<>();
+    mapOfJobs.put("europe-west1", Arrays.asList(JOB1, JOB4));
+    mapOfJobs.put("europe-west2", Arrays.asList(JOB2, JOB3));
+
+    ProjectLoaderStub projectLoader = new ProjectLoaderStub(mapOfJobs, PROJECT1);
+    clock.setTime(TIME2);
+    jobStoreCenter.dealWithProject(PROJECT1, projectLoader);
+
+    List<JobJSON> expectedList = Arrays.asList(JOB2, JOB4, JOB1, JOB3);
+    List<JobJSON> actualList = jobStoreCenter.getJobsFromDatastore(PROJECT1);
+
+    Assert.assertEquals(expectedList, actualList);
+  }
+
+  @Test
+  public void multipleProjects() throws IOException {
+    // Add the first project
+    Map<String, List<JobJSON>> mapOfJobs1 = new HashMap<>();
+    mapOfJobs1.put("europe-west1", Arrays.asList(JOB1, JOB4));
+    mapOfJobs1.put("europe-west2", Arrays.asList(JOB2, JOB3));
+    ProjectLoaderStub projectLoader1 = new ProjectLoaderStub(mapOfJobs1, PROJECT1);
+
+    clock.setTime(TIME1);
+    jobStoreCenter.dealWithProject(PROJECT1, projectLoader1); 
+
+    // Add the second project
+    Map<String, List<JobJSON>>mapOfJobs2 = new HashMap<>();
+    mapOfJobs2.put("europe-west1", Arrays.asList(JOB5, JOB6));
+    ProjectLoaderStub projectLoader2 = new ProjectLoaderStub(mapOfJobs2, PROJECT2);
+
+    clock.setTime(TIME2);
+    jobStoreCenter.dealWithProject(PROJECT2, projectLoader2);
+
+    List<JobJSON> expectedList = Arrays.asList(JOB5, JOB6);
+    List<JobJSON> actualList = jobStoreCenter.getJobsFromDatastore(PROJECT2);
+
+    Assert.assertEquals(expectedList, actualList);
+  }
+  
 }
     
