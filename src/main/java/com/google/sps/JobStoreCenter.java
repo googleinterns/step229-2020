@@ -21,7 +21,6 @@ import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.time.Instant;
 import java.time.Clock;
 import java.util.List;
@@ -34,26 +33,26 @@ import com.google.api.services.dataflow.model.Job;
 // Class that deals with the interaction with Datastore 
 public final class JobStoreCenter {
   DatastoreService datastore;
+  MyClock clock;
 
-  public JobStoreCenter() {
+  public JobStoreCenter(MyClock clock) {
     datastore = DatastoreServiceFactory.getDatastoreService();
+    this.clock = clock;
   }
 
-  public void addNewProject(String projectId, String pathToJsonFile) throws IOException , GeneralSecurityException {
-    ProjectCenter projectCenter = new ProjectCenter(projectId, pathToJsonFile);
-
+  private void addNewProject(String projectId, ProjectLoader projectLoader) throws IOException {
     Entity project = new Entity("Project", projectId);
     project.setProperty("projectId", projectId);
-    project.setProperty("lastAccessed", java.time.Clock.systemUTC().instant().toString());
+    project.setProperty("lastAccessed", clock.getCurrentTime());
     datastore.put(project);
 
-    List<JobModel> allJobs = projectCenter.fetchJobs();
+    List<JobModel> allJobs = projectLoader.fetchJobs();
     for (JobModel job : allJobs) {
-        if (job instanceof RunningJob) {
-          addJobToDatastore((RunningJob)job, project);
-        } else {
-          addJobToDatastore((FinalisedJob)job, project);
-        }
+      if (job instanceof RunningJob) {
+        addJobToDatastore((RunningJob)job, project);
+      } else {
+        addJobToDatastore((FinalisedJob)job, project);
+      }
     }    
   }
 
@@ -100,27 +99,26 @@ public final class JobStoreCenter {
 
   // Gets all jobs associated with a projectId
   public List<JobJSON> getJobsFromDatastore(String projectId) {
-      List<JobJSON> jobs = new ArrayList<>();
+    List<JobJSON> jobs = new ArrayList<>();
 
-      Key projectKey = KeyFactory.createKey("Project", projectId);
-      // By default, ancestor queries include the specified ancestor itself.
-      // The following filter excludes the ancestor from the query results.
-      Filter keyFilter =
+    Key projectKey = KeyFactory.createKey("Project", projectId);
+    // By default, ancestor queries include the specified ancestor itself.
+    // The following filter excludes the ancestor from the query results.
+    Filter keyFilter =
         new FilterPredicate(Entity.KEY_RESERVED_PROPERTY, FilterOperator.GREATER_THAN, projectKey);
       
-      // If I want to query for specific type of Jobs (Running, Finalised), 
-      // give Query constructor the name of the class
-      Query queryJobs = new Query().setAncestor(projectKey).setFilter(keyFilter);
+    // If I want to query for specific type of Jobs (Running, Finalised), 
+    // give Query constructor the name of the class
+    Query queryJobs = new Query().setAncestor(projectKey).setFilter(keyFilter);
 
-      PreparedQuery resultsJobs = datastore.prepare(queryJobs);
+    PreparedQuery resultsJobs = datastore.prepare(queryJobs);
 
-      for (Entity entity : resultsJobs.asIterable()) {
-        JobJSON job = convertEntityToJobJSON(entity);
-    
-        jobs.add(job);
-      }
+    for (Entity entity : resultsJobs.asIterable()) {
+      JobJSON job = convertEntityToJobJSON(entity);
+      jobs.add(job);
+    }
 
-      return jobs;
+    return jobs;
   }
 
   private JobJSON convertEntityToJobJSON(Entity entity) {
@@ -173,16 +171,14 @@ public final class JobStoreCenter {
   }
   
   // Updates a project. The project must already exist 
-  public void updateProject(String projectId, String pathToJsonFile, Entity project) throws IOException , GeneralSecurityException {
-    ProjectCenter projectCenter = new ProjectCenter(projectId, pathToJsonFile);
-
+  private void updateProject(String projectId, ProjectLoader projectLoader, Entity project) throws IOException {
     String lastTimeAccessedString = (String) project.getProperty("lastAccessed");
     Instant lastTimeAccessed = Instant.parse(lastTimeAccessedString);
 
-    project.setProperty("lastAccessed", java.time.Clock.systemUTC().instant().toString());
+    project.setProperty("lastAccessed", clock.getCurrentTime());
     datastore.put(project);
 
-    List<JobModel> allJobs = projectCenter.fetchJobsforUpdate(lastTimeAccessedString);
+    List<JobModel> allJobs = projectLoader.fetchJobsforUpdate(lastTimeAccessedString);
     for (JobModel job : allJobs) {
       String time = job.stateTime;
       Instant stateTime = Instant.parse(time);
@@ -192,23 +188,23 @@ public final class JobStoreCenter {
         // A FinalisedJob can't have its state modified, so the job
         // must have Running the last time the Datastore was updated
 
-        // Delete the RunningJob job in DataStore
-        Key k =
-            new KeyFactory.Builder("Project", projectId)
-              .addChild("RunningJob", job.id)
-              .getKey();
-        datastore.delete(k);
-
-        // Add the new Job
-        JobModel updatedJob = projectCenter.fetch(job.id, job.region);
-        if (updatedJob instanceof RunningJob) {
-          addJobToDatastore((RunningJob)updatedJob, project);
+        if (job instanceof RunningJob) {
+          updateJobToDatastore(job, projectId, project, projectLoader);
         } else {
+          // Delete the RunningJob job in DataStore
+          Key k =
+              new KeyFactory.Builder("Project", projectId)
+                .addChild("RunningJob", job.id)
+                .getKey();
+          datastore.delete(k);
+
+          // Fetch the job once again
+          JobModel updatedJob = projectLoader.fetch(job.id, job.region);
           addJobToDatastore((FinalisedJob)updatedJob, project);
         }
       } else {
         if (job.updated) {
-          updateJobToDatastore(job, projectId, project, projectCenter);
+          updateJobToDatastore(job, projectId, project, projectLoader);
         }
       }
     }     
@@ -216,7 +212,7 @@ public final class JobStoreCenter {
  
  // Changes only the fields that were modified
   private void updateJobToDatastore (JobModel updatedJob, String projectId, Entity project, 
-      ProjectCenter projectCenter) throws IOException {
+      ProjectLoader projectLoader) throws IOException {
     // Only Running Jobs can be updated
     Key k =
         new KeyFactory.Builder("Project", projectId)
@@ -224,7 +220,11 @@ public final class JobStoreCenter {
             .getKey();
     Entity jobEntity;
     try{
-      jobEntity = datastore.get(k);  
+      jobEntity = datastore.get(k);
+
+      jobEntity.setProperty("state", updatedJob.state);
+      jobEntity.setProperty("stateTime", updatedJob.stateTime);
+
       if (updatedJob.totalVCPUTime != null) {
         jobEntity.setProperty("totalVCPUTime", updatedJob.totalVCPUTime);
       }
@@ -255,6 +255,9 @@ public final class JobStoreCenter {
       if (updatedJob.currentSsdUsage != null) {
         jobEntity.setProperty("currentSsdUsage", updatedJob.currentSsdUsage);
       }
+      if (updatedJob.metricTime != null) {
+        jobEntity.setProperty("metricTime", updatedJob.metricTime);
+      }
 
       PriceCenter priceCenter = new PriceCenter();
       jobEntity.setProperty("price", priceCenter.calculatePrice(convertEntityToJobJSON(jobEntity)));
@@ -263,7 +266,7 @@ public final class JobStoreCenter {
 
       } catch (EntityNotFoundException e) {
         // The Job doesn't exist
-        JobModel newjob = projectCenter.fetch(updatedJob.id, updatedJob.region);
+        JobModel newjob = projectLoader.fetch(updatedJob.id, updatedJob.region);
         if (updatedJob instanceof RunningJob) {
           addJobToDatastore((RunningJob)updatedJob, project);
         } else {
@@ -274,13 +277,13 @@ public final class JobStoreCenter {
   
   // Function that creates the new project in Datastore if the project doesn t already
   // exist or updates the existing project
-  public void dealWithProject(String projectId, String pathToJsonFile) throws IOException , GeneralSecurityException {
+  public void dealWithProject(String projectId, ProjectLoader projectLoader) throws IOException {
     Entity project = fetchProject(projectId);
 
     if (project == null) {
-      addNewProject(projectId, pathToJsonFile);
+      addNewProject(projectId, projectLoader);
     } else {
-      updateProject(projectId, pathToJsonFile, project);
+      updateProject(projectId, projectLoader, project);
     }
   }
 }

@@ -24,8 +24,11 @@ import java.security.GeneralSecurityException;
 import java.util.Collections;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.sps.data.JobModel;
+import com.google.sps.data.FetchJobFromServer;
 
-public final class ProjectCenter {
+// Class used for fetching a project from the server.
+// Used in the actual implementation of the web application
+public class ProjectLoaderFromServer implements ProjectLoader {
     private static List<String> regions = Arrays.asList("us-west1",
                                                          "us-central1",
                                                          "us-east1",
@@ -44,7 +47,7 @@ public final class ProjectCenter {
     private GoogleCredential credential;
     private Dataflow dataflowService;
 
-    public ProjectCenter(String projectId, String pathToJsonFile) throws IOException,  GeneralSecurityException {
+    public ProjectLoaderFromServer(String projectId, String pathToJsonFile) throws IOException,  GeneralSecurityException {
       this.projectId = projectId;
       this.pathToJsonFile = pathToJsonFile;
       
@@ -78,7 +81,8 @@ public final class ProjectCenter {
 
       return jobs;
     }
-
+    
+    // Fetch a single job from a project, based on the job ID
     public JobModel fetch(String jobId) throws IOException {
       for (String region : regions) {      
         Dataflow.Projects.Locations.Jobs.Get request = dataflowService.projects()
@@ -98,14 +102,16 @@ public final class ProjectCenter {
         // If the request was successful
         if (request.getLastStatusCode() >= 200 && request.getLastStatusCode() <  300) {
           if (job != null) {
-            return JobModel.createJob(projectId, job, dataflowService);
+            FetchJobFromServer fetchJob = new FetchJobFromServer(job, dataflowService);
+            return JobModel.createJob(projectId, fetchJob);
           }
         }  
       }
 
       return null;
     }
-
+    
+    // Fetch a single job from a projectc, based on the Job Id and its location
     public JobModel fetch(String jobId, String location) throws IOException {     
       Dataflow.Projects.Locations.Jobs.Get request = dataflowService.projects()
       .locations()
@@ -121,12 +127,15 @@ public final class ProjectCenter {
       }
 
       if (job != null) {
-        return JobModel.createJob(projectId, job, dataflowService);
+        FetchJobFromServer fetchJob = new FetchJobFromServer(job, dataflowService);
+        return JobModel.createJob(projectId, fetchJob);
       }
 
       return null;
     }
-
+    
+    // Fetches a list of jobs that have the metrics that were modified sincer lastUpdate
+    // different from null in order to tell apart which metric has been update or not
     public List<JobModel> fetchJobsforUpdate(String lastUpdate) throws IOException {
       Dataflow.Projects.Jobs.Aggregated request = dataflowService.projects().jobs().aggregated(projectId);
       ListJobsResponse response;
@@ -135,7 +144,8 @@ public final class ProjectCenter {
         response = request.execute();
         
         for (Job job : response.getJobs()) {
-          jobs.add(JobModel.updateJob(projectId, job, dataflowService, lastUpdate));
+          FetchJobFromServer fetchJob = new FetchJobFromServer(job, dataflowService);
+          jobs.add(JobModel.updateJob(projectId, fetchJob, lastUpdate));
         }
         
         request.setPageToken(response.getNextPageToken());

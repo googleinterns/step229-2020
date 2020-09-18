@@ -21,11 +21,11 @@ import java.lang.IllegalArgumentException;
 // - JOB_STATE_UPDATED
 // - JOB_STATE_DRAINED
 public final class FinalisedJob extends JobModel {
-    public FinalisedJob(String projectId, Job job, Dataflow dataflowService) throws IOException, IllegalArgumentException {
-        super(projectId, job, dataflowService);
+    public FinalisedJob(String projectId, FetchJobInfo fetchJobInfo) throws IOException, IllegalArgumentException {
+        super(projectId, fetchJobInfo);
 
-        state = job.getCurrentState();
-        stateTime = job.getCurrentStateTime();
+        state = fetchJobInfo.getState();
+        stateTime = fetchJobInfo.getStateTime();
     }
 
     public FinalisedJob(String projectId, String id, String state, String stateTime, String region) throws IOException, IllegalArgumentException {
