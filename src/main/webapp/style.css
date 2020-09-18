@@ -282,9 +282,14 @@ input[type=button]:hover {
   font-weight: bold;
 }
 
+#regionDiv {
+  grid-column: 1;
+  grid-row: row 1;
+}
+
 .cost {
   grid-column: 1;
-  grid-row: row;
+  grid-row: row 2;
 }
 
 .costTitle {
@@ -341,7 +346,7 @@ input[type=button]:hover {
 
 .failedJobs {
   grid-column: 1;
-  grid-row: row 2;
+  grid-row: row 3;
 }
 
 .failedJobsTitle {
@@ -372,7 +377,7 @@ input[type=button]:hover {
 
 .sdkAnalysis {
   grid-column: 1;
-  grid-row: row 3;
+  grid-row: row 4;
 }
 
 .sdkTitle {
@@ -382,7 +387,7 @@ input[type=button]:hover {
 
 .resourceAnalysis {
   grid-column: 1;
-  grid-row: row 4;
+  grid-row: row 5;
 }
 
 .resourceTitle {
