@@ -13,7 +13,7 @@ function initBody() {
   google.charts.load('current', {'packages':['corechart']});
   google.charts.load('current', {
         'packages':['geochart'],
-        'mapsApiKey': mapApiKey,
+        'mapsApiKey': config.mapApiKey,
       });
 }
 
@@ -135,6 +135,22 @@ function fetchAggregatedJobsBy(option) {
   });
 }
 
+function setGraphOnLoad(data, title, containerName, graphType) {
+  if (graphType == 'pie') {
+    google.charts.setOnLoadCallback(
+      drawPieChart(data, title, containerName, graphType)
+    )
+  } else if (graphType == 'line') {
+    google.charts.setOnLoadCallback(
+      drawLineGraph(data, title, containerName, graphType)
+    )
+  } else if (graphType == 'column') {
+    google.charts.setOnLoadCallback(
+      drawColumnChart(data, title, containerName, graphType)
+    )
+  }
+}
+
 function setUpGraphs() {
   var option = document.querySelector('input[name = option]:checked').value;
   var isSDKSelected = (option == 'sdk');
@@ -149,13 +165,15 @@ function setUpGraphs() {
       getOutdatedSDK(jobData);
       sdkVisited = true;
     }
-    google.charts.setOnLoadCallback(getTotalCosts(jobData));
-    google.charts.setOnLoadCallback(getAverageCosts(jobData));
+    setGraphOnLoad(getTotalCosts(jobData), 'Total Cost of Jobs Per Category', 'totalCost-container', 'pie');
+    setGraphOnLoad(getAverageCosts(jobData), 'Average Cost of Jobs Per Category', 'averageCost-container', 'pie');
+
     google.charts.setOnLoadCallback(getDailyView(jobData));
-    google.charts.setOnLoadCallback(getFailedJobs(jobData));
-    google.charts.setOnLoadCallback(getFailedJobsCost(jobData));
-    google.charts.setOnLoadCallback(getAveragevCPUCount(jobData));
-    google.charts.setOnLoadCallback(SSDVsHDDTimeComparison(jobData));
+    
+    setGraphOnLoad(getFailedJobs(jobData), 'Total Number of Failed Jobs Per Category', 'failedJobs-container', 'pie');
+    setGraphOnLoad(getFailedJobsCost(jobData), 'Total Cost of Failed Jobs Per Category', 'failedJobsCost-container', 'pie');
+    setGraphOnLoad(getAveragevCPUCount(jobData), 'Average vCPU Usage', 'vCPU-container', 'pie');
+    setGraphOnLoad(SSDVsHDDTimeComparison(jobData), 'Comparison of SSDTime VS HDDTime', 'SSDVsHDDTime-container', 'column');
     if (option === 'region') {
       transformAgregatedDataforGeoChart(jobData);
       document.getElementById('hiddenLink').hidden = false;
@@ -174,7 +192,6 @@ function getJobsFromProject(projectID) {
   fetch('/jobs?projectID=' + projectID)
   .then(response => response.json())
   .then(jobs => {
-      console.log(jobs);
       const table = document.getElementById('jobs');
       for (let i = 0; i < jobs.length; i++) {
           addJobToTable(jobs[i], table);
@@ -289,7 +306,7 @@ function getTotalCosts(aggregated){
     jobData.push(totalCost);
     data.push(jobData);
   }
-  drawPieChart(data, 'Total Cost of Jobs Per Category', 'totalCost-container');
+  return data;
 }
 
 function getAverageCosts(aggregated) {
@@ -307,7 +324,7 @@ function getAverageCosts(aggregated) {
     jobData.push(totalCost);
     data.push(jobData);
   }
-  drawPieChart(data, 'Average Cost of Jobs Per Category', 'averageCost-container');  
+  return data;
 }
 
 function getFailedJobs(aggregated){
@@ -329,9 +346,8 @@ function getFailedJobs(aggregated){
   if (data[1][1] == 0 && data.length == 2) {
     var container = document.getElementById('failedJobsCost-container');
     container.innerText = "There are no failed jobs.";
-  } else {
-    drawPieChart(data, 'Total Number of Failed Jobs Per Category', 'failedJobs-container');
   }
+  return data;
 }
 
 function getFailedJobsCost(aggregated) {
@@ -340,17 +356,14 @@ function getFailedJobsCost(aggregated) {
   data.push(['Category','Total Cost']);
   var isAllZero = true;
   for (category in aggregated) {
-    var count = 0;
     var failedCost = 0;
     var jobData = [];
     jobData.push(category);
     for (costs in aggregated[category]) {
       if (aggregated[category][costs].state == 'JOB_STATE_FAILED') {
-        count ++;
         failedCost += aggregated[category][costs].price;
       }
     }
-    failedCost /= count;
     jobData.push(failedCost);
     data.push(jobData);
     isAllZero = isAllZero && ((failedCost == 0) || isNaN(failedCost));
@@ -358,9 +371,8 @@ function getFailedJobsCost(aggregated) {
   if (isAllZero) {
     var container = document.getElementById('failedJobsCost-container');
     container.innerHTML = '<p id="noMoneyMessage">No money has been spent on failed jobs.</p>';
-  } else {
-    drawPieChart(data, 'Total Cost of Failed Jobs Per Category', 'failedJobsCost-container');
   }
+  return data;
 }
 
 function dailyViewHandler() {
@@ -401,7 +413,7 @@ function getDailyView(aggregated) {
   
   var today = new Date();
   var thirtyDaysFromNow = new Date(today);
-  thirtyDaysFromNow.setDate( thirtyDaysFromNow.getDate() - 30);
+  thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() - 30);
 
   var dateList = getDatesBetweenDates(today, thirtyDaysFromNow);
 
@@ -413,8 +425,11 @@ function getDailyView(aggregated) {
   var data = [];
   var titles = ['Category', ...dateList];
   data.push(titles);
+
+  counter = 0;
   
   for (category in aggregated) {
+    counter++;
     var totalCosts = {...dateDict};
     for (jobs in aggregated[category]) {
       totalCosts[new Date(aggregated[category][jobs].startTime).toLocaleDateString("en-US")] += aggregated[category][jobs].price;
@@ -425,16 +440,16 @@ function getDailyView(aggregated) {
       totalCostsOrdered.push(totalCosts[dateList[date]]);
     }
     data.push(totalCostsOrdered);
+
+    for (var i = 1; i < 4; i++) {
+      var totalCost = totalCostsOrdered.slice(i, data[1].length).reduce((a, b) => a + b, 0);
+      data[counter].push(totalCost / 30);
+    }
   }
 
   for (var i = 1; i < 4; i++) {
-    var totalCost = data[1].slice(i, data[1].length).reduce((a, b) => a + b, 0);
-    totalCost /= 30;
-    data[0].push("Pred " + i);
-    data[1].push(totalCost);
+    data[0].push("Pred "+i);
   }
-
-  console.log(data);
 
   data = transpose(data);
   drawLineGraph(data, 'Cost Prediction On Daily Scale', 'costPrediction-container');  
@@ -449,12 +464,17 @@ function getWeeklyView(aggregated) {
   thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() - 30);
 
   var firstDayOfWeek = new Date(thirtyDaysFromNow);
-  firstDayOfWeek.setDate(firstDayOfWeek.getDate() - (today.getDay() - 1));
+  if (firstDayOfWeek.getDay() === 0) {
+    firstDayOfWeek.setDate(firstDayOfWeek.getDate() - 6);
+  } else {
+    firstDayOfWeek.setDate(firstDayOfWeek.getDate() - (firstDayOfWeek.getDay() - 1));
+  }
+  
 
   var weekStarts = [];
   weekStarts.push(firstDayOfWeek.toLocaleDateString("en-US"));
 
-  for (var i = 0; i < 3; i++) {
+  for (var i = 0; i < 4; i++) {
     weekStarts.push(new Date(firstDayOfWeek.setDate(firstDayOfWeek.getDate() + 7)).toLocaleDateString("en-US"));
   }
 
@@ -467,12 +487,20 @@ function getWeeklyView(aggregated) {
     dateDict[weekStarts[weekDate]] = 0;
   }
 
+  var counter = 0;
+
   for (category in aggregated) {
+    counter++;
     var totalCosts = {...dateDict};
     for (jobs in aggregated[category]) {
       var jobDate = new Date(aggregated[category][jobs].startTime);
-      var weekStart = new Date(jobDate.getDate() - (jobDate.getDay() - 1));
-      totalCosts[weekStart.toLocaleDateString("en-US")] += aggregated[category][jobs].price;
+      var firstDayOfWeek = jobDate;
+      if (jobDate.getDay() === 0) {
+        firstDayOfWeek.setDate(firstDayOfWeek.getDate() - 6); 
+      } else {
+        firstDayOfWeek.setDate(firstDayOfWeek.getDate() - (firstDayOfWeek.getDay() - 1));
+      }
+      totalCosts[firstDayOfWeek.toLocaleDateString("en-US")] += aggregated[category][jobs].price;
     }
     var totalCostsOrdered = [];
     totalCostsOrdered.push(category);
@@ -480,12 +508,11 @@ function getWeeklyView(aggregated) {
       totalCostsOrdered.push(totalCosts[weekStarts[date]]);
     }
     data.push(totalCostsOrdered);
+    var totalCost = data[counter].slice(1, data[counter].length).reduce((a, b) => a + b, 0);
+    data[counter].push(totalCost/4);
   } 
 
-  var totalCost = data[1].slice(1, data[1].length).reduce((a, b) => a + b, 0);
-  totalCost /= 4;
   data[0].push("Pred 1");
-  data[1].push(totalCost);
 
   data = transpose(data);
 
@@ -520,7 +547,7 @@ function getAveragevCPUCount(aggregated) {
     jobData.push(totalCount);
     data.push(jobData);
   }
-  drawPieChart(data, 'Average vCPU Usage', 'vCPU-container');
+  return data;
 }
 
 function SSDVsHDDTimeComparison(aggregated) {
@@ -551,8 +578,7 @@ function SSDVsHDDTimeComparison(aggregated) {
     jobData.push(hddTime);
     data.push(jobData);
   }
-
-  drawColumnChart(data, 'Comparison of SSDTime VS HDDTime', 'SSDVsHDDTime-container', true);
+  return data;
 }
 
 function SSDVsHDDComparison(aggregated) {
@@ -564,15 +590,15 @@ function SSDVsHDDComparison(aggregated) {
     var hdd = 0;
     jobData.push(category);
     for (costs in aggregated[category]) {
-      if (aggregated[category][costs].totalDiskTimeHDD == undefined) {
+      if (aggregated[category][costs].currentPDUsage == undefined) {
         hdd += 0;
       } else {
-        hdd += ((aggregated[category][costs].totalDiskTimeHDD / 3600) / (aggregated[category][costs].totalElapsedTime));
+        hdd += aggregated[category][costs].currentPDUsage;
       }
-      if (aggregated[category][costs].totalDiskTimeSSD == undefined) {
+      if (aggregated[category][costs].currentSSDUsage == undefined) {
         ssd += 0;
       } else {
-        ssd += ((aggregated[category][costs].totalDiskTimeSSD / 3600)  / (aggregated[category][costs].totalElapsedTime));
+        ssd += aggregated[category][costs].currentSSDUsage;
       }
     }
     ssd /= aggregated[category].length;
@@ -621,11 +647,14 @@ function drawPieChart(data, title, containerName) {
   chart.draw(chartData, options);
 }
 
-function drawColumnChart(data, title, containerName, isStacked) {
+function drawColumnChart(data, title, containerName) {
   var chartData = google.visualization.arrayToDataTable(data);
   var options = {
     title: title,
-    isStacked: isStacked
+    isStacked: true,
+    legend: {
+      position: 'bottom'
+    },
   };
   var chart = new google.visualization.ColumnChart(document.getElementById(containerName));
   chart.draw(chartData, options);
@@ -689,8 +718,7 @@ function drawRegionsMap(array, aggregatedData) {
 
 function transformAgregatedDataforGeoChart(aggregatedData) {
   fetch('/regionToCity').then(response => response.json()).then(myMap => {
-      console.log(aggregatedData);
-    let array = [['City',   'NumberOfJobs', 'Area']];
+    let array = [['City', 'NumberOfJobs', 'Area']];
     Object.keys(myMap).forEach((key) => {
       let size = 0;
 
@@ -708,3 +736,6 @@ function transformAgregatedDataforGeoChart(aggregatedData) {
     google.charts.setOnLoadCallback(drawRegionsMap(array, aggregatedData)); 
   });
 }
+
+module.exports = {getTotalCosts, getAverageCosts, getFailedJobs, getFailedJobsCost,
+  getAveragevCPUCount, SSDVsHDDTimeComparison};
