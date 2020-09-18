@@ -13,7 +13,7 @@ function initBody() {
   google.charts.load('current', {'packages':['corechart']});
   google.charts.load('current', {
         'packages':['geochart'],
-        'mapsApiKey': config.mapApiKey,
+        'mapsApiKey': mapApiKey,
       });
 }
 
@@ -736,6 +736,3 @@ function transformAgregatedDataforGeoChart(aggregatedData) {
     google.charts.setOnLoadCallback(drawRegionsMap(array, aggregatedData)); 
   });
 }
-
-module.exports = {getTotalCosts, getAverageCosts, getFailedJobs, getFailedJobsCost,
-  getAveragevCPUCount, SSDVsHDDTimeComparison};
