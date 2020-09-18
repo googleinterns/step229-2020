@@ -44,6 +44,8 @@
       </div>
     </div>
 
+    <div class="moduleSpace"></div>
+
     <!-- The content is only visible after the access information is provided -->
     <div id="content">
       <div class="moduleSpace"></div>
@@ -93,7 +95,7 @@
       <div class="gridContainer" id="container" hidden>
         <!-- Map displaying all regions and how many jobs each region has -->
         <!-- Click on the marker for the job list -->
-        <a id="regionGeochart">
+        <a id="regionGeochart"></a>
         <div id="regionDiv" class="gridElement" style="display: none">
           <h2> Region Geochart </h2>
           <div id="additionalData">Click on the markers to get all the jobs from a region</div>
@@ -103,7 +105,7 @@
         <!--Total cost of jobs within each aggregation.-->
         <!--Predicted cost of future jobs using moving averages.-->
         <!--<a id="costAnchor">-->
-        <a id="costAnchor">
+        <a id="costAnchor"></a>
         <div class="gridElement cost">
           <h2 class="costTitle">Cost and Cost Estimation</h2>
           <p class="costSubtitle">Hover over segment for costs. All costs in US$.</p>
@@ -117,7 +119,7 @@
         </div>
 
         <!--Comparison of number of failed jobs within each aggreation etc.-->
-        <a id="jobStatusAnchor">
+        <a id="jobStatusAnchor"></a>
         <div class="gridElement failedJobs">
           <h2 class="failedJobsTitle">Job Status Analysis</h2>
           <p class="failedJobsSubtitle">Hover over segment for total count/ cost. All costs in US$.</p>
@@ -127,14 +129,14 @@
 
         <!--Comparison of different SDKs being used - e.g. proportion of Java vs Python etc.-->
         <!--Analysis on number of outdated SDKs being used - perhaps list of jobs returned using outdated SDKS?-->
-        <a id="sdkAnchor">
+        <a id="sdkAnchor"></a>
         <div id="sdkAnalysis" class="gridElement sdkAnalysis">
           <h2 class="sdkTitle">SDK Analysis</h2>
           <div id="sdk-Analysis"></div>
         </div>
         
         <!--Analysis of various resource metrics e.g. vCPU count, memory, SSD/HDD comparison.-->
-        <a id="resourceAnchor">
+        <a id="resourceAnchor"></a>
         <div class="gridElement resourceAnalysis">
           <h2 class="resourceTitle">Resource Analysis</h2>
           <p class="resourceSubtitle">Hover over segment for total count. SSD Time and HDD Time is measured in GB hr.</p>
@@ -144,12 +146,16 @@
         </div>
       </div>
     </div>
+
+    <div class="moduleSpace"></div>
+    <div class="moduleSpace"></div>
     
     <!-- Add footer at the end of the page-->
     <div class="footer">
-      <p>Created by 2020 STEP Interns Andreea Nica (<a class="footerLink" href="https://www.linkedin.com/in/andreea-nica-006927130">LinkedIn</a>, 
-        <a class="footerLink" href="https://github.com/andreeanica16">Github</a>)
-        and Tallie Blanshard (<a class="footerLink" href="https://www.linkedin.com/in/tallie-blanshard-7b744b132">LinkedIn</a>, 
+      <p>Created by 2020 STEP Interns</p>
+      <p> Andreea Nica (<a class="footerLink" href="https://www.linkedin.com/in/andreea-nica-006927130">LinkedIn</a>, 
+        <a class="footerLink" href="https://github.com/andreeanica16">Github</a>)</p>
+      <p>Tallie Blanshard (<a class="footerLink" href="https://www.linkedin.com/in/tallie-blanshard-7b744b132">LinkedIn</a>, 
         <a class="footerLink" href="https://github.com/tblanshard/">Github</a>).</p>
     </div>
   </body>

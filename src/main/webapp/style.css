@@ -61,10 +61,10 @@ header a:hover {
 }
 
 #access{
-  position: absolute;
+  position: relative;
   left: 25%;
   width: 40%;
-  height: 40%;
+  height: 50vh;
   display: flex;
   justify-content: space-around;
 }
@@ -435,15 +435,26 @@ h2 {
 }
 
 .footer {
-  background-color: black;
-  position: fixed;
-  left: 0;
+  position: relative;
+  left: -38px;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #000000c7;
+  height: 300px;
   bottom: 0;
-  width: 100%;
+  width: 110%;
   color: white;
   text-align: center;
 }
 
+.footer p {
+  margin-top: 7px;
+  margin-bottom: 0px;
+}
+
 .footerLink {
-  color: #e88304;
+  color: rgb(243 179 59);
 }
