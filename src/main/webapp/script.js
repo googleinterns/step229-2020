@@ -65,7 +65,7 @@ function hideAccessForm() {
   document.getElementById('content').style.display = 'block';
 }
 
-function makeFormDissappear() {
+function makeFormDisappear() {
   const access = document.getElementById('access');
 
   // Code for Chrome, Safari and Opera
@@ -98,7 +98,7 @@ function accessFunction() {
     return;
   }
 
-  makeFormDissappear();
+  makeFormDisappear();
   
   config.projectID = projectId;
   config.bucketName = bucketName;
