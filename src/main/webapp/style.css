@@ -62,8 +62,8 @@ header a:hover {
 
 #access{
   position: absolute;
-  left: 25%;
-  width: 40%;
+  left: 20%;
+  width: 70%;
   height: 40%;
   display: flex;
   justify-content: space-around;
@@ -116,6 +116,7 @@ header a:hover {
   text-align: center;
   width: 65px;
   outline: none;
+  margin: 0px 100px;
 }
 
 #accessButton:hover {
@@ -135,6 +136,26 @@ header a:hover {
   outline: none;
   border-width: 0 0 1px;
   border-color: rgba(0,0,0,.14);
+}
+
+.emphasizedText {
+  font-weight: bold;
+}
+
+.indentText {
+  padding-left: 10px;
+}
+
+#infoContainer {
+  padding: 0 20px 5px 20px;
+  width: 400%;
+  height: 100%;
+  display: inline-block;
+  flex-direction: column;
+  justify-content: center;  
+  border: none;
+  border-radius: 14px;
+  box-shadow: 0 3px 4px 0 rgba(0,0,0,.2), 0 3px 3px -2px rgba(0,0,0,.14), 0 1px 8px 0 rgba(0,0,0,.12);
 }
 
 #content {

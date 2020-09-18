@@ -388,7 +388,7 @@ function weeklyViewHandler() {
   var option = document.querySelector('input[name = option]:checked').value;
   var jobs = fetchAggregatedJobsBy(option);
   jobs.then(jobData => {
-    setGraphOnLoad(getDailyView(jobData), 'Cost Prediction On Weekly Scale', 'costPrediction-container', 'line');
+    setGraphOnLoad(getWeeklyView(jobData), 'Cost Prediction On Weekly Scale', 'costPrediction-container', 'line');
   });
 }
 
