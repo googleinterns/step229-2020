@@ -406,16 +406,6 @@ input[type=button]:hover {
   grid-row: 4;
 }
 
-.locationAnalysis {
-  grid-column: 1;
-  grid-row: row 5;
-}
-
-.locationTitle {
-  grid-column: 1;
-  grid-row: 1;
-}
-
 .graph {
   display: inline-block;
   background-color: pink;
