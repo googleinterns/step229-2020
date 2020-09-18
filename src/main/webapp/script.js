@@ -8,7 +8,6 @@
 var sdkVisited = false;
 
 function initBody() {
-  //document.getElementById('dataButtons').style.display = 'none';
   document.getElementById('projectID').value = config.projectID;
   setCredentialsServlet();
   google.charts.load('current', {'packages':['corechart']});
@@ -42,7 +41,8 @@ function checkPermissions() {
         button.hidden = false;
 
         message.innerText = 'The permissions are all correctly setup. Nothing more needs doing.';
-        //document.getElementById('dataButtons').style.display = 'block';
+        document.getElementById('fetchButton').hidden = false;
+        document.getElementById('aggregationForm').style.visibility = 'visible';
       } else if (missing == 1) {
         const button = document.getElementById('showMissingPermision');
         button.hidden = false;
@@ -58,6 +58,54 @@ function checkPermissions() {
       message.innerText = permission;
     }
   });
+}
+
+function hideAccessForm() {
+  this.style.display = 'none';
+  document.getElementById('content').style.display = 'block';
+}
+
+function makeFormDissapear() {
+  const access = document.getElementById('access');
+
+  // Code for Chrome, Safari and Opera
+  access.addEventListener("webkitAnimationEnd", hideAccessForm);
+
+  // Standard syntax
+  access.addEventListener("animationend", hideAccessForm);
+
+  access.style.WebkitAnimation = "fade 0.5s 1"; // Code for Chrome, Safari and Opera
+  access.style.animation = "fade 0.5s 1";
+}
+
+function accessFunction() {
+  const projectId = document.forms['accessForm']['projectIdAccess'].value;
+  const bucketName = document.forms['accessForm']['bucketName'].value;
+  const objectName = document.forms['accessForm']['objectName'].value;
+  
+  if (projectId.length === 0) {
+    document.getElementById('projectIdAccess').style.borderColor = 'red';
+    return;
+  }
+
+  if (bucketName.length === 0) {
+    document.getElementById('bucketName').style.borderColor = 'red';
+    return;
+  }
+
+  if (objectName.length === 0) {
+    document.getElementById('objectName').style.borderColor = 'red';
+    return;
+  }
+
+  makeFormDissapear();
+  
+  config.projectID = projectId;
+  config.bucketName = bucketName;
+  config.objectName = objectName;
+
+  initBody();
+
 }
 
 function updateProjectDatabase() {
