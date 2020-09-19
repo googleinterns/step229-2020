@@ -736,3 +736,4 @@ function transformAgregatedDataforGeoChart(aggregatedData) {
     google.charts.setOnLoadCallback(drawRegionsMap(array, aggregatedData)); 
   });
 }
+    module.exports = {getTotalCosts, getAverageCosts, getFailedJobs, getFailedJobsCost, getAveragevCPUCount, SSDVsHDDTimeComparison};
