@@ -13,7 +13,7 @@ function initBody() {
   google.charts.load('current', {'packages':['corechart']});
   google.charts.load('current', {
         'packages':['geochart'],
-        'mapsApiKey': config.mapApiKey,
+        'mapsApiKey': mapApiKey,
       });
 }
 
@@ -156,8 +156,10 @@ function setUpGraphs() {
   var isSDKSelected = (option == 'sdk');
   if (isSDKSelected) {
     document.getElementById('sdkAnalysis').style.display = 'block';
+    document.getElementById('hiddenLink2').hidden = false;
   } else {
     document.getElementById('sdkAnalysis').style.display = 'none';
+    document.getElementById('hiddenLink2').hidden = true;
   }
   var jobs = fetchAggregatedJobsBy(option);
   jobs.then(jobData => {
@@ -184,7 +186,8 @@ function setUpGraphs() {
     }
 
     google.charts.setOnLoadCallback(SSDVsHDDComparison(jobData));
-    document.getElementById('container').style.visibility = 'visible';    
+    document.getElementById('container').style.visibility = 'visible'; 
+    document.getElementById('navigationBar').style.visibility = 'visible';  
   });
 }
 
@@ -736,6 +739,4 @@ function transformAgregatedDataforGeoChart(aggregatedData) {
     google.charts.setOnLoadCallback(drawRegionsMap(array, aggregatedData)); 
   });
 }
-
-module.exports = {getTotalCosts, getAverageCosts, getFailedJobs, getFailedJobsCost,
-  getAveragevCPUCount, SSDVsHDDTimeComparison};
+    module.exports = {getTotalCosts, getAverageCosts, getFailedJobs, getFailedJobsCost, getAveragevCPUCount, SSDVsHDDTimeComparison};
