@@ -1,5 +1,6 @@
 const {getTotalCosts, getAverageCosts, getFailedJobs, getFailedJobsCost,
-  getAveragevCPUCount, SSDVsHDDTimeComparison} = require('./script');
+  getAveragevCPUCount, SSDVsHDDTimeComparison, getCancelledJobs,
+  getCancelledJobsCost} = require('./script');
 
 var testAggregatedCostInput = '{ "testData" : [' +
   '{ "price":0.014105724489430654 },' +
@@ -12,6 +13,12 @@ var testAggregatedFailedInput = '{ "testData" : [' +
   '{ "state":"JOB_STATE_CANCELLED", "price":0.014105724489430655 },' +
   '{ "state":"JOB_STATE_FAILED", "price":0.014105724489430656 }]}';
 testAggregatedFailedInput = JSON.parse(testAggregatedFailedInput);
+
+var testAggregatedCancelledInput = '{ "testData" : [' +
+  '{ "state":"JOB_STATE_CANCELLED", "price":0.014105724489430654 },' +
+  '{ "state":"JOB_STATE_FAILED", "price":0.014105724489430655 },' +
+  '{ "state":"JOB_STATE_CANCELLED", "price":0.014105724489430656 }]}';
+testAggregatedCancelledInput = JSON.parse(testAggregatedCancelledInput);
 
 var testAveragevCPUCountInput = '{ "testData" : [' +
   '{ "currentVcpuCount":2 },' +
@@ -45,9 +52,15 @@ test('Test getFailedJobsCost', () => {
   expect(getFailedJobsCost(testAggregatedFailedInput)).toStrictEqual(result);
 });
 
-test('Test getFailedJobsCost', () => {
+//testing cancelled job graphs
+test('Test getCancelledJobs', () => {
+  const result = [["Category", "Total Count"],["testData", 2]]
+  expect(getCancelledJobs(testAggregatedCancelledInput)).toStrictEqual(result);
+});
+
+test('Test getCancelledJobsCost', () => {
   const result = [["Category", "Total Cost"],["testData", 0.02821144897886131]]
-  expect(getFailedJobsCost(testAggregatedFailedInput)).toStrictEqual(result);
+  expect(getCancelledJobsCost(testAggregatedCancelledInput)).toStrictEqual(result);
 });
 
 test('Test getAveragevCPUCount', () => {
