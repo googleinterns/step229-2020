@@ -361,7 +361,6 @@ function getFailedJobsCost(aggregated) {
     jobData.push(category);
     for (costs in aggregated[category]) {
       if (aggregated[category][costs].state == 'JOB_STATE_FAILED') {
-        console.log(aggregated[category][costs].price);
         failedCost += aggregated[category][costs].price;
       }
     }
@@ -409,8 +408,6 @@ function transpose(array) {
 }
 
 function getDailyView(aggregated) {
-
-  console.log(aggregated);
   //find the moving average for 30 days worth of data
   //need to aggregate aggregated data to get groups of jobs run on the same day
   
@@ -455,7 +452,6 @@ function getDailyView(aggregated) {
   }
 
   data = transpose(data);
-  console.log(data);
   return data 
 }
 
