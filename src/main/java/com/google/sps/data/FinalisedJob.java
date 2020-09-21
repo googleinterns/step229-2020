@@ -28,8 +28,8 @@ public final class FinalisedJob extends JobModel {
         stateTime = fetchJobInfo.getStateTime();
     }
 
-    public FinalisedJob(String projectId, String id, String state, String stateTime, String region) throws IOException, IllegalArgumentException {
-      super(projectId, id, region);
+    public FinalisedJob(String projectId, String id, String state, String stateTime, String region, String type) throws IOException, IllegalArgumentException {
+      super(projectId, id, region, type);
 
       this.state = state;
       this.stateTime = stateTime;
