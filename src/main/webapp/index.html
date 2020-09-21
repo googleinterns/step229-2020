@@ -13,12 +13,12 @@
     <!-- Sticky Navigation Bar -->
     <header id="topNavigator">
       <div id="navigationBar">
-        <a id="returnToTop" href="#returnTop">Return to Top</a>
-        <a href="#costAnchor">Cost Analysis and Prediction</a>
-        <a href="#jobStatusAnchor">Job Status Analysis</a>
-        <a href="#sdkAnchor">SDK Analysis</a>
-        <a href="#resourceAnchor">Resource Analysis</a>
-        <a href="#regionGeochart" id="hiddenLink" hidden>Region Geochart</a>
+        <a id="returnToTop" href="#moduleTitle">Return to Top</a>
+        <a href="#costAnalysis">Cost Analysis and Prediction</a>
+        <a href="#jobAnalysis">Job Status Analysis</a>
+        <a href="#resourceAnalysis">Resource Analysis</a>
+        <a href="#regionDiv" id="hiddenLink" hidden>Region Geochart</a>
+        <a href="#sdkAnalysis" id="hiddenLink2" hidden>SDK Analysis</a>
       </div>
     </header>
     
@@ -51,7 +51,6 @@
     <!-- The content is only visible after the access information is provided -->
     <div id="content">
       <div class="moduleSpace"></div>
-      <a id="returnTop">
       <!-- Input for the Project ID-->
       <form id="projectIDForm">
         <input type="text" id="projectID" placeholder="Enter Project ID" name="projectID" disabled="disabled" required>
@@ -97,7 +96,6 @@
       <div class="gridContainer" id="container" hidden>
         <!-- Map displaying all regions and how many jobs each region has -->
         <!-- Click on the marker for the job list -->
-        <a id="regionGeochart"></a>
         <div id="regionDiv" class="gridElement" style="display: none">
           <h2> Region Geochart </h2>
           <div id="additionalData">Click on the markers to get all the jobs from a region</div>
@@ -107,8 +105,7 @@
         <!--Total cost of jobs within each aggregation.-->
         <!--Predicted cost of future jobs using moving averages.-->
         <!--<a id="costAnchor">-->
-        <a id="costAnchor"></a>
-        <div class="gridElement cost">
+        <div class="gridElement cost" id="costAnalysis">
           <h2 class="costTitle">Cost and Cost Estimation</h2>
           <p class="costSubtitle">Hover over segment for costs. All costs in US$.</p>
           <div class="totalCost" id="totalCost-container"></div>
@@ -121,8 +118,7 @@
         </div>
 
         <!--Comparison of number of failed jobs within each aggreation etc.-->
-        <a id="jobStatusAnchor"></a>
-        <div class="gridElement failedJobs">
+        <div class="gridElement failedJobs" id="jobAnalysis">
           <h2 class="failedJobsTitle">Job Status Analysis</h2>
           <p class="failedJobsSubtitle">Hover over segment for total count/ cost. All costs in US$.</p>
           <div class="failedJobsPieChart" id="failedJobs-container"></div>
@@ -131,15 +127,13 @@
 
         <!--Comparison of different SDKs being used - e.g. proportion of Java vs Python etc.-->
         <!--Analysis on number of outdated SDKs being used - perhaps list of jobs returned using outdated SDKS?-->
-        <a id="sdkAnchor"></a>
         <div id="sdkAnalysis" class="gridElement sdkAnalysis">
           <h2 class="sdkTitle">SDK Analysis</h2>
           <div id="sdk-Analysis"></div>
         </div>
         
         <!--Analysis of various resource metrics e.g. vCPU count, memory, SSD/HDD comparison.-->
-        <a id="resourceAnchor"></a>
-        <div class="gridElement resourceAnalysis">
+        <div class="gridElement resourceAnalysis" id="resourceAnalysis">
           <h2 class="resourceTitle">Resource Analysis</h2>
           <p class="resourceSubtitle">Hover over segment for total count. SSD Time and HDD Time is measured in GB hr.</p>
           <div class="vCPUAnalysis" id="vCPU-container"></div>

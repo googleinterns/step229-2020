@@ -156,8 +156,10 @@ function setUpGraphs() {
   var isSDKSelected = (option == 'sdk');
   if (isSDKSelected) {
     document.getElementById('sdkAnalysis').style.display = 'block';
+    document.getElementById('hiddenLink2').hidden = false;
   } else {
     document.getElementById('sdkAnalysis').style.display = 'none';
+    document.getElementById('hiddenLink2').hidden = true;
   }
   var jobs = fetchAggregatedJobsBy(option);
   jobs.then(jobData => {
