@@ -184,7 +184,8 @@ function setUpGraphs() {
     }
 
     google.charts.setOnLoadCallback(SSDVsHDDComparison(jobData));
-    document.getElementById('container').style.visibility = 'visible';    
+    document.getElementById('container').style.visibility = 'visible'; 
+    document.getElementById('navigationBar').style.visibility = 'visible';  
   });
 }
 

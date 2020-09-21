@@ -3,9 +3,6 @@ body {
 }
 
 header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   padding: 0 12px;
   position: fixed;
   z-index: 11;
@@ -19,14 +16,23 @@ header {
   box-shadow: 0 3px 4px 0 rgba(0,0,0,.2), 0 3px 3px -2px rgba(0,0,0,.14), 0 1px 8px 0 rgba(0,0,0,.12);
 }
 
-header a {
+#navigationBar{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  visibility: hidden;
+}
+
+#navigationBar a {
   padding: 14px 16px;
   text-decoration: none;
   color: black;
   font-size: 17px;
 }
 
-header a:hover {
+#navigationBar a:hover {
   background-color: #ddd;
 }
 
