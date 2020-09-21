@@ -118,7 +118,7 @@ function updateProjectDatabase() {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(accessObject),
-  }); 
+  });
 }
 
 /**
@@ -170,7 +170,7 @@ function setUpGraphs() {
     setGraphOnLoad(getTotalCosts(jobData), 'Total Cost of Jobs Per Category', 'totalCost-container', 'pie');
     setGraphOnLoad(getAverageCosts(jobData), 'Average Cost of Jobs Per Category', 'averageCost-container', 'pie');
 
-    google.charts.setOnLoadCallback(getDailyView(jobData));
+    setGraphOnLoad(getDailyView(jobData), 'Cost Prediction On Daily Scale', 'costPrediction-container', 'line');
     
     setGraphOnLoad(getFailedJobs(jobData), 'Total Number of Failed Jobs Per Category', 'failedJobs-container', 'pie');
     setGraphOnLoad(getFailedJobsCost(jobData), 'Total Cost of Failed Jobs Per Category', 'failedJobsCost-container', 'pie');
@@ -382,7 +382,7 @@ function dailyViewHandler() {
   var option = document.querySelector('input[name = option]:checked').value;
   var jobs = fetchAggregatedJobsBy(option);
   jobs.then(jobData => {
-    google.setOnLoadCallback(getDailyView(jobData));
+      setGraphOnLoad(getDailyView(jobData), 'Cost Prediction On Daily Scale', 'costPrediction-container', 'line');
   });
 }
 
@@ -390,7 +390,7 @@ function weeklyViewHandler() {
   var option = document.querySelector('input[name = option]:checked').value;
   var jobs = fetchAggregatedJobsBy(option);
   jobs.then(jobData => {
-    google.setOnLoadCallback(getWeeklyView(jobData));
+    setGraphOnLoad(getWeeklyView(jobData), 'Cost Prediction On Weekly Scale', 'costPrediction-container', 'line');
   });
 }
 
@@ -455,7 +455,7 @@ function getDailyView(aggregated) {
   }
 
   data = transpose(data);
-  drawLineGraph(data, 'Cost Prediction On Daily Scale', 'costPrediction-container');  
+  return data 
 }
 
 function getWeeklyView(aggregated) {
@@ -518,8 +518,7 @@ function getWeeklyView(aggregated) {
   data[0].push("Pred 1");
 
   data = transpose(data);
-
-  drawLineGraph(data, 'Cost Prediction On Weekly Scale', 'costPrediction-container');  
+  return data;
 }
 
 function getOutdatedSDK(aggregated) {
@@ -739,4 +738,7 @@ function transformAgregatedDataforGeoChart(aggregatedData) {
     google.charts.setOnLoadCallback(drawRegionsMap(array, aggregatedData)); 
   });
 }
-    module.exports = {getTotalCosts, getAverageCosts, getFailedJobs, getFailedJobsCost, getAveragevCPUCount, SSDVsHDDTimeComparison};
+
+module.exports = {getTotalCosts, getAverageCosts, getFailedJobs, getFailedJobsCost,
+  getAveragevCPUCount, SSDVsHDDTimeComparison, getDailyView, getWeeklyView};
+
