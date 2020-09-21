@@ -381,6 +381,16 @@ input[type=button]:hover {
   grid-row: 4;
 }
 
+.cancelledJobsPieChart {
+  grid-column: 2 / 3;
+  grid-row: 3;
+}
+
+.cancelledJobsCostPieChart {
+  grid-column: 2 / 3;
+  grid-row: 4;
+}
+
 #noMoneyMessage {
   align-items: center;
   font-weight: bold;

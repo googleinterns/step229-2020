@@ -136,6 +136,9 @@ function fetchAggregatedJobsBy(option) {
 }
 
 function setGraphOnLoad(data, title, containerName, graphType) {
+  if (data.length == 1) {
+    return;
+  }
   if (graphType == 'pie') {
     google.charts.setOnLoadCallback(
       drawPieChart(data, title, containerName, graphType)
@@ -171,7 +174,9 @@ function setUpGraphs() {
     setGraphOnLoad(getDailyView(jobData), 'Cost Prediction On Daily Scale', 'costPrediction-container', 'line');
     
     setGraphOnLoad(getFailedJobs(jobData), 'Total Number of Failed Jobs Per Category', 'failedJobs-container', 'pie');
+    setGraphOnLoad(getCancelledJobs(jobData), 'Total Number of Cancelled Jobs Per Category', 'cancelledJobs-container', 'pie');
     setGraphOnLoad(getFailedJobsCost(jobData), 'Total Cost of Failed Jobs Per Category', 'failedJobsCost-container', 'pie');
+    setGraphOnLoad(getCancelledJobsCost(jobData), 'Total Cost of Cancelled Jobs Per Category', 'cancelledJobsCost-container', 'pie');
     setGraphOnLoad(getAveragevCPUCount(jobData), 'Average vCPU Usage', 'vCPU-container', 'pie');
     setGraphOnLoad(SSDVsHDDTimeComparison(jobData), 'Comparison of SSDTime VS HDDTime', 'SSDVsHDDTime-container', 'column');
     if (option === 'region') {
@@ -344,7 +349,7 @@ function getFailedJobs(aggregated){
     data.push(jobData);
   }
   if (data[1][1] == 0 && data.length == 2) {
-    var container = document.getElementById('failedJobsCost-container');
+    var container = document.getElementById('failedJobs-container');
     container.innerText = "There are no failed jobs.";
   }
   return data;
@@ -354,7 +359,6 @@ function getFailedJobsCost(aggregated) {
   //takes each of the failed jobs within each aggregated group and finds the total cost for each group
   var data = [];
   data.push(['Category','Total Cost']);
-  var isAllZero = true;
   for (category in aggregated) {
     var failedCost = 0;
     var jobData = [];
@@ -364,13 +368,63 @@ function getFailedJobsCost(aggregated) {
         failedCost += aggregated[category][costs].price;
       }
     }
-    jobData.push(failedCost);
-    data.push(jobData);
-    isAllZero = isAllZero && ((failedCost == 0) || isNaN(failedCost));
+    if (failedCost != 0) {
+      jobData.push(failedCost);
+      data.push(jobData);
+    }
   }
-  if (isAllZero) {
+  if (data.length == 1) {
     var container = document.getElementById('failedJobsCost-container');
     container.innerHTML = '<p id="noMoneyMessage">No money has been spent on failed jobs.</p>';
+  }
+  return data;
+}
+
+function getCancelledJobs(aggregated){
+  //takes each of the jobs and finds the total number of cancelled jobs within each aggregated group of jobs
+  var data = [];
+  data.push(['Category','Total Count']);
+  for (category in aggregated) {
+    var count = 0;
+    var jobData = [];
+    jobData.push(category);
+    for (costs in aggregated[category]) {
+      if (aggregated[category][costs].state == 'JOB_STATE_CANCELLED') {
+        count ++;
+      }
+    }
+    jobData.push(count);
+    data.push(jobData);
+  }
+  if (data[1][1] == 0 && data.length == 2) {
+    var container = document.getElementById('cancelledJobs-container');
+    container.innerText = "There are no cancelled jobs.";
+  }
+  return data;
+}
+
+function getCancelledJobsCost(aggregated) {
+  //takes each of the cancelled jobs within each aggregated group and finds the total cost for each group
+  var data = [];
+  data.push(['Category','Total Cost']);
+  var areAnyZero = false;
+  for (category in aggregated) {
+    var cancelledCost = 0;
+    var jobData = [];
+    jobData.push(category);
+    for (costs in aggregated[category]) {
+      if (aggregated[category][costs].state == 'JOB_STATE_CANCELLED') {
+        cancelledCost += aggregated[category][costs].price;
+      }
+    }
+    if (cancelledCost != 0) {
+      jobData.push(cancelledCost);
+      data.push(jobData);
+    }
+  }
+  if (data.length == 1) {
+    var container = document.getElementById('cancelledJobsCost-container');
+    container.innerHTML = '<p id="noMoneyMessage">No money has been spent on cancelled jobs.</p>';
   }
   return data;
 }
