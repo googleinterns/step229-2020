@@ -13,7 +13,7 @@ function initBody() {
   google.charts.load('current', {'packages':['corechart']});
   google.charts.load('current', {
         'packages':['geochart'],
-        'mapsApiKey': mapApiKey,
+        'mapsApiKey': config.mapApiKey,
       });
 }
 
@@ -36,14 +36,14 @@ function checkPermissions() {
         missingPermissionList += item + ', ';
       }
       var missing = permission[1];
-      if (missing == 0) {
+      if (missing === 0) {
         const button = document.getElementById('allPermisionsCorrect');
         button.hidden = false;
 
         message.innerText = 'The permissions are all correctly setup. Nothing more needs doing.';
         document.getElementById('fetchButton').hidden = false;
         document.getElementById('aggregationForm').style.visibility = 'visible';
-      } else if (missing == 1) {
+      } else if (missing === 1) {
         const button = document.getElementById('showMissingPermision');
         button.hidden = false;
 
@@ -136,18 +136,18 @@ function fetchAggregatedJobsBy(option) {
 }
 
 function setGraphOnLoad(data, title, containerName, graphType) {
-  if (data.length == 1) {
+  if (data.length === 1) {
     return;
   }
-  if (graphType == 'pie') {
+  if (graphType === 'pie') {
     google.charts.setOnLoadCallback(
       drawPieChart(data, title, containerName, graphType)
     )
-  } else if (graphType == 'line') {
+  } else if (graphType === 'line') {
     google.charts.setOnLoadCallback(
       drawLineGraph(data, title, containerName, graphType)
     )
-  } else if (graphType == 'column') {
+  } else if (graphType === 'column') {
     google.charts.setOnLoadCallback(
       drawColumnChart(data, title, containerName, graphType)
     )
@@ -156,13 +156,11 @@ function setGraphOnLoad(data, title, containerName, graphType) {
 
 function setUpGraphs() {
   var option = document.querySelector('input[name = option]:checked').value;
-  var isSDKSelected = (option == 'sdk');
+  var isSDKSelected = (option === 'sdk');
   if (isSDKSelected) {
     document.getElementById('sdkAnalysis').style.display = 'block';
-    document.getElementById('hiddenLink2').hidden = false;
   } else {
     document.getElementById('sdkAnalysis').style.display = 'none';
-    document.getElementById('hiddenLink2').hidden = true;
   }
   var jobs = fetchAggregatedJobsBy(option);
   jobs.then(jobData => {
@@ -191,8 +189,7 @@ function setUpGraphs() {
     }
 
     google.charts.setOnLoadCallback(SSDVsHDDComparison(jobData));
-    document.getElementById('container').style.visibility = 'visible'; 
-    document.getElementById('navigationBar').style.visibility = 'visible';  
+    document.getElementById('container').style.visibility = 'visible';    
   });
 }
 
@@ -344,14 +341,14 @@ function getFailedJobs(aggregated){
     var jobData = [];
     jobData.push(category);
     for (costs in aggregated[category]) {
-      if (aggregated[category][costs].state == 'JOB_STATE_FAILED') {
+      if (aggregated[category][costs].state === 'JOB_STATE_FAILED') {
         count ++;
       }
     }
     jobData.push(count);
     data.push(jobData);
   }
-  if (data[1][1] == 0 && data.length == 2) {
+  if (data[1][1] === 0 && data.length === 2) {
     var container = document.getElementById('failedJobs-container');
     container.innerText = "There are no failed jobs.";
   }
@@ -367,16 +364,16 @@ function getFailedJobsCost(aggregated) {
     var jobData = [];
     jobData.push(category);
     for (costs in aggregated[category]) {
-      if (aggregated[category][costs].state == 'JOB_STATE_FAILED') {
+      if (aggregated[category][costs].state === 'JOB_STATE_FAILED') {
         failedCost += aggregated[category][costs].price;
       }
     }
-    if (failedCost != 0) {
+    if (failedCost !== 0) {
       jobData.push(failedCost);
       data.push(jobData);
     }
   }
-  if (data.length == 1) {
+  if (data.length === 1) {
     var container = document.getElementById('failedJobsCost-container');
     container.innerHTML = '<p id="noMoneyMessage">No money has been spent on failed jobs.</p>';
   }
@@ -392,14 +389,14 @@ function getCancelledJobs(aggregated){
     var jobData = [];
     jobData.push(category);
     for (costs in aggregated[category]) {
-      if (aggregated[category][costs].state == 'JOB_STATE_CANCELLED') {
+      if (aggregated[category][costs].state === 'JOB_STATE_CANCELLED') {
         count ++;
       }
     }
     jobData.push(count);
     data.push(jobData);
   }
-  if (data[1][1] == 0 && data.length == 2) {
+  if (data[1][1] === 0 && data.length === 2) {
     var container = document.getElementById('cancelledJobs-container');
     container.innerText = "There are no cancelled jobs.";
   }
@@ -416,16 +413,16 @@ function getCancelledJobsCost(aggregated) {
     var jobData = [];
     jobData.push(category);
     for (costs in aggregated[category]) {
-      if (aggregated[category][costs].state == 'JOB_STATE_CANCELLED') {
+      if (aggregated[category][costs].state === 'JOB_STATE_CANCELLED') {
         cancelledCost += aggregated[category][costs].price;
       }
     }
-    if (cancelledCost != 0) {
+    if (cancelledCost !== 0) {
       jobData.push(cancelledCost);
       data.push(jobData);
     }
   }
-  if (data.length == 1) {
+  if (data.length === 1) {
     var container = document.getElementById('cancelledJobsCost-container');
     container.innerHTML = '<p id="noMoneyMessage">No money has been spent on cancelled jobs.</p>';
   }
@@ -593,7 +590,7 @@ function getAveragevCPUCount(aggregated) {
     var jobData = [];
     jobData.push(category);
     for (costs in aggregated[category]) {
-      if (aggregated[category][costs].currentVcpuCount == undefined) {
+      if (aggregated[category][costs].currentVcpuCount === undefined) {
         totalCount += 0;
       } else {
         totalCount += aggregated[category][costs].currentVcpuCount;
@@ -615,12 +612,12 @@ function SSDVsHDDTimeComparison(aggregated) {
     var hddTime = 0;
     jobData.push(category);
     for (costs in aggregated[category]) {
-      if (aggregated[category][costs].totalDiskTimeHDD == undefined) {
+      if (aggregated[category][costs].totalDiskTimeHDD === undefined) {
         hddTime += 0;
       } else {
         hddTime += aggregated[category][costs].totalDiskTimeHDD;
       }
-      if (aggregated[category][costs].totalDiskTimeSSD == undefined) {
+      if (aggregated[category][costs].totalDiskTimeSSD === undefined) {
         ssdTime += 0;
       } else {
         ssdTime += aggregated[category][costs].totalDiskTimeSSD;
@@ -646,12 +643,12 @@ function SSDVsHDDComparison(aggregated) {
     var hdd = 0;
     jobData.push(category);
     for (costs in aggregated[category]) {
-      if (aggregated[category][costs].currentPDUsage == undefined) {
+      if (aggregated[category][costs].currentPDUsage === undefined) {
         hdd += 0;
       } else {
         hdd += aggregated[category][costs].currentPDUsage;
       }
-      if (aggregated[category][costs].currentSSDUsage == undefined) {
+      if (aggregated[category][costs].currentSSDUsage === undefined) {
         ssd += 0;
       } else {
         ssd += aggregated[category][costs].currentSSDUsage;
@@ -794,5 +791,5 @@ function transformAgregatedDataforGeoChart(aggregatedData) {
 }
 
 module.exports = {getTotalCosts, getAverageCosts, getFailedJobs, getFailedJobsCost,
-  getAveragevCPUCount, SSDVsHDDTimeComparison, getDailyView, getWeeklyView};
-
+  getCancelledJobs, getCancelledJobsCost, getAveragevCPUCount, SSDVsHDDTimeComparison,
+  getDailyView, getWeeklyView};
