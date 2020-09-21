@@ -519,6 +519,10 @@ h2 {
   margin-bottom: 0px;
 }
 
-.footerLink {
+.pageLink {
   color: rgb(243 179 59);
+}
+
+.pageLink:visited {
+  color: rgb(171 111 0);
 }

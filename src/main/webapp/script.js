@@ -6,6 +6,14 @@
  */
 
 var sdkVisited = false;
+window.onload = setupInfoBox;
+
+function setupInfoBox() {
+  linkToIam = document.getElementById('iamURL');
+  linkToIam.innerHTML = '<a href="https://pantheon.corp.google.com/iam-admin/iam?project='+config.projectID+'">link to IAM page</a>';
+  linkToStorage = document.getElementById('storageURL');
+  linkToStorage.innerHTML = '<a href="https://pantheon.corp.google.com/storage/browser?project='+config.projectID+'">link to Cloud Storage page</a>';
+}
 
 function initBody() {
   document.getElementById('projectID').value = config.projectID;
