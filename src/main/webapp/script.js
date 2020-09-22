@@ -192,7 +192,6 @@ function setUpGraphs() {
     setGraphOnLoad(getCancelledJobsCost(jobData), 'Total Cost of Cancelled Jobs Per Category', 'cancelledJobsCost-container', 'pie');
     setGraphOnLoad(getAveragevCPUCount(jobData), 'Average vCPU Usage', 'vCPU-container', 'pie');
     setGraphOnLoad(SSDVsHDDTimeComparison(jobData), 'Comparison of SSDTime VS HDDTime', 'SSDVsHDDTime-container', 'column');
-    console.log(jobData);
     setGraphOnLoad(SSDVsHDDComparison(jobData), 'Comparison of SSD VS HDD Usage', 'SSDVsHDD-container', 'column');
     if (option === 'region') {
       transformAgregatedDataforGeoChart(jobData);
@@ -658,17 +657,15 @@ function SSDVsHDDComparison(aggregated) {
     var hdd = 0;
     jobData.push(category);
     for (costs in aggregated[category]) {
-      console.log(aggregated[category][costs].currentPDUsage);
-      if (aggregated[category][costs].currentPDUsage === undefined) {
+      if (aggregated[category][costs].currentPdUsage === undefined) {
         hdd += 0;
       } else {
-        hdd += aggregated[category][costs].currentPDUsage;
+        hdd += aggregated[category][costs].currentPdUsage;
       }
-      console.log(aggregated[category][costs].currentSSDUsage);
-      if (aggregated[category][costs].currentSSDUsage === undefined) {
+      if (aggregated[category][costs].currentSsdUsage === undefined) {
         ssd += 0;
       } else {
-        ssd += aggregated[category][costs].currentSSDUsage;
+        ssd += aggregated[category][costs].currentSsdUsage;
       }
     }
     ssd /= aggregated[category].length;
