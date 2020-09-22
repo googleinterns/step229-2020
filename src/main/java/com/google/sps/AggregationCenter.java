@@ -30,6 +30,10 @@ public final class AggregationCenter {
     Map<String, List<JobJSON>> groupedJobs = new HashMap<>();
 
     for (JobJSON job : jobs) {
+      if (job.name == null) {
+        continue;
+      }
+
       Matcher m = jobPattern.matcher(job.name);
 
       if (m.find()) {
@@ -62,6 +66,11 @@ public final class AggregationCenter {
 
     for (JobJSON job : jobs) {
       String key = keyGenerator.computeKey(job);
+
+      if (key == null) {
+        continue;
+      }
+      
       if (groupedJobs.containsKey(key)) {
         groupedJobs.get(key).add(job);
       } else {
@@ -85,6 +94,10 @@ public final class AggregationCenter {
   public Map<String, List<JobJSON>> aggregateBySDK(List<JobJSON> jobs) {
     return aggregateBy(jobs, new KeyGenerator() {
       public String computeKey(JobJSON job) {
+          if (job.sdk == null && job.sdkSupportStatus == null) {
+            return null;
+          }
+
           return job.sdk + " " + job.sdkSupportStatus;
       }
     }) ;
@@ -101,7 +114,13 @@ public final class AggregationCenter {
   public Map<String, List<JobJSON>> aggregateByProgrammingLanguage(List<JobJSON> jobs) {
     return aggregateBy(jobs, new KeyGenerator() {
       public String computeKey(JobJSON job) {
+          
         String key = job.sdkName;
+
+        if (key == null) {
+          return null;
+        }
+
         if (key.contains("Java")) {
           key = "Java";
         } else if (key.contains("Python")) {
