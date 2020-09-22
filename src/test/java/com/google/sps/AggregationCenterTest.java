@@ -36,6 +36,9 @@ public final class AggregationCenterTest {
     private static final JobJSON JOB4 = new JobJSON(null, "jobDoesn'tRespectNaming", null,
                                                         null, "2.23.0", "SUPPORTED", "europe-west2", 0, null, null, null, null, 
                                                             null, null, null, null, null, null, null, null, null, null, null, null);
+    private static final JobJSON JOB5 = new JobJSON(null, null, null,
+                                                        null, null, null, "europe-west2", 0, null, null, null, null, 
+                                                            null, null, null, null, null, null, null, null, null, null, null, null);
     
 
     @Before
@@ -88,6 +91,20 @@ public final class AggregationCenterTest {
       Map<String, List<JobJSON>> actualMap = aggregationCenter.aggregateByName(jobs);
      
       Assert.assertEquals(expectedMap, actualMap);
+    }
+
+    @Test
+    public void testNullName() {
+      // JOB5 has a null name, so it should not be included in the aggregation
+      List<JobJSON> jobs = Arrays.asList(JOB1, JOB2, JOB3, JOB4, JOB5);
+
+      Map<String, List<JobJSON>> expectedMap = new HashMap<>();
+      expectedMap.put("beamsqldemopipeline", Arrays.asList(JOB1, JOB2));
+      expectedMap.put("otherName", Arrays.asList(JOB3));
+
+      Map<String, List<JobJSON>> actualMap = aggregationCenter.aggregateByName(jobs);
+     
+      Assert.assertEquals(expectedMap, actualMap); 
     }
 
     @Test
@@ -207,6 +224,19 @@ public final class AggregationCenterTest {
     }
 
     @Test 
+    public void nullSDK() {
+      List<JobJSON> jobs = Arrays.asList(JOB1, JOB2, JOB3, JOB4, JOB5);
+
+      Map<String, List<JobJSON>> expectedMap = new HashMap<>();
+      expectedMap.put("2.23.0 SUPPORTED", Arrays.asList(JOB1, JOB3, JOB4));
+      expectedMap.put("2.23.0-SNAPSHOT STALE", Arrays.asList(JOB2));
+
+      Map<String, List<JobJSON>> actualMap = aggregationCenter.aggregateBySDK(jobs);
+     
+      Assert.assertEquals(expectedMap, actualMap);
+    }
+
+    @Test 
     public void oneJobOneSDKSupportStatus() {
       List<JobJSON> jobs = Arrays.asList(JOB1);
 
@@ -231,6 +261,19 @@ public final class AggregationCenterTest {
       Assert.assertEquals(expectedMap, actualMap);
     }
 
+    @Test 
+    public void nullSDKSupportStatus() {
+      List<JobJSON> jobs = Arrays.asList(JOB1, JOB2, JOB3, JOB4, JOB5);
+
+      Map<String, List<JobJSON>> expectedMap = new HashMap<>();
+      expectedMap.put("SUPPORTED", Arrays.asList(JOB1, JOB3, JOB4));
+      expectedMap.put("STALE", Arrays.asList(JOB2));
+
+      Map<String, List<JobJSON>> actualMap = aggregationCenter.aggregateBySDKSupportStatus(jobs);
+     
+      Assert.assertEquals(expectedMap, actualMap);
+    }
+
     @Test
     public void oneJobOneProgrammingLanguage() {
       List<JobJSON> jobs = Arrays.asList(JOB1);
@@ -243,5 +286,16 @@ public final class AggregationCenterTest {
       Assert.assertEquals(expectedMap, actualMap);
     }
 
+    @Test
+    public void testNullSDKName() {
+      // JOB5 has null sdk Name, so it should not be taken into consideration
+      List<JobJSON> jobs = Arrays.asList(JOB1, JOB5);
 
+      Map<String, List<JobJSON>> expectedMap = new HashMap<>();
+      expectedMap.put("Java", Arrays.asList(JOB1));
+
+      Map<String, List<JobJSON>> actualMap = aggregationCenter.aggregateByProgrammingLanguage(jobs);
+     
+      Assert.assertEquals(expectedMap, actualMap);
+    }
 }
