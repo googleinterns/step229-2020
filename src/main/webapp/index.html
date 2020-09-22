@@ -46,13 +46,14 @@
         <button 
             id="instructionButton"
             onmouseover="document.getElementById('infoContainer').style.display = 'inline-block';"
+            onclick="document.getElementById('infoContainer').style.display = 'inline-block'; this.onmouseout=null;"
             onmouseout="document.getElementById('infoContainer').style.display = 'none';">
         </button>
       </div>
       <div id="infoContainer">
         <h2>Not sure where to start?</h2>
-        <p>1) Create a service account, give it the role of <span class="emphasizedText">Dataflow Viewer</span> and generate a JSON API key.</p>
-        <p>2) Store this in Cloud Storage and give our application the role of <span class="emphasizedText">Storage Legacy Object Reader</span>.</p>
+        <p>1) Create a service account (<span class="pageLink" id="iamURL"></span>), give it the role of <span class="emphasizedText">Dataflow Viewer</span> and generate a JSON API key.</p>
+        <p>2) Store this in Cloud Storage (<span class="pageLink" id="storageURL"></span>) and give our application the role of <span class="emphasizedText">Storage Legacy Object Reader</span>.</p>
         <p>3) Enter the details in the form on the left, and if everything is set up correctly, you're good to go!</p>
         <p>Our App Engine default service account: <br><span class="emphasizedText indentText">dataflow-service-analyser@appspot.gserviceaccount.com</span></p>
       </div>      
@@ -162,9 +163,9 @@
     <!-- Add footer at the end of the page-->
     <div class="footer">
       <p>Created by 2020 STEP Interns</p>
-      <p> Andreea Nica (<a class="footerLink" href="https://www.linkedin.com/in/andreea-nica-006927130">LinkedIn</a>, 
+      <p> Andreea Nica (<a class="pageLink" href="https://www.linkedin.com/in/andreea-nica-006927130">LinkedIn</a>, 
         <a class="footerLink" href="https://github.com/andreeanica16">Github</a>)</p>
-      <p>Tallie Blanshard (<a class="footerLink" href="https://www.linkedin.com/in/tallie-blanshard-7b744b132">LinkedIn</a>, 
+      <p>Tallie Blanshard (<a class="pageLink" href="https://www.linkedin.com/in/tallie-blanshard-7b744b132">LinkedIn</a>, 
         <a class="footerLink" href="https://github.com/tblanshard/">Github</a>).</p>
     </div>
   </body>
