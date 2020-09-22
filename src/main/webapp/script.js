@@ -17,7 +17,6 @@ function setupInfoBox() {
 
 function initBody() {
   document.getElementById('projectID').value = config.projectID;
-  setCredentialsServlet();
   google.charts.load('current', {'packages':['corechart']});
   google.charts.load('current', {
         'packages':['geochart'],
@@ -27,8 +26,17 @@ function initBody() {
 
 function setCredentialsServlet() {
   var credentialsUrl = formatURLs('get-credentials', {'projID':config.projectID, 'bucket':config.bucketName, 'object':config.objectName});
-  fetch(credentialsUrl)
-  .then(response => checkPermissions());
+  let ana = fetch(credentialsUrl)
+  .then(response => response.json())
+  .then(worked => {
+    if (worked) {
+      checkPermissions();
+      makeFormDisappear();
+      initBody();
+    } else {
+      document.getElementById('accessForm').style.backgroundColor = 'rgb(243, 198, 198)';
+    }
+  });
 }
 
 function checkPermissions() {
@@ -106,13 +114,11 @@ function accessFunction() {
     return;
   }
 
-  makeFormDisappear();
-  
   config.projectID = projectId;
   config.bucketName = bucketName;
   config.objectName = objectName;
 
-  initBody();
+  setCredentialsServlet();
 }
 
 function updateProjectDatabase() {

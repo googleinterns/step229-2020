@@ -7,6 +7,7 @@
 package com.google.sps.servlets;
 
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 
 import java.lang.Exception;
@@ -47,24 +48,33 @@ public class SetCredentialsServlet extends HttpServlet {
     String bucketName = request.getParameter("bucket");
     String objectName = request.getParameter("object");
     String projectId = request.getParameter("projID");
-   
-    Storage storage = StorageOptions.newBuilder()
-                .setProjectId(projectId)
-                .setCredentials(GoogleCredentials.getApplicationDefault())
-                .build()
-                .getService();
 
-    Blob blob = storage.get(bucketName, objectName);
-    String fileContent = new String(blob.getContent());
+    Boolean getCredentials = false;
+    Gson gson = new Gson();
+    response.setContentType("application/json;");
 
-    File file = new File("pom.xml");
-    String outputPath = file.getAbsoluteFile().getParent() + "/" + projectId + ".json";
+    try{
+      Storage storage = StorageOptions.newBuilder()
+                  .setProjectId(projectId)
+                  .setCredentials(GoogleCredentials.getApplicationDefault())
+                  .build()
+                  .getService();
 
-    PrintWriter out = new PrintWriter(new FileWriter(outputPath));
-    out.println(fileContent);
-    out.flush();
-    out.close();
+      Blob blob = storage.get(bucketName, objectName);
+      String fileContent = new String(blob.getContent());
 
-    response.sendRedirect("/");
+      File file = new File("pom.xml");
+      String outputPath = file.getAbsoluteFile().getParent() + "/" + projectId + ".json";
+
+      PrintWriter out = new PrintWriter(new FileWriter(outputPath));
+      out.println(fileContent);
+      out.flush();
+      out.close();
+      
+      getCredentials = true;
+      response.getWriter().println(gson.toJson(getCredentials));
+    } catch (Exception e) {
+      response.getWriter().println(gson.toJson(getCredentials));
+    }
   }
 }
