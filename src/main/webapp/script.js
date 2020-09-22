@@ -178,15 +178,15 @@ function setUpGraphs() {
     }
     setGraphOnLoad(getTotalCosts(jobData), 'Total Cost of Jobs Per Category', 'totalCost-container', 'pie');
     setGraphOnLoad(getAverageCosts(jobData), 'Average Cost of Jobs Per Category', 'averageCost-container', 'pie');
-
     setGraphOnLoad(getDailyView(jobData), 'Cost Prediction On Daily Scale', 'costPrediction-container', 'line');
-    
     setGraphOnLoad(getFailedJobs(jobData), 'Total Number of Failed Jobs Per Category', 'failedJobs-container', 'pie');
     setGraphOnLoad(getCancelledJobs(jobData), 'Total Number of Cancelled Jobs Per Category', 'cancelledJobs-container', 'pie');
     setGraphOnLoad(getFailedJobsCost(jobData), 'Total Cost of Failed Jobs Per Category', 'failedJobsCost-container', 'pie');
     setGraphOnLoad(getCancelledJobsCost(jobData), 'Total Cost of Cancelled Jobs Per Category', 'cancelledJobsCost-container', 'pie');
     setGraphOnLoad(getAveragevCPUCount(jobData), 'Average vCPU Usage', 'vCPU-container', 'pie');
     setGraphOnLoad(SSDVsHDDTimeComparison(jobData), 'Comparison of SSDTime VS HDDTime', 'SSDVsHDDTime-container', 'column');
+    console.log(jobData);
+    setGraphOnLoad(SSDVsHDDComparison(jobData), 'Comparison of SSD VS HDD Usage', 'SSDVsHDD-container', 'column');
     if (option === 'region') {
       transformAgregatedDataforGeoChart(jobData);
       document.getElementById('hiddenLink').hidden = false;
@@ -195,8 +195,6 @@ function setUpGraphs() {
       document.getElementById('hiddenLink').hidden = true;
       document.getElementById('regionDiv').style.display = 'none';
     }
-
-    google.charts.setOnLoadCallback(SSDVsHDDComparison(jobData));
     document.getElementById('container').style.visibility = 'visible';    
   });
 }
@@ -651,11 +649,13 @@ function SSDVsHDDComparison(aggregated) {
     var hdd = 0;
     jobData.push(category);
     for (costs in aggregated[category]) {
+      console.log(aggregated[category][costs].currentPDUsage);
       if (aggregated[category][costs].currentPDUsage === undefined) {
         hdd += 0;
       } else {
         hdd += aggregated[category][costs].currentPDUsage;
       }
+      console.log(aggregated[category][costs].currentSSDUsage);
       if (aggregated[category][costs].currentSSDUsage === undefined) {
         ssd += 0;
       } else {
@@ -669,8 +669,7 @@ function SSDVsHDDComparison(aggregated) {
     jobData.push(hdd);
     data.push(jobData);
   }
-
-  drawColumnChart(data, 'Comparison of SSD usage VS HDD usage', 'SSDVsHDD-container', true);
+  return data;
 }
 
 function drawLineGraph(data, title, containerName) {
@@ -798,6 +797,6 @@ function transformAgregatedDataforGeoChart(aggregatedData) {
   });
 }
 
-module.exports = {getTotalCosts, getAverageCosts, getFailedJobs, getFailedJobsCost,
-  getCancelledJobs, getCancelledJobsCost, getAveragevCPUCount, SSDVsHDDTimeComparison,
-  getDailyView, getWeeklyView};
+//module.exports = {getTotalCosts, getAverageCosts, getFailedJobs, getFailedJobsCost,
+//  getCancelledJobs, getCancelledJobsCost, getAveragevCPUCount, SSDVsHDDTimeComparison,
+//  SSDVsHDDComparison, getDailyView, getWeeklyView};
