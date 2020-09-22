@@ -121,4 +121,9 @@ public class CheckPermissionsServlet extends HttpServlet {
             .build();
     return service;
   }
+
+  @Override
+  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    response.sendRedirect("/index.html");
+  }
 }

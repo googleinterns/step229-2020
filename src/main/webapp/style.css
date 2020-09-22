@@ -20,7 +20,7 @@ header {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
+  width: 75%;
   height: 100%;
   visibility: hidden;
 }
@@ -32,8 +32,37 @@ header {
   font-size: 17px;
 }
 
-#navigationBar a:hover {
+#navigationBar a:hover, #topNavigator form input:hover {
   background-color: #ddd;
+}
+
+#navigationBar a:active, #topNavigator form input:active {
+  background-color: rgb(177, 174, 174);
+}
+
+#topNavigator {
+  display: flex;
+  justify-content: center;
+}
+
+#topNavigator form {
+  width: 80px;
+  height: 100%;
+  background-color: transparent;
+  visibility: hidden;
+}
+
+#topNavigator form input {
+  width: 80px;
+  height: 100%;
+  white-space: normal;
+  word-wrap: break-word;
+  text-align: left;
+  background-color: white;
+  background: url(images/exit.png) right no-repeat;
+  border: none;
+  font-family: "Google Sans",Arial,Helvetica,sans-serif;
+ 
 }
 
 #moduleTitle {

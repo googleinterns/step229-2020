@@ -9,6 +9,7 @@ var sdkVisited = false;
 
 function initBody() {
   document.getElementById('projectID').value = config.projectID;
+  document.getElementById('changeProject').style.visibility = 'visible';
   google.charts.load('current', {'packages':['corechart']});
   google.charts.load('current', {
         'packages':['geochart'],
@@ -195,7 +196,8 @@ function setUpGraphs() {
     }
 
     google.charts.setOnLoadCallback(SSDVsHDDComparison(jobData));
-    document.getElementById('container').style.visibility = 'visible';    
+    document.getElementById('container').style.visibility = 'visible'; 
+    document.getElementById('navigationBar').style.visibility = 'visible';   
   });
 }
 
