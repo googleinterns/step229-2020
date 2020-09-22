@@ -63,13 +63,13 @@ public abstract class JobModel {
     public String state;
     public String stateTime;
 
-    public JobModel(String projectId, String id, String region) {
+    public JobModel(String projectId, String id, String region, String type) {
       this.projectId = projectId;
       this.id = id;
       this.region = region;
+      this.type = type;
 
       name = null;
-      type = null;
       sdkName = null;
       startTime = null;
       enableStreamingEngine = null;
@@ -118,9 +118,11 @@ public abstract class JobModel {
              || state.compareTo("JOB_STATE_PENDING") == 0
              || state.compareTo("JOB_STATE_CANCELLING") == 0
              || state.compareTo("JOB_STATE_QUEUED") == 0) {
-        updatedJob =  new RunningJob(projectId, fetchJobInfo.getId(), fetchJobInfo.getState(), fetchJobInfo.getStateTime(), fetchJobInfo.getRegion());
+        updatedJob =  new RunningJob(projectId, fetchJobInfo.getId(), fetchJobInfo.getState(), 
+                          fetchJobInfo.getStateTime(), fetchJobInfo.getRegion(), fetchJobInfo.getType());
       } else {
-        updatedJob = new FinalisedJob(projectId, fetchJobInfo.getId(), fetchJobInfo.getState(), fetchJobInfo.getStateTime(), fetchJobInfo.getRegion());
+        updatedJob = new FinalisedJob(projectId, fetchJobInfo.getId(), fetchJobInfo.getState(),
+                          fetchJobInfo.getStateTime(), fetchJobInfo.getRegion(), fetchJobInfo.getType());
       }
 
       fetchJobInfo.setMetrics(updatedJob, lastModified);

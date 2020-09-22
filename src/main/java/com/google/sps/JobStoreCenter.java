@@ -135,8 +135,10 @@ public final class JobStoreCenter {
     Double totalMemoryTime = (Double) entity.getProperty("totalMemoryTime"); 
     Double totalDiskTimeHDD = (Double) entity.getProperty("totalDiskTimeHDD");
     Double totalDiskTimeSSD = (Double) entity.getProperty("totalDiskTimeSSD");
-    Long longCurrentVcpuCount = (Long) entity.getProperty("currentVcpuCount");
-    Integer currentVcpuCount = longCurrentVcpuCount == null? null : longCurrentVcpuCount.intValue();
+    Integer currentVcpuCount = null;
+    if (entity.getProperty("currentVcpuCount") != null) {
+      currentVcpuCount = new Integer(entity.getProperty("currentVcpuCount").toString());
+    }
     Double totalStreamingData = (Double) entity.getProperty("totalStreamingData"); 
     Boolean enableStreamingEngine = (Boolean) entity.getProperty("enableStreamingEngine");
     Double currentMemoryUsage = (Double) entity.getProperty("currentMemoryUsage");
