@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import com.google.sps.JobStoreCenter;
 import java.security.GeneralSecurityException;
+import java.lang.Exception;
 import java.io.File;
 import com.google.sps.data.AccessRequest;
 import com.google.sps.data.JobJSON;
@@ -51,8 +52,9 @@ public class JobsServlet extends HttpServlet {
 
       String projectId = accessRequest.projectID;
 
-      File file = new File(projectId + ".json");
-      String pathToJsonFile = file.getAbsolutePath();
+      //File file = new File(projectId + ".json");
+      //String pathToJsonFile = file.getAbsolutePath();
+      String pathToJsonFile = System.getProperty("java.io.tmpdir") + "/" + projectId + ".json";
       
       MyClock clock = new ClockServer();
       JobStoreCenter jobCenter = new JobStoreCenter(clock);
@@ -64,7 +66,6 @@ public class JobsServlet extends HttpServlet {
         System.out.println("Unable to initialize service: \n" + e.toString());
         return;
       }
-      
       response.sendRedirect("/index.html");
   }
 }

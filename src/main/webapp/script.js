@@ -6,14 +6,6 @@
  */
 
 var sdkVisited = false;
-window.onload = setupInfoBox;
-
-function setupInfoBox() {
-  linkToIam = document.getElementById('iamURL');
-  linkToIam.innerHTML = '<a href="https://pantheon.corp.google.com/iam-admin/iam?project='+config.projectID+'">link to IAM page</a>';
-  linkToStorage = document.getElementById('storageURL');
-  linkToStorage.innerHTML = '<a href="https://pantheon.corp.google.com/storage/browser?project='+config.projectID+'">link to Cloud Storage page</a>';
-}
 
 function initBody() {
   document.getElementById('projectID').value = config.projectID;
@@ -27,7 +19,7 @@ function initBody() {
 
 function setCredentialsServlet() {
   var credentialsUrl = formatURLs('get-credentials', {'projID':config.projectID, 'bucket':config.bucketName, 'object':config.objectName});
-  let ana = fetch(credentialsUrl)
+  fetch(credentialsUrl)
   .then(response => response.json())
   .then(worked => {
     if (worked) {
@@ -174,8 +166,10 @@ function setUpGraphs() {
   var isSDKSelected = (option === 'sdk');
   if (isSDKSelected) {
     document.getElementById('sdkAnalysis').style.display = 'block';
+    document.getElementById('hiddenLink2').hidden = false;
   } else {
     document.getElementById('sdkAnalysis').style.display = 'none';
+    document.getElementById('hiddenLink2').hidden = true;
   }
   var jobs = fetchAggregatedJobsBy(option);
   jobs.then(jobData => {
@@ -201,7 +195,7 @@ function setUpGraphs() {
       document.getElementById('hiddenLink').hidden = true;
       document.getElementById('regionDiv').style.display = 'none';
     }
-    google.charts.setOnLoadCallback(SSDVsHDDComparison(jobData));
+    //google.charts.setOnLoadCallback(SSDVsHDDComparison(jobData));
     document.getElementById('container').style.visibility = 'visible'; 
     document.getElementById('navigationBar').style.visibility = 'visible';   
   });
