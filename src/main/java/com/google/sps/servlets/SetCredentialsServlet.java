@@ -40,6 +40,10 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.io.File;
 
+import java.util.*;
+import java.nio.file.attribute.*;
+import java.nio.file.*;
+
 @WebServlet("/get-credentials")
 public class SetCredentialsServlet extends HttpServlet {
   
@@ -61,12 +65,26 @@ public class SetCredentialsServlet extends HttpServlet {
                   .getService();
 
       Blob blob = storage.get(bucketName, objectName);
+
       String fileContent = new String(blob.getContent());
 
-      File file = new File("pom.xml");
-      String outputPath = file.getAbsoluteFile().getParent() + "/" + projectId + ".json";
+      //File file = new File("pom.xml");
+      String pathToJson = System.getProperty("java.io.tmpdir") + "/" + projectId + ".json";
 
-      PrintWriter out = new PrintWriter(new FileWriter(outputPath));
+      //if the file exists, delete it to make sure we have an up-to-date version
+      File apiFile = new File(pathToJson);
+      boolean exists = apiFile.exists();
+      if (exists) {
+        apiFile.delete();
+      }
+
+      //create file and give it read/write permissions
+      Set<PosixFilePermission> ownerWritable = PosixFilePermissions.fromString("rw-rw-rw-");
+      FileAttribute<?> permissions = PosixFilePermissions.asFileAttribute(ownerWritable);
+      Files.createFile(Paths.get(pathToJson), permissions);
+
+      PrintWriter out = new PrintWriter(new FileWriter(pathToJson));
+
       out.println(fileContent);
       out.flush();
       out.close();
